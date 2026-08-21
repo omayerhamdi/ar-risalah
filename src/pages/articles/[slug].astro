@@ -1,0 +1,22 @@
+---
+import { getCollection, render } from 'astro:content';
+import Article from '../../layouts/Article.astro';
+import { getRelated } from '../../lib/related';
+
+export async function getStaticPaths() {
+  const all = await getCollection('articles', (a) => a.data.status === 'published');
+  return all.map((article) => ({
+    // URLs are Bengali transliteration, never Unicode Bengali: a Unicode URL
+    // becomes %E0%A6%... in WhatsApp, and WhatsApp is the main channel here.
+    params: { slug: article.data.slug },
+    props: { article, all },
+  }));
+}
+
+const { article, all } = Astro.props;
+const { Content, headings } = await render(article);
+const related = getRelated(article, all);
+---
+<Article article={article} headings={headings} related={related}>
+  <Content />
+</Article>

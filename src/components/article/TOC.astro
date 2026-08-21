@@ -1,0 +1,44 @@
+---
+import type { MarkdownHeading } from 'astro';
+import { APPARATUS_HEADINGS } from '../../lib/rehype-article-sections.mjs';
+
+interface Props { headings: MarkdownHeading[] }
+// Only h2 — these articles are structured in numbered sections, and pulling
+// in h3 makes the desktop rail longer than the screen. References, resources
+// and the research layer are apparatus, not argument, so they stay out.
+const items = Astro.props.headings.filter(
+  (h) => h.depth === 2 && !APPARATUS_HEADINGS.includes(h.text.trim()),
+);
+---
+{items.length > 2 && (
+  <nav class="toc" aria-labelledby="toc-heading">
+    <p class="label" id="toc-heading">এই লেখায়</p>
+    <ol>
+      {items.map((h) => (
+        <li><a href={`#${h.slug}`}>{h.text}</a></li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<style>
+  .toc { border-top: 1px solid var(--rule); padding-top: var(--sp-4); }
+  .label {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+    margin-bottom: var(--sp-3);
+  }
+  ol { list-style: none; margin: 0; padding: 0; }
+  li + li { margin-top: var(--sp-2); }
+  a {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding-block: var(--sp-1);
+  }
+  a:hover { color: var(--ink); }
+</style>

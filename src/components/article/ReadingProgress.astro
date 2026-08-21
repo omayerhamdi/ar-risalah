@@ -1,0 +1,46 @@
+---
+// ~0.4kb inline. Nothing is loaded from the network for this.
+---
+<div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+<style>
+  .progress {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    height: 2px;
+    z-index: var(--z-progress);
+    background: transparent;
+    pointer-events: none;
+  }
+  #progress-bar {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--rubric);
+    transform-origin: left center;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const bar = document.getElementById('progress-bar');
+    if (!bar) return;
+    // Instant updates when the reader has asked for reduced motion.
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce) bar.style.transition = 'width 80ms linear';
+
+    let ticking = false;
+    const update = () => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      bar.style.width = (max > 0 ? Math.min(scrollY / max, 1) * 100 : 0) + '%';
+      ticking = false;
+    };
+    addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }, { passive: true });
+    update();
+  })();
+</script>

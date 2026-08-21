@@ -1,0 +1,235 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
+import { getEntry } from 'astro:content';
+import Base from './Base.astro';
+import KeyTakeaways from '../components/article/KeyTakeaways.astro';
+import References from '../components/article/References.astro';
+import ReadingProgress from '../components/article/ReadingProgress.astro';
+import ShareRow from '../components/article/ShareRow.astro';
+import TOC from '../components/article/TOC.astro';
+import ArticleCard from '../components/cards/ArticleCard.astro';
+import { bnDate, isoDate, bnReadingTime } from '../lib/dates';
+
+interface Props {
+  article: CollectionEntry<'articles'>;
+  headings: MarkdownHeading[];
+  related: CollectionEntry<'articles'>[];
+}
+
+const { article, headings, related } = Astro.props;
+const d = article.data;
+
+const authors = await Promise.all(d.authors.map((ref) => getEntry(ref)));
+const bylines = authors.filter(Boolean).map((a) => a!.data);
+const url = new URL(`/articles/${d.slug}`, Astro.site).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Article',
+      headline: d.title,
+      description: d.excerpt,
+      inLanguage: 'bn',
+      datePublished: isoDate(d.publishedAt),
+      ...(d.updatedAt && { dateModified: isoDate(d.updatedAt) }),
+      author: bylines.map((a) => ({
+        '@type': a.isCollective ? 'Organization' : 'Person',
+        name: a.name,
+      })),
+      publisher: { '@type': 'Organization', name: 'আর-রিসালাহ' },
+      mainEntityOfPage: url,
+      articleSection: d.category,
+      keywords: d.topics.join(', '),
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'হোম', item: new URL('/', Astro.site).href },
+        { '@type': 'ListItem', position: 2, name: 'প্রবন্ধ', item: new URL('/articles', Astro.site).href },
+        { '@type': 'ListItem', position: 3, name: d.titleShort, item: url },
+      ],
+    },
+  ],
+};
+---
+
+<Base title={`${d.title} — আর-রিসালাহ`} description={d.excerpt} arabic={true}>
+  <ReadingProgress />
+
+  <article class="article">
+    <div class="layout">
+      <header class="head">
+        <nav class="crumbs" aria-label="ব্রেডক্রাম্ব">
+          <a href="/articles">প্রবন্ধ</a>
+          <span aria-hidden="true">·</span>
+          <a href={`/categories/${d.categorySlug}`}>{d.category}</a>
+        </nav>
+
+        <h1>{d.title}</h1>
+        <p class="excerpt">{d.excerpt}</p>
+
+        <p class="meta">
+          {bylines.map((a, i) => (
+            <>
+              {i > 0 && <span aria-hidden="true"> · </span>}
+              <a href={`/authors/${a.slug}`}>{a.name}</a>
+            </>
+          ))}
+          <span aria-hidden="true"> · </span>
+          <time datetime={isoDate(d.publishedAt)}>{bnDate(d.publishedAt)}</time>
+          <span aria-hidden="true"> · </span>
+          {bnReadingTime(d.readingTime)}
+        </p>
+      </header>
+
+      <aside class="rail">
+        <TOC headings={headings} />
+        <ShareRow title={d.title} url={url} />
+      </aside>
+
+      <div class="body">
+        <KeyTakeaways items={d.keyTakeaways} />
+        <div class="prose"><slot /></div>
+        <References references={d.references} academicResources={d.academicResources} />
+
+        <div class="share-foot">
+          <ShareRow title={d.title} url={url} />
+        </div>
+
+        {d.topics.length > 0 && (
+          <nav class="topics" aria-label="বিষয়">
+            <p class="topics-label">বিষয়</p>
+            <ul>
+              {d.topics.map((t) => (
+                <li><a href={`/topics/${encodeURIComponent(t)}`}>{t}</a></li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </div>
+    </div>
+
+    {related.length > 0 && (
+      <section class="related" aria-labelledby="related-heading">
+        <div class="container">
+          <h2 id="related-heading">সম্পর্কিত লেখা</h2>
+          <div class="related-grid">
+            {related.map((r) => <ArticleCard article={r} />)}
+          </div>
+        </div>
+      </section>
+    )}
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+</Base>
+
+<style>
+  .article { padding-block: var(--sp-6) var(--sp-8); }
+
+  .layout { width: var(--container); margin-inline: auto; }
+
+  .crumbs {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    display: flex;
+    gap: var(--sp-2);
+  }
+  .crumbs a { text-decoration: none; }
+  .crumbs a:hover { text-decoration: underline; }
+
+  .head h1 {
+    font-size: var(--step-4);
+    margin-top: var(--sp-3);
+  }
+  .head .excerpt {
+    margin-top: var(--sp-4);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+  }
+  .head .meta {
+    margin-top: var(--sp-4);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .head .meta a { text-decoration-color: var(--rule-strong); }
+
+  /* Mobile: the rail's TOC sits above the article, the share row below it. */
+  .rail { margin-top: var(--sp-6); }
+  .rail :global(.share) { display: none; }
+  .body { margin-top: var(--sp-6); }
+  .share-foot { margin-top: var(--sp-8); }
+
+  .topics { margin-top: var(--sp-6); }
+  .topics-label {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    margin-bottom: var(--sp-2);
+  }
+  .topics ul {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  }
+  .topics a {
+    display: inline-block;
+    padding: var(--sp-2) var(--sp-3);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  .topics a:hover { border-color: var(--ink); color: var(--ink); }
+
+  .related {
+    margin-top: var(--sp-9);
+    padding-top: var(--sp-7);
+    border-top: 1px solid var(--rule);
+  }
+  .related h2 {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+    margin-bottom: var(--sp-5);
+  }
+  .related-grid { display: grid; gap: var(--sp-6); }
+
+  @media (min-width: 48rem) {
+    .related-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Desktop: 12-column grid — empty / reading column / sticky rail. */
+  @media (min-width: 64rem) {
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 7fr 3fr;
+      column-gap: var(--sp-6);
+      align-items: start;
+    }
+    /* 7 of 12 columns is wider than a comfortable measure, so the reading
+       column is capped at --measure (~65 characters) inside its track. */
+    .head { grid-column: 2; max-width: var(--measure); }
+    .body { grid-column: 2; margin-top: var(--sp-7); max-width: var(--measure); }
+    .rail {
+      grid-column: 3;
+      grid-row: 1 / span 2;
+      position: sticky;
+      top: var(--sp-5);
+      margin-top: var(--sp-8);
+      display: grid;
+      gap: var(--sp-5);
+    }
+    .rail :global(.share) { display: block; }
+    .share-foot { display: none; }
+    .related-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>

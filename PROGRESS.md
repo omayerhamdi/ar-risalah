@@ -3,12 +3,12 @@
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
 **Last updated:** 2026-08-21
-**Last session ended at:** Steps 1-3 complete. Content schema validates all 14
-articles and 5 authors.
-**Next action:** Step 4 — the single article page. This is the most important
-page and every component is born here: Ayah, PullQuote, KeyTakeaways,
-ResearchLayer, References, TOC, ReadingProgress, ShareRow. Do not move to
-Step 5 until mobile is flawless.
+**Last session ended at:** Steps 1-4 complete. The article page renders and was
+verified at 390px and 1440px. Magnific is now connected, so B1 is cleared.
+**Next action:** Step 5 — Header, Footer, MobileBar, SkipLink. The SkipLink
+already exists in `Base.astro`; the rest are new. After that, Step 6 homepage.
+Cover images (Step 10) are now unblocked and can be started in parallel —
+generate three first and compare them side by side before doing the other 11.
 
 ---
 
@@ -32,7 +32,7 @@ Step 5 until mobile is flawless.
 - [x] **Step 3 — Content schema and data.** PASSED — Zod schema in `config.ts` from
       `docs/02-information-architecture.md`. 14 articles + 5 authors in place.
       `astro build` must validate all.
-- [ ] **Step 4 — Single article page.** The most important page. All components born here.
+- [x] **Step 4 — Single article page.** PASSED — The most important page. All components born here.
       Do not move on until mobile is flawless.
 - [ ] **Step 5 — Header, footer, mobile bar.**
 - [ ] **Step 6 — Homepage.**
@@ -60,20 +60,43 @@ Two notes carried forward:
 1. The brief points at `docs/02-information-architecture.md` for the Zod schema,
    but that document never contains one. The schema was derived from the
    frontmatter as actually authored.
-2. **Content gap:** no article carries `references` or `academicResources`, but
-   `docs/07-verification-checklist.md` requires both to be visible on every
-   article. The schema declares them optional so they can be added later with no
-   migration. The article page will render the sections only when present.
-   **This needs the user to write the content — it cannot be invented.**
+2. ~~Content gap: no article carries references or academicResources.~~
+   **Corrected at Step 4.** They are not missing — every one of the 14 articles
+   ends with three authored h2 sections: দলিল ও রেফারেন্স, একাডেমিক রিসোর্স,
+   গবেষণার দিক. They live in the MDX body rather than frontmatter, and
+   `rehype-article-sections.mjs` now rewrites them into the design system's
+   markup. Nothing needs writing. The frontmatter fields stay optional for
+   articles that may want structured data later.
 
-`src/pages/schema-check.astro` is a temporary gate. Delete it once the real
-article page renders (Step 4), along with `/type-test` at Step 12.
+`src/pages/schema-check.astro` was deleted at the end of Step 4. `/type-test`
+still needs deleting at Step 12.
+
+## Step 4 verification result (2026-08-21)
+
+The article page renders all 14 articles. Measured on `/articles/jobaner-hifazat`:
+
+- 4 ayah figures, 1 pull quote, 1 research-layer `<details>`, 2 apparatus
+  sections — all produced from plain markdown by the three rehype plugins,
+  so writers never touch JSX.
+- TOC lists 7 argument sections; the three apparatus headings are filtered out.
+- Heading order H1 → H2 → H3 with no jumps. Every image has alt text.
+  `<html lang="bn">`, 4 elements tagged `lang="ar"`.
+- No horizontal overflow at 390px. Desktop reading column measures exactly
+  608px (38rem) with the rail sticky beside it.
+- Article JSON-LD and BreadcrumbList present, canonical URL correct.
+- **JS budget: 4.29kb** against a 25kb ceiling (1.86kb inline + 2.43kb Astro
+  prefetch). CSS 14.8kb.
+
+One real bug found and fixed: the skip link was `position: absolute`, so once
+the reader had scrolled it stayed off-screen even when focused. Now `fixed` —
+verified by pressing Tab at scrollY 2500 and confirming it lands on screen at
+top: 16px. Focus ring is `solid 2px #1E5F8C` at 2px offset.
 
 ## Blocked — needs the user
 
 | # | Item | What the user must do | Blocks |
 |---|---|---|---|
-| B1 | Magnific MCP not connected | Connect Magnific so `images_generate` is available | Step 10 cover images only |
+| ~~B1~~ | ~~Magnific MCP not connected~~ | **Cleared 2026-08-21** — Magnific is connected; `images_generate` is available | — |
 | B2 | Cloudflare Pages not connected | Connect `omayerhamdi/ar-risalah` in the Cloudflare Pages dashboard | Live deploy only |
 
 Neither blocks the build. Work around them; do not stall.
@@ -107,5 +130,6 @@ The test page lives at `/type-test`. It is not linked from anywhere.
 | Date | Session did | Stopped because |
 |---|---|---|
 | 2026-08-21 | Step 0 — read all docs, resolved content-set conflict, reorganised folder, wrote permissions/CLAUDE.md/PROGRESS.md, repo + resume setup | — |
+| 2026-08-21 | Step 4 — article page, 8 components, 3 rehype plugins, verified at 390/1440px; fixed skip-link positioning | — |
 | 2026-08-21 | Step 3 — content schema derived from real frontmatter, validated across all 19 files | — |
 | 2026-08-21 | Steps 1–2 — Astro 7 + Tailwind v4 scaffold, self-hosted subsetted fonts inside budget, tokens/base/bangla CSS, Base layout, typography test page verified at 3 widths | — |

@@ -1,0 +1,50 @@
+---
+interface Props {
+  /** Rough minutes, shown so the reader can decide before opening. */
+  minutes?: number;
+}
+import { toBn } from '../../lib/toBn';
+const { minutes = 15 } = Astro.props;
+---
+{/* Zero JavaScript — <details> works with scripting disabled. */}
+<details class="research-layer">
+  <summary>
+    <span class="label">গবেষণা স্তর: গভীরে যেতে চাইলে</span>
+    <span class="est">আনুমানিক {toBn(minutes)} মিনিট</span>
+  </summary>
+  <div class="body"><slot /></div>
+</details>
+
+<style>
+  /* The one element on the site with a border on all four sides — it is
+     genuinely a box that opens, so it may look like one. */
+  .research-layer {
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    margin-block: var(--sp-7);
+  }
+  summary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+    padding: var(--sp-4);
+    min-height: var(--tap);
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-ui);
+  }
+  summary::-webkit-details-marker { display: none; }
+  .label { color: var(--ink); }
+  .est { font-size: var(--step--1); color: var(--ink-soft); }
+
+  /* Open: the box dissolves into a single rule on the left. */
+  .research-layer[open] {
+    border: 0;
+    border-left: 2px solid var(--rule-strong);
+    border-radius: 0;
+    padding-left: var(--sp-4);
+  }
+  .research-layer[open] summary { padding-inline: 0; }
+  .body { padding: 0 var(--sp-4) var(--sp-4); }
+  .research-layer[open] .body { padding-inline: 0; }
+</style>

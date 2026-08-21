@@ -1,0 +1,171 @@
+/* ============================================================
+   Rendered article body. Applies to markdown output, so it is
+   written against elements rather than classes.
+   ============================================================ */
+
+.prose {
+  color: var(--ink-body);
+  font-size: var(--step-0);
+  line-height: var(--leading-body);
+}
+
+.prose > * + * { margin-top: var(--sp-5); }
+
+.prose h2 {
+  font-size: var(--step-3);
+  margin-top: var(--sp-8);
+  margin-bottom: var(--sp-4);
+  scroll-margin-top: var(--sp-6);
+}
+.prose h3 {
+  font-size: var(--step-2);
+  margin-top: var(--sp-6);
+  margin-bottom: var(--sp-3);
+  scroll-margin-top: var(--sp-6);
+}
+
+.prose a {
+  color: var(--ink);
+  text-decoration-color: var(--rule-strong);
+}
+.prose a:hover { text-decoration-color: var(--ink); }
+
+.prose ul, .prose ol { padding-left: var(--sp-5); margin-block: var(--sp-5); }
+.prose li + li { margin-top: var(--sp-2); }
+.prose li::marker { color: var(--ink-faint); }
+
+/* Ayah and hadith — produced by rehype-ayah from a plain blockquote. */
+.prose .ayah {
+  margin: var(--sp-7) 0;
+  padding: var(--sp-5);
+  background: var(--paper-deep);
+  border-left: 2px solid var(--rubric);
+}
+.prose .ayah .arabic {
+  font-family: var(--font-arabic);
+  font-size: var(--step-1);   /* smaller on mobile so ayat do not wrap */
+  line-height: var(--leading-arabic);
+  color: var(--ink);
+  margin: 0;
+}
+.prose .ayah .translation {
+  margin-top: var(--sp-4);
+  color: var(--ink-body);
+}
+.prose .ayah figcaption {
+  margin-top: var(--sp-3);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+/* A blockquote with no Arabic in it stays an ordinary quote. */
+.prose blockquote {
+  margin: var(--sp-7) 0;
+  padding-left: var(--sp-5);
+  border-left: 2px solid var(--rule-strong);
+  color: var(--ink-soft);
+}
+
+/* Pull quote — inserted mid-article by rehype-pullquote. */
+.prose .pull-quote {
+  margin: var(--sp-8) 0;
+  position: relative;
+}
+.prose .pull-quote p {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+  margin: 0;
+}
+.prose .pull-quote::before {
+  content: '❝';
+  display: block;
+  font-size: var(--step-4);
+  line-height: 1;
+  color: var(--rubric);
+  opacity: 0.3;
+  margin-bottom: var(--sp-2);
+}
+.prose .pull-quote::after {
+  content: '';
+  display: block;
+  width: 24px;
+  border-top: 1px solid var(--rubric);
+  margin-top: var(--sp-4);
+}
+
+.prose hr {
+  border-top: 1px solid var(--rule);
+  margin: var(--sp-7) auto;
+  width: 40%;
+}
+
+.prose img { margin-block: var(--sp-6); border-radius: var(--radius); }
+
+@media (min-width: 48rem) {
+  .prose .ayah .arabic { font-size: var(--step-2); }
+  /* Let the pull quote break the reading column slightly, as specified. */
+  .prose .pull-quote { margin-inline: calc(var(--sp-6) * -1) 0; }
+}
+
+/* ---- Article apparatus: references and academic resources --------
+   Produced by rehype-article-sections from the h2 blocks every article
+   closes with. */
+.prose .apparatus {
+  border-top: 1px solid var(--rule);
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-5);
+}
+.prose .apparatus h2 {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  color: var(--rubric);
+  margin: 0 0 var(--sp-4);
+}
+.prose .apparatus p,
+.prose .apparatus li {
+  font-size: var(--step--1);
+  line-height: var(--leading-snug);
+  color: var(--ink-soft);
+}
+.prose .apparatus ul { list-style: none; padding-left: 0; margin: 0; }
+.prose .apparatus li + li { margin-top: var(--sp-3); }
+.prose .apparatus .refs p { white-space: pre-line; }
+.prose .apparatus em { color: var(--ink-body); }
+
+/* ---- Research layer (<details>) ---------------------------------- */
+.prose .research-layer {
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  margin-block: var(--sp-7);
+}
+.prose .research-layer summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-4);
+  min-height: var(--tap);
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-ui);
+}
+.prose .research-layer summary::-webkit-details-marker { display: none; }
+.prose .research-layer .label { color: var(--ink); }
+.prose .research-layer .est { font-size: var(--step--1); color: var(--ink-soft); }
+.prose .research-layer[open] {
+  border: 0;
+  border-left: 2px solid var(--rule-strong);
+  border-radius: 0;
+  padding-left: var(--sp-4);
+}
+.prose .research-layer[open] summary { padding-inline: 0; }
+.prose .research-layer .body { padding: 0 var(--sp-4) var(--sp-4); }
+.prose .research-layer[open] .body { padding-inline: 0; }
+.prose .research-layer .body ul { list-style: none; padding-left: 0; }
+.prose .research-layer .body li {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  line-height: var(--leading-snug);
+}

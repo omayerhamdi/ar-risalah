@@ -1,0 +1,44 @@
+---
+interface Props { items: string[] }
+const { items } = Astro.props;
+---
+<section class="takeaways" aria-labelledby="takeaways-heading">
+  <h2 id="takeaways-heading">মূল বার্তা</h2>
+  <ul>
+    {items.map((item) => <li>{item}</li>)}
+  </ul>
+</section>
+
+<style>
+  .takeaways {
+    /* The matra-rule again: held from above, open on the other three sides. */
+    border-top: 1px solid var(--rule);
+    background: var(--paper-deep);
+    padding: var(--sp-5);
+    margin-block: var(--sp-7);
+  }
+  .takeaways h2 {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+    line-height: var(--leading-snug);
+    margin-bottom: var(--sp-4);
+  }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li {
+    position: relative;
+    padding-left: var(--sp-5);
+    color: var(--ink-body);
+  }
+  li + li { margin-top: var(--sp-3); }
+  /* A 6px rubric square, not a bullet — the manuscript's index mark. */
+  li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: calc(var(--leading-body) * 0.5em - 3px);
+    width: 6px;
+    height: 6px;
+    background: var(--rubric);
+  }
+</style>

@@ -1,0 +1,70 @@
+---
+import { toBn } from '../../lib/toBn';
+
+interface Props {
+  references?: { text: string; url?: string }[];
+  academicResources?: {
+    title: string; author?: string;
+    language?: 'bn' | 'ar' | 'en' | 'ur';
+    note?: string; url?: string;
+  }[];
+}
+
+const { references = [], academicResources = [] } = Astro.props;
+const LANG = { bn: 'বাংলা', ar: 'আরবি', en: 'ইংরেজি', ur: 'উর্দু' } as const;
+---
+
+{references.length > 0 && (
+  <section class="refs" aria-labelledby="refs-heading">
+    <h2 id="refs-heading">সূত্র ও দলিল</h2>
+    <ol>
+      {references.map((r, i) => (
+        <li>
+          <span class="num tabular" aria-hidden="true">{toBn(i + 1)}</span>
+          <span class="text">
+            {r.url ? <a href={r.url} rel="noopener">{r.text}</a> : r.text}
+          </span>
+        </li>
+      ))}
+    </ol>
+  </section>
+)}
+
+{academicResources.length > 0 && (
+  <section class="refs" aria-labelledby="academic-heading">
+    <h2 id="academic-heading">একাডেমিক রিসোর্স</h2>
+    <ul>
+      {academicResources.map((r) => (
+        <li class="resource">
+          <p class="title">{r.url ? <a href={r.url} rel="noopener">{r.title}</a> : r.title}</p>
+          <p class="meta">
+            {[r.author, r.language && LANG[r.language]].filter(Boolean).join(' · ')}
+          </p>
+          {r.note && <p class="note">{r.note}</p>}
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .refs {
+    border-top: 1px solid var(--rule);
+    padding-top: var(--sp-5);
+    margin-top: var(--sp-8);
+  }
+  .refs h2 {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+    margin-bottom: var(--sp-4);
+  }
+  ol, ul { list-style: none; margin: 0; padding: 0; }
+  li { display: flex; gap: var(--sp-3); font-size: var(--step--1); color: var(--ink-soft); }
+  li + li { margin-top: var(--sp-3); }
+  /* Numerals are the third and last permitted use of the rubric colour. */
+  .num { color: var(--rubric); flex: 0 0 1.75em; }
+  .resource { display: block; }
+  .resource .title { color: var(--ink); font-size: var(--step-0); }
+  .resource .meta, .resource .note { margin-top: var(--sp-1); }
+</style>

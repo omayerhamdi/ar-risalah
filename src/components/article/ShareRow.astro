@@ -1,0 +1,69 @@
+---
+interface Props { title: string; url: string }
+const { title, url } = Astro.props;
+
+// WhatsApp first — it is the main distribution channel for this audience,
+// so the title and link are pre-composed rather than left to the share sheet.
+const wa = `https://wa.me/?text=${encodeURIComponent(`${title}\n\n${url}`)}`;
+const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+const tg = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+---
+<div class="share">
+  <p class="label">শেয়ার করুন</p>
+  <ul>
+    <li><a class="tap" href={wa} target="_blank" rel="noopener">হোয়াটসঅ্যাপ</a></li>
+    <li><a class="tap" href={tg} target="_blank" rel="noopener">টেলিগ্রাম</a></li>
+    <li><a class="tap" href={fb} target="_blank" rel="noopener">ফেসবুক</a></li>
+    <li>
+      <button class="tap" type="button" data-copy={url}>
+        <span data-copy-label>লিংক কপি</span>
+      </button>
+    </li>
+  </ul>
+</div>
+
+<style>
+  .share { border-top: 1px solid var(--rule); padding-top: var(--sp-4); }
+  .label {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    margin-bottom: var(--sp-2);
+  }
+  ul {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-wrap: wrap; gap: var(--sp-2);
+  }
+  a, button {
+    display: inline-flex; align-items: center;
+    padding: var(--sp-2) var(--sp-3);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color var(--dur-fast) var(--ease);
+  }
+  a:hover, button:hover { border-color: var(--ink); background: var(--paper-raise); }
+</style>
+
+<script is:inline>
+  document.querySelectorAll('[data-copy]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const label = btn.querySelector('[data-copy-label]');
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy);
+        const was = label.textContent;
+        label.textContent = 'কপি হয়েছে';
+        setTimeout(() => { label.textContent = was; }, 1600);
+      } catch {
+        // Clipboard blocked (insecure context, or the reader denied it).
+        // Say so rather than silently doing nothing.
+        label.textContent = 'কপি করা যায়নি';
+      }
+    });
+  });
+</script>

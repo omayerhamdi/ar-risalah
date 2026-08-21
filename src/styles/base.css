@@ -102,7 +102,10 @@ hr {
 }
 
 .skip-link {
-  position: absolute;
+  /* Fixed, not absolute: an absolutely positioned skip link scrolls away with
+     the document, so a reader who tabs into it partway down the page gets a
+     focused control they cannot see. */
+  position: fixed;
   left: var(--sp-4);
   top: -100%;
   z-index: var(--z-overlay);
