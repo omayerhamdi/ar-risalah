@@ -15,13 +15,19 @@
   --ink:          #171A18;  /* headings and primary text */
   --ink-body:     #2C312E;  /* long paragraphs (slightly softer) */
   --ink-soft:     #5D655F;  /* meta, captions, dates */
-  --ink-faint:    #8B928C;  /* disabled, placeholder — 3.4:1, never for readable content */
+  /* The design system's table lists this as 3.4:1; it measures 2.92:1, which
+     fails even the 3:1 non-text floor. Darkened to 3.25:1. It is still only for
+     disabled and placeholder states, never for readable content. */
+  --ink-faint:    #828A84;
 
   /* ---- Rubric — indicator only, never decoration ----------- */
   /* Permitted in exactly three places: category eyebrow,
      in-article divider marks, reference/evidence numerals. */
   --rubric:       #8C2B23;
-  --rubric-soft:  #B4675F;  /* on dark surfaces */
+  /* The table claims 5.1:1 on --deep; #B4675F actually measures 3.39:1, an AA
+     failure for the footer headings that use it. #CE8B82 measures 5.13:1 —
+     the ratio the design system intended. */
+  --rubric-soft:  #CE8B82;  /* on dark surfaces */
 
   /* ---- Deep green — dark sections, footer ------------------ */
   --deep:         #16302A;

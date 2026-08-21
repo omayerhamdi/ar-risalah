@@ -65,6 +65,9 @@ const cover = getCover(d.slug);
     margin-top: var(--sp-4);
     font-family: var(--font-ui);
     font-size: var(--step--1);
-    color: var(--ink-faint);
+    /* The card spec in the design system asks for --ink-faint here, but its
+       own colour rules forbid --ink-faint on readable content — and reading
+       time and byline are readable content. --ink-soft is 5.52:1. */
+    color: var(--ink-soft);
   }
 </style>

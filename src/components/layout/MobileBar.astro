@@ -1,0 +1,50 @@
+---
+import { MOBILE_NAV } from '../../lib/nav';
+const path = Astro.url.pathname;
+---
+{/* Always visible — it does not hide on scroll. Three items, each clearing
+    44px, and it respects the home indicator inset. */}
+<nav class="mobile-bar" aria-label="দ্রুত নেভিগেশন">
+  <ul>
+    {MOBILE_NAV.map((item) => (
+      <li>
+        <a
+          href={item.href}
+          aria-current={path.startsWith(item.href) ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .mobile-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: var(--z-mobilebar);
+    background: var(--paper);
+    border-top: 1px solid var(--rule);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  ul {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+  }
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--tap);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  a[aria-current='page'] { color: var(--rubric); }
+  li + li a { border-left: 1px solid var(--rule); }
+
+  @media (min-width: 64rem) { .mobile-bar { display: none; } }
+</style>

@@ -3,11 +3,12 @@
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
 **Last updated:** 2026-08-21
-**Last session ended at:** Steps 1-4 complete, plus all 14 cover images from
-Step 10.
-**Next action:** Step 5 — Header, Footer, MobileBar. The SkipLink already exists
-in `Base.astro`. Then Step 6 homepage, Step 7 archives, Step 8 static pages,
-Step 9 search. The logo (rest of Step 10) is still outstanding.
+**Last session ended at:** Steps 1-5 complete, plus all 14 cover images and the
+logo from Step 10.
+**Next action:** Step 6 — the homepage. Then Step 7 archives
+(articles, categories, topics, authors, research, resources), Step 8 static
+pages, Step 9 Pagefind search. Many nav links currently 404 because their pages
+do not exist yet — that is expected until Steps 7 and 8 land.
 
 ---
 
@@ -33,7 +34,7 @@ Step 9 search. The logo (rest of Step 10) is still outstanding.
       `astro build` must validate all.
 - [x] **Step 4 — Single article page.** PASSED — The most important page. All components born here.
       Do not move on until mobile is flawless.
-- [ ] **Step 5 — Header, footer, mobile bar.**
+- [x] **Step 5 — Header, footer, mobile bar.** PASSED —
 - [ ] **Step 6 — Homepage.**
 - [ ] **Step 7 — Archive pages.** articles, categories, topics, authors, research, resources.
 - [ ] **Step 8 — Static pages.** about, contact, start-here, for-khateebs, privacy, terms, 404.
@@ -112,6 +113,38 @@ chosen by comparing 1:1 crops against the source — the weave and stitching in
 the noisiest cover survive intact. Largest variant anywhere is 54.4kb against a
 70kb target. A 390px phone downloads 14.6kb of images for a whole article page.
 
+## Step 5 verification result (2026-08-22)
+
+Header, Footer, MobileBar and the SVG logo are in `Base.astro`, so every page
+gets them. Nav lives in one file, `src/lib/nav.ts`, so the three cannot drift.
+
+- Logo is typographic only: the matra of the Bengali "আ" extended as a rule
+  across the whole wordmark, with الرسالة set small beneath. Same gesture as
+  the cards, at logo scale. Legible at 24px, works in one colour.
+- Mobile menu verified: opens on click, moves focus to the first link, traps
+  Tab and Shift+Tab at both ends, closes on Escape and returns focus to the
+  toggle, and closes itself if the viewport crosses to desktop while open.
+- MobileBar is fixed, three items, each clearing 44px, respects
+  `env(safe-area-inset-bottom)`, and body padding reserves its height so it
+  never covers the last lines of an article.
+
+**Two real contrast failures found and fixed.** The design system's own table
+is wrong in three places:
+
+| pair | doc claims | measured |
+|---|---|---|
+| `--ink` on `--paper` | 15.1:1 | 16.09:1 (harmless) |
+| `--rubric-soft` on `--deep` | 5.1:1 | **3.39:1 — AA failure** |
+| `--ink-faint` on `--paper` | 3.4:1 | **2.92:1 — below the 3:1 floor** |
+
+`--rubric-soft` is now #CE8B82 (5.13:1) and `--ink-faint` #828A84 (3.25:1).
+The design system also contradicts itself: its colour rules forbid
+`--ink-faint` on readable content, while its card spec uses it for the reading
+time and byline. The colour rule wins; card meta now uses `--ink-soft`.
+
+**`docs/03-design-system.md` still carries the wrong figures — worth correcting
+in the doc so the next person does not reintroduce them.**
+
 ## Blocked — needs the user
 
 | # | Item | What the user must do | Blocks |
@@ -150,6 +183,7 @@ The test page lives at `/type-test`. It is not linked from anywhere.
 | Date | Session did | Stopped because |
 |---|---|---|
 | 2026-08-21 | Step 0 — read all docs, resolved content-set conflict, reorganised folder, wrote permissions/CLAUDE.md/PROGRESS.md, repo + resume setup | — |
+| 2026-08-22 | Step 5 — header, footer, mobile bar, SVG logo; fixed two AA contrast failures inherited from the design system doc | — |
 | 2026-08-22 | Step 10 (covers) — 14 covers generated, 3 regenerated after review, wired in with astro:assets and the design system's wash | — |
 | 2026-08-21 | Step 4 — article page, 8 components, 3 rehype plugins, verified at 390/1440px; fixed skip-link positioning | — |
 | 2026-08-21 | Step 3 — content schema derived from real frontmatter, validated across all 19 files | — |

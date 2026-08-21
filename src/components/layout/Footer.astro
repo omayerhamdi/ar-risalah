@@ -1,0 +1,85 @@
+---
+import Logo from './Logo.astro';
+import { FOOTER_NAV, SITE } from '../../lib/nav';
+import { toBn } from '../../lib/toBn';
+
+const year = toBn(new Date().getFullYear());
+---
+<footer class="footer">
+  <div class="container">
+    <div class="top">
+      <div class="brand">
+        <Logo height={30} onDark={true} />
+        <p class="tagline">{SITE.tagline}</p>
+      </div>
+
+      {FOOTER_NAV.map((group) => (
+        <nav class="group" aria-labelledby={`f-${group.heading}`}>
+          <p class="heading" id={`f-${group.heading}`}>{group.heading}</p>
+          <ul>
+            {group.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+          </ul>
+        </nav>
+      ))}
+    </div>
+
+    <div class="bottom">
+      <p>© {year} {SITE.name}</p>
+      <p><a href="/rss.xml">RSS</a></p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--deep);
+    color: var(--paper);
+    padding-block: var(--sp-7);
+    margin-top: var(--sp-9);
+  }
+  .top { display: grid; gap: var(--sp-6); }
+  .brand { display: grid; gap: var(--sp-3); justify-items: start; }
+  .tagline {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    /* --paper on --deep is 13.2:1; softened here but still well past AA. */
+    color: color-mix(in srgb, var(--paper) 72%, transparent);
+    max-width: 24ch;
+  }
+
+  .heading {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric-soft);
+    margin-bottom: var(--sp-3);
+  }
+  .group ul { list-style: none; margin: 0; padding: 0; }
+  .group li + li { margin-top: var(--sp-2); }
+  .group a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: color-mix(in srgb, var(--paper) 82%, transparent);
+    text-decoration: none;
+  }
+  .group a:hover { color: var(--paper); text-decoration: underline; }
+
+  .bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    margin-top: var(--sp-7);
+    padding-top: var(--sp-4);
+    border-top: 1px solid color-mix(in srgb, var(--paper) 20%, transparent);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: color-mix(in srgb, var(--paper) 72%, transparent);
+  }
+  .bottom a { color: inherit; }
+
+  @media (min-width: 48rem) {
+    .top { grid-template-columns: 1.4fr repeat(3, 1fr); gap: var(--sp-5); }
+  }
+</style>
