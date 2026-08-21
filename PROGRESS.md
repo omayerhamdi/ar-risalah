@@ -3,13 +3,12 @@
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
 **Last updated:** 2026-08-21
-**Last session ended at:** All twelve build steps complete. 86 pages, Lighthouse
-100/100/100/100 on desktop and 99/100/100/100 on mobile, every performance
-budget met.
-**Next action:** Nothing is blocking. What remains is small and listed under
-"Still outstanding" below — favicon, the `<link rel="icon">` tag, and correcting
-the three wrong contrast figures in `docs/03-design-system.md`. Everything else
-waits on the user (see Blocked).
+**Last session ended at:** All twelve build steps complete, plus favicon and a
+correction to the design system doc. 86 pages, Lighthouse 100/100/100/100
+desktop and 99/100/100/100 mobile, every performance budget met.
+**Next action:** Nothing is blocking on my side. Everything left needs the user
+— see Blocked below. The most valuable next work is connecting Cloudflare Pages
+so the site is actually live.
 
 ---
 
@@ -41,7 +40,7 @@ waits on the user (see Blocked).
 - [x] **Step 8 — Static pages.** PASSED — about, contact, start-here, for-khateebs, privacy, terms, 404.
 - [x] **Step 9 — Search (Pagefind).** PASSED — Verify Bengali indexing with যৌতুক, শাশুড়ি, আখলাক.
       Fall back to Fuse.js over `searchKeywords[]` if Pagefind fails on Bengali.
-- [x] **Step 10 — Logo and visual assets.** Covers and logo done. **Favicon still to do.**
+- [x] **Step 10 — Logo and visual assets.** Covers, logo and favicon done.
 - [x] **Step 11 — SEO, RSS, sitemap, OG images.** PASSED — OG images are typographic, build-time.
 - [x] **Step 12 — Final audit.** PASSED — Full checklist in `docs/07-verification-checklist.md`
       and brief §10. Lighthouse results recorded in `DECISIONS.md`.
@@ -290,13 +289,11 @@ works.
 
 ## Still outstanding (small, not blocking)
 
-- **Favicon.** The brief asks for the "রি" conjunct in a square with its matra.
-  Needs drawing as SVG plus the `<link rel="icon">` tag in `Base.astro`.
-- **`docs/03-design-system.md` still carries the three wrong contrast figures**
-  corrected in the tokens at Step 5. Worth fixing in the doc so nobody
-  reintroduces them.
-- `searchKeywords` is unused — Pagefind handles Bengali well enough that the
-  fallback was never needed.
+- `searchKeywords` in the schema is unused — Pagefind handles Bengali well
+  enough that the Fuse.js fallback was never needed. Left in place because it
+  costs nothing and gives a lever if search quality ever drops.
+- Phase 2 items from the brief, deliberately out of scope: dark mode, khutbah
+  resource PDFs, announcements, Arabic and English editions.
 
 ## Blocked — needs the user
 
