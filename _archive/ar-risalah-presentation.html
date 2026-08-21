@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>আর-রিসালাহ — প্রকল্প উপস্থাপনা</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Noto+Serif+Bengali:wght@400;500;600&family=Anek+Bangla:wght@400;500;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F5EF; --paper-deep:#EFEBE1; --paper-raise:#FDFCF9;
+  --ink:#171A18; --ink-body:#2C312E; --ink-soft:#5D655F; --ink-faint:#8B928C;
+  --rubric:#8C2B23; --rubric-soft:#B4675F;
+  --deep:#16302A; --deep-2:#1E4038;
+  --rule:#DDD8CB; --rule-strong:#C4BCA9;
+  --focus:#1E5F8C;
+  --display:'Tiro Bangla',Georgia,serif;
+  --body:'Noto Serif Bengali',Georgia,serif;
+  --ui:'Anek Bangla',system-ui,sans-serif;
+  --ar:'Amiri',serif;
+  --sp1:.25rem;--sp2:.5rem;--sp3:.75rem;--sp4:1rem;--sp5:1.5rem;
+  --sp6:2rem;--sp7:3rem;--sp8:4rem;--sp9:6rem;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  background:var(--paper);color:var(--ink-body);
+  font-family:var(--body);font-size:clamp(1.02rem,.99rem+.18vw,1.12rem);
+  line-height:1.85;padding-bottom:5rem;
+}
+.wrap{width:min(100% - 2.25rem,44rem);margin-inline:auto}
+.wide{width:min(100% - 2.25rem,64rem);margin-inline:auto}
+
+/* মাত্রা-রুল */
+.matra{height:1px;background:var(--rule);margin-bottom:var(--sp4)}
+.matra--strong{background:var(--rule-strong)}
+
+h1,h2,h3,h4{font-family:var(--display);color:var(--ink);font-weight:400;line-height:1.28}
+h2{font-size:clamp(1.7rem,1.45rem+1.1vw,2.3rem);margin-bottom:var(--sp3)}
+h3{font-size:clamp(1.3rem,1.2rem+.5vw,1.6rem);margin-bottom:var(--sp2)}
+h4{font-size:1.1rem;line-height:1.4}
+p+p{margin-top:var(--sp4)}
+
+.eyebrow{
+  font-family:var(--ui);font-size:.83rem;color:var(--rubric);
+  letter-spacing:.02em;margin-bottom:var(--sp2);font-weight:500;
+}
+.meta{font-family:var(--ui);font-size:.83rem;color:var(--ink-faint)}
+.soft{color:var(--ink-soft)}
+
+/* HERO */
+.hero{padding:var(--sp8) 0 var(--sp7);border-bottom:1px solid var(--rule)}
+.hero .rule-top{height:1px;background:var(--ink);margin-bottom:var(--sp5)}
+.logo{font-family:var(--display);font-size:clamp(2.5rem,2rem+2.6vw,4rem);color:var(--ink);line-height:1.1}
+.logo-ar{font-family:var(--ar);font-size:clamp(1.3rem,1.1rem+.8vw,1.9rem);color:var(--rubric);margin-top:var(--sp1);direction:rtl}
+.hero .lede{font-size:1.15rem;margin-top:var(--sp5);max-width:34rem}
+.hero .sub{margin-top:var(--sp3);color:var(--ink-soft);max-width:34rem}
+
+section{padding:var(--sp7) 0}
+@media(min-width:900px){section{padding:var(--sp9) 0}}
+section+section{border-top:1px solid var(--rule)}
+
+/* pillars */
+.pillars{display:grid;gap:var(--sp5);margin-top:var(--sp5)}
+@media(min-width:720px){.pillars{grid-template-columns:1fr 1fr;gap:var(--sp6)}}
+.pillar .matra{background:var(--ink)}
+.pillar h3{margin-bottom:var(--sp2)}
+.pillar ul{list-style:none;margin-top:var(--sp3);font-family:var(--ui);font-size:.95rem;color:var(--ink-soft)}
+.pillar li{padding:.28rem 0 .28rem .95rem;position:relative}
+.pillar li::before{content:'';position:absolute;left:0;top:.95em;width:5px;height:5px;background:var(--rubric)}
+
+/* method steps */
+.steps{counter-reset:s;margin-top:var(--sp5)}
+.step{display:flex;gap:var(--sp4);padding:var(--sp4) 0;border-top:1px solid var(--rule)}
+.step-n{font-family:var(--ui);color:var(--rubric);font-size:.9rem;font-weight:600;min-width:1.8rem;padding-top:.35rem}
+.step h4{margin-bottom:.1rem}
+.step p{font-size:.95rem;color:var(--ink-soft);line-height:1.6}
+
+/* colour swatches */
+.swatches{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sp3);margin-top:var(--sp5)}
+@media(min-width:640px){.swatches{grid-template-columns:repeat(4,1fr)}}
+.sw{border:1px solid var(--rule)}
+.sw .chip{height:64px}
+.sw .lbl{padding:var(--sp2) var(--sp3);font-family:var(--ui);font-size:.78rem;background:var(--paper-raise)}
+.sw .lbl b{display:block;color:var(--ink);font-weight:500}
+.sw .lbl span{color:var(--ink-faint)}
+
+/* type specimen */
+.spec{margin-top:var(--sp5);border-top:1px solid var(--rule)}
+.spec-row{padding:var(--sp4) 0;border-bottom:1px solid var(--rule)}
+.spec-row .tag{font-family:var(--ui);font-size:.75rem;color:var(--ink-faint);margin-bottom:var(--sp2)}
+.s-display{font-family:var(--display);font-size:clamp(1.7rem,1.4rem+1.4vw,2.6rem);color:var(--ink);line-height:1.25}
+.s-body{font-family:var(--body)}
+.s-ui{font-family:var(--ui);color:var(--ink-soft)}
+.s-ar{font-family:var(--ar);font-size:1.7rem;direction:rtl;line-height:2.05;color:var(--ink)}
+
+/* card demo */
+.cards{display:grid;gap:var(--sp6);margin-top:var(--sp5)}
+@media(min-width:720px){.cards{grid-template-columns:1fr 1fr}}
+.card .matra{transition:background .2s}
+.card:hover .matra{background:var(--ink)}
+.card h4{font-family:var(--display);font-size:1.28rem;line-height:1.35;color:var(--ink)}
+.card .ex{font-size:.94rem;color:var(--ink-soft);margin-top:var(--sp2);line-height:1.65}
+.card .meta{margin-top:var(--sp3)}
+
+/* ayah */
+.ayah{background:var(--paper-deep);border-left:2px solid var(--rubric);padding:var(--sp5);margin-top:var(--sp5)}
+.ayah .ar{font-family:var(--ar);font-size:1.55rem;direction:rtl;text-align:right;line-height:2.05;color:var(--ink)}
+.ayah .bn{margin-top:var(--sp3)}
+.ayah .src{font-family:var(--ui);font-size:.85rem;color:var(--ink-soft);margin-top:var(--sp2)}
+
+/* pullquote */
+.pq{margin:var(--sp6) 0;padding-left:var(--sp4);border-left:2px solid var(--rubric)}
+.pq p{font-family:var(--display);font-size:clamp(1.3rem,1.15rem+.7vw,1.7rem);color:var(--ink);line-height:1.45}
+
+/* details */
+details.rl{border:1px solid var(--rule-strong);margin-top:var(--sp5)}
+details.rl summary{padding:var(--sp4);cursor:pointer;font-family:var(--ui);color:var(--ink);list-style:none;display:flex;justify-content:space-between;gap:var(--sp3);align-items:baseline;min-height:44px}
+details.rl summary::-webkit-details-marker{display:none}
+details.rl summary::before{content:'＋ ';color:var(--rubric)}
+details.rl[open] summary::before{content:'－ '}
+details.rl summary .est{font-size:.82rem;color:var(--ink-faint)}
+details.rl .in{padding:0 var(--sp4) var(--sp4);font-size:.95rem;color:var(--ink-soft)}
+
+/* article list */
+.alist{margin-top:var(--sp5);border-top:1px solid var(--rule)}
+.arow{display:flex;gap:var(--sp4);padding:var(--sp4) 0;border-bottom:1px solid var(--rule);align-items:baseline}
+.arow .n{font-family:var(--ui);font-size:.85rem;color:var(--rubric);min-width:1.7rem}
+.arow .t{font-family:var(--display);font-size:1.1rem;color:var(--ink);line-height:1.4}
+.arow .c{font-family:var(--ui);font-size:.78rem;color:var(--ink-faint);margin-top:.15rem}
+
+/* sitemap */
+.tree{font-family:var(--ui);font-size:.86rem;color:var(--ink-soft);background:var(--paper-deep);padding:var(--sp5);margin-top:var(--sp5);overflow-x:auto;line-height:1.9;white-space:pre}
+
+/* deep section */
+.deep{background:var(--deep);color:#DCE3DF;padding:var(--sp8) 0}
+.deep h2{color:var(--paper)}
+.deep .eyebrow{color:var(--rubric-soft)}
+.deep .matra{background:rgba(255,255,255,.22)}
+.deep a{color:var(--paper)}
+
+/* table */
+table{width:100%;border-collapse:collapse;margin-top:var(--sp5);font-family:var(--ui);font-size:.9rem}
+th,td{text-align:right;padding:var(--sp3) var(--sp2);border-bottom:1px solid var(--rule);vertical-align:top}
+th{color:var(--ink);font-weight:500;border-bottom:1px solid var(--rule-strong)}
+td{color:var(--ink-soft)}
+td:first-child,th:first-child{text-align:left;color:var(--ink)}
+
+/* nav */
+nav.top{position:sticky;top:0;background:rgba(247,245,239,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);z-index:20}
+nav.top .in{display:flex;gap:var(--sp4);overflow-x:auto;padding:.7rem 0;font-family:var(--ui);font-size:.85rem;-ms-overflow-style:none;scrollbar-width:none}
+nav.top .in::-webkit-scrollbar{display:none}
+nav.top a{color:var(--ink-soft);text-decoration:none;white-space:nowrap;padding:.35rem 0;border-bottom:1px solid transparent}
+nav.top a:hover{color:var(--ink);border-bottom-color:var(--ink)}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+
+footer{padding:var(--sp7) 0;border-top:1px solid var(--rule);font-family:var(--ui);font-size:.85rem;color:var(--ink-faint)}
+.note{font-family:var(--ui);font-size:.88rem;color:var(--ink-soft);background:var(--paper-deep);padding:var(--sp4);margin-top:var(--sp5);border-left:2px solid var(--rule-strong)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<nav class="top"><div class="wide in">
+  <a href="#kotha">কেন</a><a href="#stombho">দুই স্তম্ভ</a><a href="#poddhoti">পদ্ধতি</a>
+  <a href="#rong">রঙ</a><a href="#type">টাইপোগ্রাফি</a><a href="#matra">মাত্রা-রুল</a>
+  <a href="#component">উপাদান</a><a href="#lekha">১৪টি লেখা</a><a href="#kathamo">সাইট কাঠামো</a>
+  <a href="#prযুক্তি">প্রযুক্তি</a><a href="#porer">পরের ধাপ</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="rule-top"></div>
+  <div class="logo">আর-রিসালাহ</div>
+  <div class="logo-ar">الرسالة</div>
+  <p class="lede">বাংলা ভাষায় একটি ইসলামিক গবেষণা ও দাওয়াহ প্ল্যাটফর্ম — চিন্তা করার জন্য একটি জায়গা।</p>
+  <p class="sub">দলিল, গবেষণা ও বাস্তবতার আলোকে দ্বীন ও সমকালের পাঠ। আখলাক থেকে মতবাদ পর্যন্ত।</p>
+  <p class="meta" style="margin-top:var(--sp5)">প্রকল্প উপস্থাপনা · প্রথম পর্যায়</p>
+</div></header>
+
+<section id="kotha"><div class="wrap">
+  <p class="eyebrow">কেন এই প্ল্যাটফর্ম</p>
+  <h2>তিনটি অভাব</h2>
+  <div class="steps">
+    <div class="step"><div class="step-n">০১</div><div>
+      <h4>মধ্যবর্তী স্তরের অনুপস্থিতি</h4>
+      <p>একদিকে সংক্ষিপ্ত আবেগনির্ভর পোস্ট, অন্যদিকে ভারী কিতাবি আলোচনা। মাঝখানে যে স্তরটি দরকার — দলিলভিত্তিক অথচ পাঠযোগ্য — সেটিই সবচেয়ে দুর্লভ।</p></div></div>
+    <div class="step"><div class="step-n">০২</div><div>
+      <h4>আখলাককে ছোট বিষয় ভাবা</h4>
+      <p>আমাদের সমাজে যে ভাঙন, তার সিংহভাগের উৎস আকিদার বিচ্যুতি নয় — আখলাকের ঘাটতি। অথচ আলোচনার অনুপাত ঠিক উল্টো।</p></div></div>
+    <div class="step"><div class="step-n">০৩</div><div>
+      <h4>উপমহাদেশীয় নিজস্ব পাঠের অভাব</h4>
+      <p>যৌতুক, যৌথ পরিবারের রাজনীতি, “লোকে কী বলবে”, প্রবাসী পরিবার, মাদরাসা–জেনারেল বিভাজন। অনূদিত সমাধান এখানে খাটে না।</p></div></div>
+  </div>
+</div></section>
+
+<section id="stombho"><div class="wrap">
+  <p class="eyebrow">কাঠামো</p>
+  <h2>দুই স্তম্ভ</h2>
+  <p class="soft">দুটি স্তম্ভ পরস্পরবিচ্ছিন্ন নয়। ভোগবাদ কেবল অর্থনৈতিক মতবাদ নয় — সেটি ঘরে ঢুকে বিয়েকে ব্যয়ের প্রতিযোগিতায় পরিণত করে। আমরা এই সংযোগটিই দেখাতে চাই।</p>
+  <div class="pillars">
+    <div class="pillar"><div class="matra"></div>
+      <p class="eyebrow">প্রথম স্তম্ভ</p><h3>আখলাক ও পরিবার</h3>
+      <p class="soft" style="font-size:.95rem">সবচেয়ে কাছের ময়দান — নিজের ঘর।</p>
+      <ul><li>যবান ও ব্যবহার</li><li>দাম্পত্য</li><li>সন্তান প্রতিপালন</li><li>আত্মীয়তা ও প্রতিবেশী</li><li>সামাজিক কুপ্রথা</li></ul></div>
+    <div class="pillar"><div class="matra"></div>
+      <p class="eyebrow">দ্বিতীয় স্তম্ভ</p><h3>চিন্তা ও মতবাদ</h3>
+      <p class="soft" style="font-size:.95rem">যে ধারণাগুলো আমাদের অজান্তেই ভাবতে শেখায়।</p>
+      <ul><li>আধুনিকতা</li><li>ভোগবাদ ও বস্তুবাদ</li><li>ধর্মনিরপেক্ষতা</li><li>নাস্তিকতা ও সংশয়</li><li>ব্যক্তিস্বাতন্ত্র্যবাদ</li></ul></div>
+  </div>
+  <div class="note"><b style="color:var(--ink)">একটি সচেতন সিদ্ধান্ত:</b> আখলাক ও পরিবার তালিকার <em>প্রথমে</em>, এবং হোমপেজে বেশি জায়গা নিয়ে। কারণ আখলাকের লেখা দরজা খোলে; চিন্তার লেখা ভেতরে নিয়ে যায়।</div>
+</div></section>
+
+<section id="poddhoti"><div class="wrap">
+  <p class="eyebrow">সম্পাদকীয় পদ্ধতি</p>
+  <h2>প্রতিটি লেখার পাঁচ ধাপ</h2>
+  <div class="steps">
+    <div class="step"><div class="step-n">০১</div><div><h4>বাস্তবতা</h4><p>আগে ঘটনার বর্ণনা — তত্ত্ব নয়, মানুষের জীবনের চিত্র।</p></div></div>
+    <div class="step"><div class="step-n">০২</div><div><h4>ব্যবচ্ছেদ</h4><p>সমস্যাটির প্রকৃত কাঠামো কী, উৎস কোথায়।</p></div></div>
+    <div class="step"><div class="step-n">০৩</div><div><h4>দলিল</h4><p>কুরআন, সুন্নাহ ও নির্ভরযোগ্য উলামায়ে কেরামের বক্তব্য।</p></div></div>
+    <div class="step"><div class="step-n">০৪</div><div><h4>তুলনা</h4><p>প্রচলিত ধারণা বনাম ইসলামী দৃষ্টিভঙ্গি।</p></div></div>
+    <div class="step"><div class="step-n">০৫</div><div><h4>করণীয়</h4><p>সুনির্দিষ্ট, বাস্তবায়নযোগ্য পদক্ষেপ। <b style="color:var(--rubric)">এই ধাপটি বাধ্যতামূলক।</b></p></div></div>
+  </div>
+  <div class="note">যে লেখা পাঠককে করণীয় দেয় না, সে লেখা আর-রিসালাহতে প্রকাশিত হবে না।</div>
+</div></section>
+
+<section id="rong"><div class="wrap">
+  <p class="eyebrow">ডিজাইন সিস্টেম</p>
+  <h2>রঙ — কাগজ ও কালি</h2>
+  <p class="soft">উৎস: হস্তলিখিত ইসলামি পাণ্ডুলিপি। পটভূমি সামান্য জলপাই আভার কাগজ, কমলাঘেঁষা ক্রিম নয়। কালি বিশুদ্ধ কালো নয় — সবুজাভ কালি-কালো, যেমন পুরোনো কালিতে হয়।</p>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#F7F5EF;border-bottom:1px solid var(--rule)"></div><div class="lbl"><b>কাগজ</b><span>#F7F5EF</span></div></div>
+    <div class="sw"><div class="chip" style="background:#EFEBE1"></div><div class="lbl"><b>গাঢ় কাগজ</b><span>#EFEBE1</span></div></div>
+    <div class="sw"><div class="chip" style="background:#171A18"></div><div class="lbl"><b>কালি</b><span>#171A18</span></div></div>
+    <div class="sw"><div class="chip" style="background:#5D655F"></div><div class="lbl"><b>নরম কালি</b><span>#5D655F</span></div></div>
+    <div class="sw"><div class="chip" style="background:#8C2B23"></div><div class="lbl"><b>রুবরিক</b><span>#8C2B23</span></div></div>
+    <div class="sw"><div class="chip" style="background:#16302A"></div><div class="lbl"><b>গভীর সবুজ</b><span>#16302A</span></div></div>
+    <div class="sw"><div class="chip" style="background:#DDD8CB"></div><div class="lbl"><b>রেখা</b><span>#DDD8CB</span></div></div>
+    <div class="sw"><div class="chip" style="background:#1E5F8C"></div><div class="lbl"><b>ফোকাস</b><span>#1E5F8C</span></div></div>
+  </div>
+  <h3 style="margin-top:var(--sp7)">রুবরিক — লাল কালির নিয়ম</h3>
+  <p class="soft">শাস্ত্রীয় পাণ্ডুলিপিতে অধ্যায়ের শিরোনাম ও সূচক লেখা হতো লাল কালিতে। এখানেও একটি গভীর পাণ্ডুলিপি-লাল ব্যবহৃত হবে — কিন্তু <b style="color:var(--ink)">কেবল তিন জায়গায়</b>: ক্যাটাগরির আইব্রাউ, বিভাজন-চিহ্ন, রেফারেন্স সংখ্যা। বোতামে নয়, লিংকে নয়, ব্যাকগ্রাউন্ডে নয়। এই সংযমই একে অর্থবহ রাখে।</p>
+  <div class="note"><b style="color:var(--ink)">যে ফাঁদ এড়ানো হয়েছে:</b> সবুজ-সোনালি গ্রেডিয়েন্ট, গম্বুজ-মিনারের সিলুয়েট, চাঁদ-তারা, ঝুলন্ত লণ্ঠন। আমাদের ইসলামি পরিচয় আসবে টাইপোগ্রাফি, কালির রঙ, স্থাপত্যিক অনুপাত ও সংযম থেকে।</div>
+</div></section>
+
+<section id="type"><div class="wrap">
+  <p class="eyebrow">ডিজাইন সিস্টেম</p>
+  <h2>টাইপোগ্রাফি</h2>
+  <div class="spec">
+    <div class="spec-row"><div class="tag">শিরোনাম · Tiro Bangla</div><div class="s-display">যবানের হিফাজত: যে অস্ত্র আমরা রোজ ব্যবহার করি</div></div>
+    <div class="spec-row"><div class="tag">মূল লেখা · Noto Serif Bengali · লাইন-উচ্চতা ১.৮৫</div><p class="s-body">কথার আঘাতে রক্ত ঝরে না। তাই আমরা একে আঘাত বলেই মনে করি না। অথচ আমাদের সমাজে যত সম্পর্ক ভাঙে, তার একটি বিরাট অংশ ভাঙে কোনো বড় অপরাধ ছাড়াই — কেবল অসংখ্য ছোট বাক্যের জমাট ওজনে।</p></div>
+    <div class="spec-row"><div class="tag">ইন্টারফেস · Anek Bangla</div><p class="s-ui">১২ মিনিট · মাওলানা আফসারুদ্দিন · আখলাক ও পরিবার</p></div>
+    <div class="spec-row"><div class="tag">আরবি · Amiri</div><p class="s-ar">وَقُولُوا لِلنَّاسِ حُسْنًا</p></div>
+  </div>
+  <table>
+    <tr><th>নিয়ম</th><th>কারণ</th></tr>
+    <tr><td>মোবাইলে মূল লেখা ~১৭px থেকে শুরু</td><td>বাংলা যুক্তাক্ষরের কারণে একই সাইজে ল্যাটিনের চেয়ে ঘন দেখায়</td></tr>
+    <tr><td>লাইন-উচ্চতা ১.৮৫</td><td>ঘন সেট করা বাংলা মোবাইলে দ্রুত ক্লান্তিকর</td></tr>
+    <tr><td>বাংলায় letter-spacing নিষিদ্ধ</td><td>যুক্তাক্ষর ভেঙে যায়, রেন্ডারিং নষ্ট হয়</td></tr>
+    <tr><td>সব সংখ্যা বাংলায়</td><td>১২ মিনিট · ৬ আগস্ট ২০২৬</td></tr>
+    <tr><td>পাঠের প্রস্থ ৩৮rem</td><td>এর বেশি হলে চোখ লাইন হারায়</td></tr>
+    <tr><td>সব ফন্ট self-hosted WOFF2</td><td>বাংলাদেশে তৃতীয়-পক্ষ CDN ধীর</td></tr>
+  </table>
+</div></section>
+
+<section id="matra"><div class="wrap">
+  <p class="eyebrow">সাইটের স্বাক্ষর</p>
+  <h2>মাত্রা-রুল</h2>
+  <p>বাংলা লিপির সবচেয়ে স্বতন্ত্র বৈশিষ্ট্য হলো <b style="color:var(--ink)">মাত্রা</b> — অক্ষরের মাথার ওপর দিয়ে চলে যাওয়া অনুভূমিক রেখা, যা বিচ্ছিন্ন অক্ষরকে একটি শব্দে বেঁধে ফেলে।</p>
+  <p>আর-রিসালাহর কার্ড ও সেকশনের চারদিকে বর্ডার থাকবে না। থাকবে <b style="color:var(--ink)">কেবল উপরে একটি ১px রেখা</b> — মাত্রার মতো, যা নিচের বিষয়বস্তুকে ধরে রাখে। এটিই সেই একক উপাদান যা দিয়ে সাইটটিকে মনে রাখা যাবে।</p>
+  <div class="cards">
+    <div class="card"><div class="matra"></div><p class="eyebrow">আখলাক ও পরিবার</p>
+      <h4>যবানের হিফাজত: যে অস্ত্র আমরা রোজ ব্যবহার করি</h4>
+      <p class="ex">কথার আঘাতে রক্ত ঝরে না। তাই আমরা একে আঘাত বলেই মনে করি না।</p>
+      <p class="meta">১২ মিনিট · মাওলানা আফসারুদ্দিন</p></div>
+    <div class="card"><div class="matra"></div><p class="eyebrow">চিন্তা ও মতবাদ</p>
+      <h4>ভোগবাদ: অভাব তৈরির কারখানা</h4>
+      <p class="ex">একটি অর্থনীতি যা টিকে থাকে মানুষের অতৃপ্তির ওপর, সে কখনো আপনাকে তৃপ্ত হতে দেবে না।</p>
+      <p class="meta">১২ মিনিট · সম্পাদনা পর্ষদ</p></div>
+  </div>
+  <p class="meta" style="margin-top:var(--sp4)">↑ কার্ডের ওপর মাউস রাখুন — কেবল উপরের রেখাটি গাঢ় হয়। কার্ড ওঠে না, নড়ে না, ছায়া পড়ে না।</p>
+</div></section>
+
+<section id="component"><div class="wrap">
+  <p class="eyebrow">উপাদান</p>
+  <h2>প্রবন্ধের ভেতরের উপাদান</h2>
+
+  <h3 style="margin-top:var(--sp6)">আয়াত ও হাদিসের ব্লক</h3>
+  <div class="ayah">
+    <p class="ar">وَلَا يَغْتَب بَّعْضُكُم بَعْضًا</p>
+    <p class="bn">“তোমরা একে অপরের গিবত করো না।”</p>
+    <p class="src">— সূরা আল-হুজুরাত, ৪৯:১২</p>
+  </div>
+
+  <h3 style="margin-top:var(--sp7)">পুল-কোট</h3>
+  <div class="pq"><p>যে ঘরে যবানের হিফাজত নেই, সে ঘরে তাহাজ্জুদও পরিবারকে বাঁচাতে পারে না।</p></div>
+
+  <h3 style="margin-top:var(--sp7)">গবেষণা স্তর</h3>
+  <p class="soft">প্রবন্ধের নিচে একটি সম্প্রসারণযোগ্য অংশ — শূন্য JavaScript। মোবাইল পাঠকের ৭০% এটি পড়বেন না; তাঁদের সামনে ৩০০০ শব্দের প্রাচীর দাঁড় করানো মানে মূল লেখাটিও না পড়া। যিনি চান, তিনি এক ট্যাপে খুলে নেবেন।</p>
+  <details class="rl">
+    <summary><span>গবেষণা স্তর: গভীরে যেতে চাইলে</span><span class="est">আনুমানিক ১৫ মিনিট</span></summary>
+    <div class="in">এখানে থাকবে ফিকহি ইখতিলাফের বিস্তার, ঐতিহাসিক পটভূমি, পরিভাষার সুনির্দিষ্ট সংজ্ঞা ও তুলনামূলক আলোচনা। এটিই একমাত্র উপাদান যার চারদিকে বর্ডার আছে — কারণ এটি সত্যিই একটি বাক্স, যা খোলে।</div>
+  </details>
+
+  <h3 style="margin-top:var(--sp7)">ত্রিস্তর মডেল</h3>
+  <table>
+    <tr><th>স্তর</th><th>কার জন্য</th><th>কোথায়</th></tr>
+    <tr><td>প্রবন্ধ</td><td>সাধারণ পাঠক · ৮–১২ মিনিট</td><td>মূল পাতা</td></tr>
+    <tr><td>গবেষণা</td><td>তালিবুল ইলম · +১৫ মিনিট</td><td>একই পাতায়, খোলা যায়</td></tr>
+    <tr><td>রিসোর্স</td><td>গবেষক · গ্রন্থপঞ্জি</td><td>একই পাতায় + /resources</td></tr>
+  </table>
+  <div class="note">তিনটি আলাদা পোস্ট-টাইপ নয়। একটি বিষয়ের <b style="color:var(--ink)">একটিই স্থায়ী ঠিকানা</b> থাকবে — নইলে পাঠক ভাগ হয়ে যান, SEO ভাগ হয়ে যায়।</div>
+</div></section>
+
+<section id="lekha"><div class="wrap">
+  <p class="eyebrow">প্রথম পর্যায়</p>
+  <h2>চৌদ্দটি প্রবন্ধ</h2>
+  <p class="soft">সবগুলো লেখা হয়ে গেছে — ফ্রন্টম্যাটার, মূল পাঠ, দলিল তালিকা, একাডেমিক রিসোর্স ও গবেষণার দিকসহ।</p>
+  <div class="alist">
+    <div class="arow"><div class="n">০১</div><div><div class="t">যবানের হিফাজত: যে অস্ত্র আমরা রোজ ব্যবহার করি</div><div class="c">আখলাক ও পরিবার</div></div></div>
+    <div class="arow"><div class="n">০২</div><div><div class="t">যৌতুক: একটি সাংস্কৃতিক ব্যাধির ব্যবচ্ছেদ</div><div class="c">আখলাক ও পরিবার</div></div></div>
+    <div class="arow"><div class="n">০৩</div><div><div class="t">শাশুড়ি ও পুত্রবধূ: যে সম্পর্কের ফিকহ আমরা পড়াই না</div><div class="c">আখলাক ও পরিবার</div></div></div>
+    <div class="arow"><div class="n">০৪</div><div><div class="t">অধিকারের ভাষা, ইহসানের ভাষা: দাম্পত্যের দুই ব্যাকরণ</div><div class="c">আখলাক ও পরিবার</div></div></div>
+    <div class="arow"><div class="n">০৫</div><div><div class="t">সন্তান কার হাতে বড় হচ্ছে</div><div class="c">আখলাক ও পরিবার</div></div></div>
+    <div class="arow"><div class="n">০৬</div><div><div class="t">আধুনিকতা: প্রযুক্তি নয়, একটি দৃষ্টিভঙ্গি</div><div class="c">চিন্তা ও মতবাদ</div></div></div>
+    <div class="arow"><div class="n">০৭</div><div><div class="t">ভোগবাদ: অভাব তৈরির কারখানা</div><div class="c">চিন্তা ও মতবাদ</div></div></div>
+    <div class="arow"><div class="n">০৮</div><div><div class="t">“আমার জীবন, আমার সিদ্ধান্ত” — একটি বাক্যের ময়নাতদন্ত</div><div class="c">চিন্তা ও মতবাদ</div></div></div>
+    <div class="arow"><div class="n">০৯</div><div><div class="t">ধর্মনিরপেক্ষতা: উপমহাদেশীয় একটি পুনঃপাঠ</div><div class="c">চিন্তা ও মতবাদ</div></div></div>
+    <div class="arow"><div class="n">১০</div><div><div class="t">সংশয় ভয় পাওয়ার বিষয় নয়</div><div class="c">চিন্তা ও মতবাদ</div></div></div>
+    <div class="arow"><div class="n">১১</div><div><div class="t">মনোযোগের অর্থনীতি: স্ক্রল যেভাবে চিন্তাকে বদলায়</div><div class="c">যুবসমাজ ও সমকাল</div></div></div>
+    <div class="arow"><div class="n">১২</div><div><div class="t">পরিচয়ের সংকট: তিনটি নাম, একটি মানুষ</div><div class="c">যুবসমাজ ও সমকাল</div></div></div>
+    <div class="arow"><div class="n">১৩</div><div><div class="t">ইলম মানে তথ্য নয়</div><div class="c">ইলম ও জীবনদর্শন</div></div></div>
+    <div class="arow"><div class="n">১৪</div><div><div class="t">দুনিয়া ও আখিরাত: বৈরাগ্য নয়, আমানত</div><div class="c">ইলম ও জীবনদর্শন</div></div></div>
+  </div>
+  <div class="note"><b style="color:var(--rubric)">গুরুত্বপূর্ণ:</b> এই চৌদ্দটি <em>প্রথম খসড়া হিসেবে সম্পূর্ণ</em> — কিন্তু <b style="color:var(--ink)">প্রকাশযোগ্য নয়</b>, যতক্ষণ না প্রতিটি হাদিস ও আয়াতের তাখরিজ একজন যোগ্য আলেম যাচাই করেন। এর জন্য একটি আলাদা যাচাই চেকলিস্ট তৈরি করা আছে।</div>
+</div></section>
+
+<section id="kathamo"><div class="wrap">
+  <p class="eyebrow">ইনফরমেশন আর্কিটেকচার</p>
+  <h2>সাইট কাঠামো</h2>
+  <div class="tree">/                        হোম
+├── /start-here          নতুন পাঠক: শুরু করুন
+├── /articles            সব প্রবন্ধ
+│   └── /[slug]          একক প্রবন্ধ  ★
+├── /categories/[cat]    ৫টি ক্যাটাগরি
+├── /topics/[topic]      বিষয়-হাব  ★ SEO কেন্দ্র
+├── /research            গবেষণা-স্তরের সূচি
+├── /resources           একাডেমিক রিসোর্স
+├── /for-khateebs        খতীব ও দাঈদের জন্য
+├── /authors             লেখক
+├── /announcements       মাহফিল ও কার্যক্রম
+├── /glossary            পরিভাষা কোষ
+├── /about  /contact  /subscribe  /search
+└── /privacy  /terms  /rss.xml  /404</div>
+  <h3 style="margin-top:var(--sp7)">মোবাইল নেভিগেশন</h3>
+  <p class="soft">উপরে হ্যামবার্গার নয় — নিচে একটি স্থায়ী তিন-আইটেম বার: <b style="color:var(--ink)">প্রবন্ধ · খোঁজ · যুক্ত হোন</b>। কারণ আমাদের ৮০%+ পাঠক মোবাইলে, এবং বৃদ্ধাঙ্গুলের নাগালে থাকা নিচের বার উপরের হ্যামবার্গারের চেয়ে বহুগুণ বেশি ব্যবহৃত হয়।</p>
+  <h3 style="margin-top:var(--sp6)">URL-এর নিয়ম</h3>
+  <p class="soft">slug হবে বাংলা প্রতিবর্ণীকরণে — <code style="font-family:var(--ui)">/articles/joutuk-ekti-sanskritik-byadhi</code>। ইউনিকোড বাংলা URL হোয়াটসঅ্যাপে শেয়ার করলে দীর্ঘ ও কুৎসিত হয়ে যায়, আর আমাদের বিতরণের প্রধান মাধ্যমই হোয়াটসঅ্যাপ।</p>
+</div></section>
+
+<section id="prযুক্তি"><div class="wrap">
+  <p class="eyebrow">কারিগরি</p>
+  <h2>প্রযুক্তি ও গতি</h2>
+  <table>
+    <tr><th>উপাদান</th><th>সিদ্ধান্ত</th></tr>
+    <tr><td>ফ্রেমওয়ার্ক</td><td>Astro 5 + Content Collections (MDX)</td></tr>
+    <tr><td>স্টাইল</td><td>Tailwind CSS v4</td></tr>
+    <tr><td>খোঁজ</td><td>Pagefind (build-time static index)</td></tr>
+    <tr><td>হোস্টিং</td><td>GitHub → Cloudflare Pages</td></tr>
+    <tr><td>অ্যানালিটিক্স</td><td>Cloudflare Web Analytics — কুকিহীন</td></tr>
+    <tr><td>ইমেইল</td><td>Buttondown (শুরুতে)</td></tr>
+    <tr><td>হোয়াটসঅ্যাপ</td><td>Channel — Group নয়</td></tr>
+  </table>
+  <h3 style="margin-top:var(--sp7)">পারফরম্যান্স বাজেট</h3>
+  <p class="soft">আমাদের পাঠক 4G বা তারও ধীর নেটওয়ার্কে, মাঝারি অ্যান্ড্রয়েড ফোনে। এটি অপ্রধান বিবেচনা নয় — এটি প্রধান নকশা-শর্ত।</p>
+  <table>
+    <tr><th>পরিমাপ</th><th>সীমা</th></tr>
+    <tr><td>LCP (মোবাইল, 4G)</td><td>&lt; ২.৫ সেকেন্ড</td></tr>
+    <tr><td>JavaScript (যেকোনো পাতা)</td><td>&lt; ২৫kb</td></tr>
+    <tr><td>ফন্ট মোট</td><td>&lt; ১৮০kb</td></tr>
+    <tr><td>কভার ছবি</td><td>&lt; ১২০kb</td></tr>
+    <tr><td>Lighthouse মোবাইল</td><td>≥ ৯০ (চারটিতেই)</td></tr>
+  </table>
+  <div class="note">অনুমোদিত মোশন মাত্র চারটি: রেখার রঙ পরিবর্তন, details খোলা-বন্ধ, মোবাইল মেনু স্লাইড, পাঠ-অগ্রগতি রেখা। <b style="color:var(--ink)">নিষিদ্ধ:</b> স্ক্রল-fade, প্যারালাক্স, কার্ড উত্তোলন, টাইপরাইটার প্রভাব। ধীর ফোনে এগুলো তোতলায় এবং একটি গম্ভীর পাঠ-প্ল্যাটফর্মকে সস্তা দেখায়।</div>
+</div></section>
+
+<section class="deep" id="porer"><div class="wrap">
+  <div class="matra"></div>
+  <p class="eyebrow">পরের ধাপ</p>
+  <h2 style="color:var(--paper)">এখন কী করতে হবে</h2>
+  <div class="steps" style="--rule:rgba(255,255,255,.18)">
+    <div class="step" style="border-color:rgba(255,255,255,.18)"><div class="step-n" style="color:var(--rubric-soft)">০১</div><div>
+      <h4 style="color:var(--paper)">দলিল যাচাই</h4><p style="color:#B9C4BF">যাচাই চেকলিস্ট ধরে প্রতিটি হাদিস ও আয়াতের তাখরিজ একজন যোগ্য আলেম দিয়ে নিশ্চিত করা। একটি করে প্রবন্ধ — একসঙ্গে চৌদ্দটি নয়।</p></div></div>
+    <div class="step" style="border-color:rgba(255,255,255,.18)"><div class="step-n" style="color:var(--rubric-soft)">০২</div><div>
+      <h4 style="color:var(--paper)">Claude Code-এ হ্যান্ডঅফ</h4><p style="color:#B9C4BF"><code>06-claude-code-brief.md</code> ফাইলটি প্রজেক্ট রুটে <code>CLAUDE.md</code> হিসেবে রাখা। বারো ধাপের নির্মাণ ক্রম সেখানে দেওয়া আছে।</p></div></div>
+    <div class="step" style="border-color:rgba(255,255,255,.18)"><div class="step-n" style="color:var(--rubric-soft)">০৩</div><div>
+      <h4 style="color:var(--paper)">বাংলা টাইপোগ্রাফি যাচাই</h4><p style="color:#B9C4BF">নির্মাণের দ্বিতীয় ধাপেই — যুক্তাক্ষর, মাত্রা, আরবি RTL। এটিই সবচেয়ে বড় কারিগরি ঝুঁকি।</p></div></div>
+    <div class="step" style="border-color:rgba(255,255,255,.18)"><div class="step-n" style="color:var(--rubric-soft)">০৪</div><div>
+      <h4 style="color:var(--paper)">Magnific দিয়ে কভার</h4><p style="color:#B9C4BF">প্রতিটি প্রবন্ধের ফ্রন্টম্যাটারে প্রম্পট দেওয়া আছে। প্রথমে তিনটি বানিয়ে পাশাপাশি দেখে ঐক্য নিশ্চিত করা।</p></div></div>
+    <div class="step" style="border-color:rgba(255,255,255,.18)"><div class="step-n" style="color:var(--rubric-soft)">০৫</div><div>
+      <h4 style="color:var(--paper)">সপ্তাহে একটি করে প্রকাশ</h4><p style="color:#B9C4BF">প্রতি বৃহস্পতিবার — জুমার আগের দিন, যাতে খতীব ও দাঈরা প্রস্তুতির সময় পান। চৌদ্দ সপ্তাহে সব প্রকাশিত।</p></div></div>
+  </div>
+  <p style="margin-top:var(--sp6);font-family:var(--ui);font-size:.9rem;color:#8FA09A">৯০ দিনের লক্ষ্য — ২৬টি প্রবন্ধ · ৫০০ ইমেইল · ১,০০০ হোয়াটসঅ্যাপ · পাঠ-গভীরতা ৪০%+</p>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="matra"></div>
+  <p>আর-রিসালাহ · الرسالة</p>
+  <p style="margin-top:var(--sp2)">প্রকল্প উপস্থাপনা — ডিজাইন সিস্টেম, কনটেন্ট কৌশল ও নির্মাণ পরিকল্পনা।</p>
+</div></footer>
+
+</body>
+</html>
