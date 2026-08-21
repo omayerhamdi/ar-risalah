@@ -1,0 +1,17 @@
+---
+// Temporary Step 3 gate: loading the collections is what actually runs Zod
+// against every file. Deleted as soon as the real article page exists.
+import { getCollection } from 'astro:content';
+const articles = await getCollection('articles');
+const authors = await getCollection('authors');
+const report = {
+  articles: articles.length,
+  authors: authors.length,
+  published: articles.filter((a) => a.data.status === 'published').length,
+  pillars: articles.filter((a) => a.data.pillar).map((a) => a.data.slug),
+  categories: [...new Set(articles.map((a) => a.data.categorySlug))],
+  topics: [...new Set(articles.flatMap((a) => a.data.topics))].length,
+  totalReadingTime: articles.reduce((n, a) => n + a.data.readingTime, 0),
+};
+---
+<pre>{JSON.stringify(report, null, 2)}</pre>

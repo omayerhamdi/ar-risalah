@@ -3,10 +3,12 @@
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
 **Last updated:** 2026-08-21
-**Last session ended at:** Steps 1 and 2 complete and verified in the browser.
-**Next action:** Step 3 — Zod content schema in `src/content.config.ts` from
-`docs/02-information-architecture.md`, wire up the 14 articles and 5 authors,
-and make `astro build` validate every file.
+**Last session ended at:** Steps 1-3 complete. Content schema validates all 14
+articles and 5 authors.
+**Next action:** Step 4 — the single article page. This is the most important
+page and every component is born here: Ayah, PullQuote, KeyTakeaways,
+ResearchLayer, References, TOC, ReadingProgress, ShareRow. Do not move to
+Step 5 until mobile is flawless.
 
 ---
 
@@ -27,7 +29,7 @@ and make `astro build` validate every file.
       matra unbroken with zero letter-spacing, Arabic RTL with harakat uncut,
       Bengali+Arabic baseline on one line, no overflow at 320px.
       Fallbacks if broken: Hind Siliguri, Baloo Da 2. **Rendering accuracy beats aesthetics.**
-- [ ] **Step 3 — Content schema and data.** Zod schema in `config.ts` from
+- [x] **Step 3 — Content schema and data.** PASSED — Zod schema in `config.ts` from
       `docs/02-information-architecture.md`. 14 articles + 5 authors in place.
       `astro build` must validate all.
 - [ ] **Step 4 — Single article page.** The most important page. All components born here.
@@ -46,6 +48,26 @@ and make `astro build` validate every file.
       and brief §10. Lighthouse results recorded in `DECISIONS.md`.
 
 ---
+
+## Step 3 verification result (2026-08-21)
+
+`src/content.config.ts` loads 14 articles + 5 authors with zero Zod errors.
+14 published, 10 pillar pieces, 4 categories, 47 distinct topics, 165 minutes
+of reading. Every `authors:` reference resolves to a real author file.
+
+Two notes carried forward:
+
+1. The brief points at `docs/02-information-architecture.md` for the Zod schema,
+   but that document never contains one. The schema was derived from the
+   frontmatter as actually authored.
+2. **Content gap:** no article carries `references` or `academicResources`, but
+   `docs/07-verification-checklist.md` requires both to be visible on every
+   article. The schema declares them optional so they can be added later with no
+   migration. The article page will render the sections only when present.
+   **This needs the user to write the content — it cannot be invented.**
+
+`src/pages/schema-check.astro` is a temporary gate. Delete it once the real
+article page renders (Step 4), along with `/type-test` at Step 12.
 
 ## Blocked — needs the user
 
@@ -85,4 +107,5 @@ The test page lives at `/type-test`. It is not linked from anywhere.
 | Date | Session did | Stopped because |
 |---|---|---|
 | 2026-08-21 | Step 0 — read all docs, resolved content-set conflict, reorganised folder, wrote permissions/CLAUDE.md/PROGRESS.md, repo + resume setup | — |
+| 2026-08-21 | Step 3 — content schema derived from real frontmatter, validated across all 19 files | — |
 | 2026-08-21 | Steps 1–2 — Astro 7 + Tailwind v4 scaffold, self-hosted subsetted fonts inside budget, tokens/base/bangla CSS, Base layout, typography test page verified at 3 widths | — |
