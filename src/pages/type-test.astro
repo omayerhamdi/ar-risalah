@@ -1,0 +1,190 @@
+---
+// Step 2 of the build brief: verify Bengali and Arabic rendering before any
+// real page is built. Bengali shaping is the biggest technical risk on this
+// project — if a conjunct breaks here it breaks on every page.
+// Not linked from anywhere; deleted before launch.
+import Base from '../layouts/Base.astro';
+import { toBn } from '../lib/toBn';
+
+const conjuncts = [
+  { glyph: 'ক্ষ', parts: 'ক + ষ', word: 'ক্ষমা' },
+  { glyph: 'জ্ঞ', parts: 'জ + ঞ', word: 'জ্ঞান' },
+  { glyph: 'ঙ্গ', parts: 'ঙ + গ', word: 'অঙ্গ' },
+  { glyph: 'ত্র', parts: 'ত + র', word: 'ত্রুটি' },
+  { glyph: 'দ্ধ', parts: 'দ + ধ', word: 'যুদ্ধ' },
+  { glyph: 'ষ্ণ', parts: 'ষ + ণ', word: 'কৃষ্ণ' },
+  { glyph: 'হ্ম', parts: 'হ + ম', word: 'ব্রহ্ম' },
+  { glyph: 'ন্ত্র', parts: 'ন + ত + র', word: 'যন্ত্র' },
+  { glyph: 'স্ত্র', parts: 'স + ত + র', word: 'স্ত্রী' },
+  { glyph: 'ক্ত', parts: 'ক + ত', word: 'রক্ত' },
+  { glyph: 'ঞ্চ', parts: 'ঞ + চ', word: 'পঞ্চম' },
+  { glyph: 'দ্ভ', parts: 'দ + ভ', word: 'উদ্ভব' },
+];
+
+const longWords = [
+  'ব্যক্তিস্বাতন্ত্র্যবাদ',
+  'ধর্মনিরপেক্ষতাবাদ',
+  'আন্তর্জাতিকতাবাদ',
+  'প্রাতিষ্ঠানিকীকরণ',
+  'বুদ্ধিবৃত্তিকতা',
+];
+---
+
+<Base title="টাইপোগ্রাফি যাচাই — আর-রিসালাহ" arabic={true}>
+  <div class="container-read" style="padding-block: var(--sp-7);">
+    <p class="eyebrow">যাচাই পাতা</p>
+    <h1>টাইপোগ্রাফি যাচাই</h1>
+    <p style="color: var(--ink-soft); margin-top: var(--sp-3);">
+      বাংলা যুক্তাক্ষর, মাত্রা, আরবি RTL ও হরকত — প্রতিটি নিজের চোখে দেখে নেওয়ার পাতা।
+      এটি নির্মাণকালীন; প্রকাশের আগে মুছে ফেলা হবে।
+    </p>
+
+    <hr />
+
+    <section>
+      <h2>১. যুক্তাক্ষর</h2>
+      <p>প্রতিটি যুক্তাক্ষর একটি একক আকৃতি হবে — উপাদান অক্ষরগুলো পাশাপাশি বসে থাকলে রেন্ডারিং ভুল।</p>
+      <table class="conjuncts">
+        <thead>
+          <tr><th>যুক্তাক্ষর</th><th>গঠন</th><th>শব্দে</th></tr>
+        </thead>
+        <tbody>
+          {conjuncts.map((c) => (
+            <tr>
+              <td class="big">{c.glyph}</td>
+              <td style="color: var(--ink-soft);">{c.parts}</td>
+              <td>{c.word}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>২. মাত্রা অটুট</h2>
+      <p>নিচের লাইনে অক্ষরের মাথার রেখা কোথাও ভাঙা থাকলে letter-spacing লিক করেছে।</p>
+      <p class="matra-check">আর-রিসালাহ একটি বাংলা ভাষার ইসলামিক এডিটোরিয়াল ও গবেষণা প্ল্যাটফর্ম</p>
+    </section>
+
+    <section>
+      <h2>৩. আরবি — RTL ও হরকত</h2>
+      <p>হরকত (যের-যবর-পেশ) উপরে-নিচে পূর্ণ দেখা যাবে, কাটা যাবে না।</p>
+      <figure class="ayah">
+        <p lang="ar" dir="rtl" class="arabic">وَقُولُوا لِلنَّاسِ حُسْنًا</p>
+        <p class="translation">“মানুষের সঙ্গে সুন্দর কথা বলো।”</p>
+        <figcaption>— সূরা আল-বাকারা, {toBn(2)}:{toBn(83)}</figcaption>
+      </figure>
+      <figure class="ayah">
+        <p lang="ar" dir="rtl" class="arabic">إِنَّمَا بُعِثْتُ لِأُتَمِّمَ مَكَارِمَ الْأَخْلَاقِ</p>
+        <p class="translation">“আমি প্রেরিত হয়েছি আখলাকের পূর্ণতা সাধনের জন্যই।”</p>
+        <figcaption>— মুয়াত্তা মালিক</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <h2>৪. এক লাইনে বাংলা ও আরবি</h2>
+      <p class="mixed-script">
+        রাসূলুল্লাহ <span lang="ar" dir="rtl">ﷺ</span> বলেছেন — <span lang="ar" dir="rtl">الْحَيَاءُ شُعْبَةٌ مِنَ الْإِيمَانِ</span> — লজ্জা ঈমানের একটি শাখা।
+      </p>
+      <p class="mixed-script">
+        সূরা <span lang="ar" dir="rtl">الرَّحْمَٰن</span>-এর {toBn(78)}টি আয়াত।
+        বেসলাইন এক থাকলে ঠিক আছে।
+      </p>
+    </section>
+
+    <section>
+      <h2>৫. দীর্ঘ শব্দ — ৩২০px-এ ওভারফ্লো</h2>
+      <p>উইন্ডো ৩২০px-এ নামিয়ে দেখুন। অনুভূমিক স্ক্রলবার এলে ব্যর্থ।</p>
+      <div class="narrow-test">
+        {longWords.map((w) => <p>{w}</p>)}
+      </div>
+    </section>
+
+    <section>
+      <h2>৬. টাইপ স্কেল</h2>
+      <p style="font-size: var(--step-5);">হিরো — step-5</p>
+      <p style="font-size: var(--step-4);">শিরোনাম — step-4</p>
+      <p style="font-size: var(--step-3);">H2 — step-3</p>
+      <p style="font-size: var(--step-2);">H3 — step-2</p>
+      <p style="font-size: var(--step-1);">উপশিরোনাম — step-1</p>
+      <p style="font-size: var(--step-0);">মূল লেখা — step-0</p>
+      <p style="font-size: var(--step--1); color: var(--ink-soft);">মেটা — step-−1</p>
+    </section>
+
+    <section>
+      <h2>৭. জোর ও সংখ্যা</h2>
+      <p>
+        মূল লেখার ভেতরে <strong>এভাবে জোর দেওয়া হয়</strong> — আলাদা ফন্ট ও গাঢ় কালি দিয়ে,
+        নকল বোল্ড দিয়ে নয়। পড়ার সময় {toBn(12)} মিনিট। প্রকাশ {toBn(6)} আগস্ট {toBn(2026)}।
+      </p>
+      <p style="color: var(--ink-soft);">
+        ল্যাটিন ফলব্যাক: Sahih al-Bukhari 6018, ISBN 978-0-19-284587-4.
+      </p>
+    </section>
+  </div>
+</Base>
+
+<style>
+  section { margin-top: var(--sp-8); }
+  section > h2 { margin-bottom: var(--sp-4); }
+
+  .conjuncts {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--sp-4);
+  }
+  .conjuncts th,
+  .conjuncts td {
+    text-align: start;
+    padding: var(--sp-2) var(--sp-3) var(--sp-2) 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .conjuncts th {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    font-weight: 400;
+  }
+  .conjuncts .big { font-size: var(--step-2); color: var(--ink); }
+
+  .matra-check {
+    font-size: var(--step-2);
+    font-family: var(--font-display);
+    color: var(--ink);
+    margin-top: var(--sp-4);
+  }
+
+  .ayah {
+    margin: var(--sp-6) 0 0;
+    padding: var(--sp-5);
+    background: var(--paper-deep);
+    border-left: 2px solid var(--rubric);
+  }
+  .ayah .arabic {
+    font-family: var(--font-arabic);
+    font-size: var(--step-1);
+    color: var(--ink);
+  }
+  .ayah .translation { margin-top: var(--sp-4); color: var(--ink-body); }
+  .ayah figcaption {
+    margin-top: var(--sp-3);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  .mixed-script { margin-top: var(--sp-4); }
+
+  .narrow-test {
+    margin-top: var(--sp-4);
+    padding: var(--sp-4);
+    /* 320px viewport minus the container's 2.5rem gutters */
+    max-width: 280px;
+    background: var(--paper-deep);
+  }
+  .narrow-test p + p { margin-top: var(--sp-2); }
+
+  @media (min-width: 48rem) {
+    .ayah .arabic { font-size: var(--step-2); }
+  }
+</style>

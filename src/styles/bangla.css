@@ -1,0 +1,54 @@
+/* ============================================================
+   Bengali and Arabic script rules.
+   These are correctness rules, not taste. Breaking them breaks
+   rendering — see docs/06-claude-code-brief.md step 2.
+   ============================================================ */
+
+/* Never apply letter-spacing to Bengali. It pulls conjuncts apart and
+   cuts the matra — the horizontal line that binds letters into a word.
+   The only permitted tracking is on uppercase Latin labels, set explicitly. */
+:lang(bn),
+[lang='bn'] {
+  letter-spacing: normal;
+  /* Synthetic bold thickens the matra unevenly and smears conjuncts.
+     Emphasis is carried by family and ink weight instead. */
+  font-synthesis: none;
+  /* Required conjunct shaping; never disable liga/clig for Bengali. */
+  font-variant-ligatures: normal;
+  font-feature-settings: normal;
+}
+
+/* Long Bengali compounds have few break opportunities. Without this a word
+   like "ব্যক্তিস্বাতন্ত্র্যবাদ" pushes a horizontal scrollbar at 320px. */
+:lang(bn) {
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none; /* Bengali has no hyphenation dictionary; leave words whole */
+}
+
+/* Arabic ------------------------------------------------------ */
+[lang='ar'] {
+  font-family: var(--font-arabic);
+  direction: rtl;
+  text-align: right;
+  line-height: var(--leading-arabic);
+  font-synthesis: none;
+  /* Harakat sit above and below the baseline. Anything that clips the line
+     box eats them, so Arabic always gets its own generous leading and never
+     an overflow:hidden ancestor with a fixed height. */
+  font-variant-ligatures: normal;
+}
+
+/* Bengali and Arabic on one line: the Arabic run keeps its own baseline
+   and leading without dragging the Bengali line box open. */
+.mixed-script [lang='ar'] {
+  display: inline-block;
+  vertical-align: baseline;
+  line-height: var(--leading-body);
+}
+
+/* Bengali numerals are used everywhere except URLs, ISBNs, and the
+   publication years of English-language books. See lib/toBn.ts. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

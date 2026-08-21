@@ -3,8 +3,10 @@
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
 **Last updated:** 2026-08-21
-**Last session ended at:** Step 0 complete — setup, reorg, repo, resume infrastructure.
-**Next action:** Step 1 — Astro 5 + Tailwind v4 scaffold, self-hosted fonts, `tokens.css`.
+**Last session ended at:** Steps 1 and 2 complete and verified in the browser.
+**Next action:** Step 3 — Zod content schema in `src/content.config.ts` from
+`docs/02-information-architecture.md`, wire up the 14 articles and 5 authors,
+and make `astro build` validate every file.
 
 ---
 
@@ -16,11 +18,11 @@
   - [x] `CLAUDE.md`, `DECISIONS.md`, `PROGRESS.md` written
   - [x] git init + first commit + push to `github.com/omayerhamdi/ar-risalah`
   - [x] Auto-resume scheduled task created
-- [ ] **Step 1 — Foundation.** Astro + Tailwind v4. All design tokens into `tokens.css`
+- [x] **Step 1 — Foundation.** Astro + Tailwind v4. All design tokens into `tokens.css`
       from `docs/03-design-system.md`. Self-host fonts: Tiro Bangla, Noto Serif Bengali,
       Anek Bangla, Amiri, Newsreader, Inter. Bengali + Latin subsets, WOFF2,
       `font-display: swap`, preload the two critical faces.
-- [ ] **Step 2 — Typography verification.** Separate step; Bengali rendering is the
+- [x] **Step 2 — Typography verification.** PASSED — see notes below. Separate step; Bengali rendering is the
       biggest risk. Test page must verify: যুক্তাক্ষর (ক্ষ, জ্ঞ, ঙ্গ, ত্র, দ্ধ, ষ্ণ),
       matra unbroken with zero letter-spacing, Arabic RTL with harakat uncut,
       Bengali+Arabic baseline on one line, no overflow at 320px.
@@ -56,8 +58,31 @@ Neither blocks the build. Work around them; do not stall.
 
 ---
 
+## Step 2 verification result (2026-08-21)
+
+Checked in the browser at 320px, 390px and 1440px:
+
+- Conjuncts ক্ষ জ্ঞ ঙ্গ ত্র দ্ধ ষ্ণ হ্ম ন্ত্র স্ত্র ক্ত ঞ্চ দ্ভ — all render as single
+  shapes. No fallback needed; Tiro Bangla and Noto Serif Bengali both shape correctly.
+- Matra unbroken. `letter-spacing: normal` is pinned on `:lang(bn)`.
+- Arabic RTL correct in Amiri; harakat fully visible, not clipped.
+- Bengali and Arabic on one line share a baseline correctly.
+- No horizontal scroll at 320px with the longest compounds
+  (ব্যক্তিস্বাতন্ত্র্যবাদ, প্রাতিষ্ঠানিকীকরণ) — verified by measuring scrollWidth,
+  and no element extends past the viewport.
+- ﷺ (U+FDFA) initially fell back to a system font; the Amiri subset was rebuilt to
+  include it and the fix was verified by loading the file's bytes directly
+  (105.5px from Amiri vs 123.4px from the system fallback).
+
+Fonts shipped: `tiro-bangla-400` 48.2kb, `noto-serif-bengali-400` 52.8kb,
+`amiri-400` 75.0kb. Article page 175.9kb, other pages 101kb. Budget 180kb.
+
+The test page lives at `/type-test`. It is not linked from anywhere.
+**Delete it before launch** (Step 12).
+
 ## Session log
 
 | Date | Session did | Stopped because |
 |---|---|---|
 | 2026-08-21 | Step 0 — read all docs, resolved content-set conflict, reorganised folder, wrote permissions/CLAUDE.md/PROGRESS.md, repo + resume setup | — |
+| 2026-08-21 | Steps 1–2 — Astro 7 + Tailwind v4 scaffold, self-hosted subsetted fonts inside budget, tokens/base/bangla CSS, Base layout, typography test page verified at 3 widths | — |

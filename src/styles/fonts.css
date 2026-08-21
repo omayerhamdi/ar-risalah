@@ -1,0 +1,43 @@
+/* ============================================================
+   Self-hosted faces. No Google Fonts CDN: third-party CDNs are
+   slow on Bangladeshi mobile networks and leak reader IPs.
+   All faces OFL. Static instances, not variable — the variable
+   axis costs ~3x (Noto Serif Bengali: 187kb variable vs 53kb static).
+   Subsetted with pyftsubset, all layout features kept so Bengali
+   conjuncts and Arabic contextual shaping still work.
+   ============================================================ */
+
+/* Bengali display + interface voice. Also carries <strong>: see base.css. */
+@font-face {
+  font-family: 'Tiro Bangla';
+  src: url('/fonts/tiro-bangla-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0980-09FF, U+0964-0965, U+200C-200D, U+20B9, U+25CC;
+}
+
+/* Bengali reading voice — long-form body text. */
+@font-face {
+  font-family: 'Noto Serif Bengali';
+  src: url('/fonts/noto-serif-bengali-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0980-09FF, U+0964-0965, U+200C-200D, U+20B9, U+25CC;
+}
+
+/* Arabic naskh for ayah and hadith. The unicode-range means a page with no
+   Arabic on it never downloads this file — archive and static pages stay light. */
+@font-face {
+  font-family: 'Amiri';
+  src: url('/fonts/amiri-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+200C-200F, U+25CC, U+FDF2, U+FDFA-FDFB, U+FDFD;
+}
+
+/* Latin (English references, URLs, ISBNs) falls back to the system stack.
+   Shipping Newsreader + Inter cost 79kb to style text that appears a few times
+   per article — cut to stay inside the font budget. See DECISIONS.md. */

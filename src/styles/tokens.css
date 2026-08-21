@@ -1,0 +1,103 @@
+/* ============================================================
+   আর-রিসালাহ — design tokens
+   Source of truth: docs/03-design-system.md
+   Do not invent values here. If a value is missing, add it to
+   the design system doc first, then mirror it below.
+   ============================================================ */
+
+:root {
+  /* ---- Surfaces (paper, not colour) ------------------------ */
+  --paper:        #F7F5EF;  /* main background — paper with a faint olive cast */
+  --paper-deep:   #EFEBE1;  /* alternate sections, quote backgrounds */
+  --paper-raise:  #FDFCF9;  /* card hover, input fields */
+
+  /* ---- Ink ------------------------------------------------- */
+  --ink:          #171A18;  /* headings and primary text */
+  --ink-body:     #2C312E;  /* long paragraphs (slightly softer) */
+  --ink-soft:     #5D655F;  /* meta, captions, dates */
+  --ink-faint:    #8B928C;  /* disabled, placeholder — 3.4:1, never for readable content */
+
+  /* ---- Rubric — indicator only, never decoration ----------- */
+  /* Permitted in exactly three places: category eyebrow,
+     in-article divider marks, reference/evidence numerals. */
+  --rubric:       #8C2B23;
+  --rubric-soft:  #B4675F;  /* on dark surfaces */
+
+  /* ---- Deep green — dark sections, footer ------------------ */
+  --deep:         #16302A;
+  --deep-2:       #1E4038;
+
+  /* ---- Rules ----------------------------------------------- */
+  --rule:         #DDD8CB;  /* matra-rule, dividers */
+  --rule-strong:  #C4BCA9;  /* significant divisions */
+
+  /* ---- State ----------------------------------------------- */
+  --focus:        #1E5F8C;  /* keyboard focus — the only blue on the site */
+  --success:      #2F6B4F;
+  --error:        #9B3227;
+
+  /* ---- Type families --------------------------------------- */
+  --font-display: 'Tiro Bangla', Georgia, serif;
+  --font-body:    'Noto Serif Bengali', Georgia, serif;
+  --font-ui:      'Tiro Bangla', system-ui, sans-serif;
+  --font-arabic:  'Amiri', 'Noto Naskh Arabic', serif;
+
+  /* ---- Type scale — mobile-first, ratio 1.2 → 1.25 ---------- */
+  --step--1: clamp(0.83rem, 0.81rem + 0.10vw, 0.89rem);  /* meta, caption */
+  --step-0:  clamp(1.06rem, 1.02rem + 0.20vw, 1.19rem);  /* body ~17px on mobile */
+  --step-1:  clamp(1.27rem, 1.20rem + 0.36vw, 1.49rem);  /* subheading */
+  --step-2:  clamp(1.52rem, 1.40rem + 0.60vw, 1.86rem);  /* H3 */
+  --step-3:  clamp(1.83rem, 1.64rem + 0.94vw, 2.33rem);  /* H2 */
+  --step-4:  clamp(2.19rem, 1.91rem + 1.42vw, 2.91rem);  /* H1 */
+  --step-5:  clamp(2.63rem, 2.20rem + 2.12vw, 3.64rem);  /* hero */
+
+  /* ---- Leading --------------------------------------------- */
+  /* Bengali body leading is deliberately generous. Set tighter
+     and long-form Bengali tires the eye fast on mobile. */
+  --leading-tight:  1.24;
+  --leading-snug:   1.42;
+  --leading-body:   1.85;
+  --leading-arabic: 2.05;
+
+  /* ---- Measure --------------------------------------------- */
+  --measure:        38rem;  /* ~65 characters */
+  --measure-narrow: 32rem;
+  --measure-wide:   52rem;
+
+  /* ---- Spacing — 4px base, 8px rhythm ---------------------- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;   /* section padding, mobile */
+  --sp-8: 4rem;
+  --sp-9: 6rem;   /* section padding, desktop */
+  --sp-10: 8rem;
+
+  /* ---- Containers ------------------------------------------ */
+  --container:      min(100% - 2.5rem, 76rem);
+  --container-read: min(100% - 2.5rem, 38rem);
+
+  /* ---- Geometry -------------------------------------------- */
+  /* 2px everywhere. 8px+ reads as "app"; 0px reads as newspaper.
+     2px is the cut edge of a printed page. */
+  --radius: 2px;
+  --tap:    44px;   /* minimum interactive target — not negotiable */
+
+  /* ---- Motion ---------------------------------------------- */
+  --ease:     cubic-bezier(0.2, 0, 0.2, 1);
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+
+  /* ---- Layering -------------------------------------------- */
+  --z-progress: 60;
+  --z-header:   50;
+  --z-mobilebar: 40;
+  --z-overlay:  70;
+}
+
+/* Dark mode is Phase 2. Bengali serifs go mushy on dark ground at
+   light weights and need their own weight compensation. The token
+   hook is kept here so Phase 2 is a token swap, not a rewrite. */

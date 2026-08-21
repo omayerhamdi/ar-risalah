@@ -1,0 +1,26 @@
+{
+  "name": "ar-risalah",
+  "type": "module",
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "postbuild": "pagefind --site dist"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.7",
+    "@astrojs/sitemap": "^3.7.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.4",
+    "sharp": "^0.35.3",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "pagefind": "^1.5.2"
+  }
+}

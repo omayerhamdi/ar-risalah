@@ -1,0 +1,38 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Preload Amiri too. Only set on pages that render Arabic above the fold. */
+  arabic?: boolean;
+}
+
+const { title, description = '', arabic = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical} />
+
+    {/* The two faces every page paints with. Preloading them removes the
+        swap flash on the headline, which is the largest CLS risk here. */}
+    <link rel="preload" href="/fonts/tiro-bangla-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/noto-serif-bengali-400.woff2" as="font" type="font/woff2" crossorigin />
+    {arabic && (
+      <link rel="preload" href="/fonts/amiri-400.woff2" as="font" type="font/woff2" crossorigin />
+    )}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">মূল বিষয়বস্তুতে যান</a>
+    <main id="main">
+      <slot />
+    </main>
+  </body>
+</html>
