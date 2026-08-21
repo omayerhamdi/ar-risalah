@@ -1,0 +1,55 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  /** Page <title> and meta description; falls back to the visible ones. */
+  metaTitle?: string;
+  description?: string;
+  eyebrow?: string;
+  lede?: string;
+}
+const { title, metaTitle, description, eyebrow, lede } = Astro.props;
+---
+<Base title={metaTitle ?? `${title} — আর-রিসালাহ`} description={description ?? lede}>
+  <div class="archive container">
+    <header class="head">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h1>{title}</h1>
+      {lede && <p class="lede">{lede}</p>}
+    </header>
+    <slot />
+  </div>
+</Base>
+
+<style>
+  .archive { padding-block: var(--sp-7) var(--sp-8); }
+  .head {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: var(--sp-5);
+    margin-bottom: var(--sp-7);
+    max-width: var(--measure-wide);
+  }
+  .head h1 { margin-top: var(--sp-2); font-size: var(--step-4); }
+  .lede {
+    margin-top: var(--sp-4);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+</style>
+
+<style is:global>
+  /* Shared by every archive page so the grids cannot drift apart. */
+  .archive-grid { display: grid; gap: var(--sp-6); }
+  .archive-empty {
+    padding: var(--sp-6);
+    background: var(--paper-deep);
+    border-top: 1px solid var(--rule);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+  @media (min-width: 48rem) { .archive-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 64rem) { .archive-grid { grid-template-columns: repeat(3, 1fr); } }
+</style>

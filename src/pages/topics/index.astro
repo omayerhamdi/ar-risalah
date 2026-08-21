@@ -1,0 +1,25 @@
+---
+import Archive from '../../layouts/Archive.astro';
+import TopicCard from '../../components/cards/TopicCard.astro';
+import { getPublished, byTopic } from '../../lib/articles';
+import { toBn } from '../../lib/toBn';
+
+const articles = await getPublished();
+const topics = [...byTopic(articles).entries()]
+  .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'bn'));
+---
+<Archive
+  title="বিষয়সমূহ"
+  eyebrow="বিষয়-হাব"
+  lede={`${toBn(topics.length)}টি বিষয়। ক্যাটাগরির চেয়ে সূক্ষ্ম, ট্যাগের চেয়ে গভীর—একটি বিষয়ে যা কিছু লেখা হয়েছে, এক জায়গায়।`}
+>
+  <div class="topic-grid">
+    {topics.map(([t, list]) => <TopicCard topic={t} count={list.length} />)}
+  </div>
+</Archive>
+
+<style>
+  .topic-grid { display: grid; gap: var(--sp-3); }
+  @media (min-width: 48rem) { .topic-grid { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); } }
+  @media (min-width: 64rem) { .topic-grid { grid-template-columns: repeat(3, 1fr); } }
+</style>

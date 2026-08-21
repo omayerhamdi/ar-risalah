@@ -1,0 +1,78 @@
+---
+import Archive from '../layouts/Archive.astro';
+import { getResources } from '../lib/resources';
+import { toBn } from '../lib/toBn';
+
+const resources = await getResources();
+
+// Group by the article they were cited in — that is the context a researcher
+// actually wants: not a flat bibliography, but "what was read for this piece".
+const groups = new Map<string, { titleShort: string; category: string; items: typeof resources }>();
+for (const r of resources) {
+  const key = r.article.slug;
+  if (!groups.has(key)) {
+    groups.set(key, { titleShort: r.article.titleShort, category: r.article.category, items: [] });
+  }
+  groups.get(key)!.items.push(r);
+}
+const grouped = [...groups.entries()];
+---
+<Archive
+  title="একাডেমিক রিসোর্স"
+  eyebrow="সংগ্রহশালা"
+  lede={`${toBn(resources.length)}টি গ্রন্থ ও উৎস, ${toBn(grouped.length)}টি লেখায় ব্যবহৃত। প্রতিটি লেখার নিচে যে গ্রন্থপঞ্জি দেওয়া আছে, এখানে তা এক জায়গায়।`}
+>
+  {grouped.length > 0 ? (
+    <div class="groups">
+      {grouped.map(([slug, g]) => (
+        <section class="group matra">
+          <p class="eyebrow">{g.category}</p>
+          <h2><a href={`/articles/${slug}`}>{g.titleShort}</a></h2>
+          <ul>
+            {g.items.map((r) => (
+              <li set:html={r.text
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/\*([^*]+)\*/g, '<cite>$1</cite>')} />
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  ) : (
+    <p class="archive-empty">এখনো কোনো রিসোর্স তালিকাভুক্ত হয়নি।</p>
+  )}
+</Archive>
+
+<style>
+  .groups { display: grid; gap: var(--sp-7); }
+  .group { padding-top: var(--sp-3); }
+  .group h2 {
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    margin-top: var(--sp-2);
+  }
+  .group h2 a { text-decoration: none; }
+  .group ul { list-style: none; margin: var(--sp-4) 0 0; padding: 0; }
+  .group li {
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+    padding-left: var(--sp-4);
+    position: relative;
+    max-width: var(--measure-wide);
+  }
+  .group li + li { margin-top: var(--sp-3); }
+  .group li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 6px; height: 6px;
+    background: var(--rubric);
+  }
+  .group :global(cite) { font-style: italic; color: var(--ink-body); }
+
+  @media (min-width: 64rem) {
+    .groups { grid-template-columns: repeat(2, 1fr); gap: var(--sp-7) var(--sp-6); }
+  }
+</style>

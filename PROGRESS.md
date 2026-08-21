@@ -3,12 +3,13 @@
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
 **Last updated:** 2026-08-21
-**Last session ended at:** Steps 1-6 complete, plus all 14 cover images and the
-logo from Step 10.
-**Next action:** Step 7 — archive pages: `/articles`, `/categories/[category]`,
-`/topics/[topic]`, `/authors` and `/authors/[slug]`, `/research`, `/resources`.
-Every one of these is already linked from the homepage, header or footer, so
-they are currently 404s. Then Step 8 static pages, Step 9 Pagefind search.
+**Last session ended at:** Steps 1-7 complete, plus covers and logo from Step 10.
+77 pages build.
+**Next action:** Step 8 — static pages. Copy for all of them is already written
+in `docs/04-page-content.md`: about, contact, start-here, for-khateebs, privacy,
+terms, 404, plus a `/subscribe` landing page and `/glossary`. These are the only
+remaining broken internal links apart from `/search` (Step 9) and `/rss.xml`
+(Step 11).
 
 ---
 
@@ -36,7 +37,7 @@ they are currently 404s. Then Step 8 static pages, Step 9 Pagefind search.
       Do not move on until mobile is flawless.
 - [x] **Step 5 — Header, footer, mobile bar.** PASSED —
 - [x] **Step 6 — Homepage.** PASSED —
-- [ ] **Step 7 — Archive pages.** articles, categories, topics, authors, research, resources.
+- [x] **Step 7 — Archive pages.** PASSED — articles, categories, topics, authors, research, resources.
 - [ ] **Step 8 — Static pages.** about, contact, start-here, for-khateebs, privacy, terms, 404.
 - [ ] **Step 9 — Search (Pagefind).** Verify Bengali indexing with যৌতুক, শাশুড়ি, আখলাক.
       Fall back to Fuse.js over `searchKeywords[]` if Pagefind fails on Bengali.
@@ -163,6 +164,21 @@ address and silently drops it is worse than no form — the reader believes they
 subscribed. The WhatsApp route works as soon as `PUBLIC_WHATSAPP_CHANNEL` is
 set. **Both need the user.**
 
+## Step 7 verification result (2026-08-22)
+
+77 pages build. A link crawl over every built page finds no broken archive
+links — the only internal 404s left are `/about`, `/contact`, `/for-khateebs`,
+`/glossary`, `/privacy`, `/start-here`, `/subscribe`, `/terms` (Step 8),
+`/search` (Step 9) and `/rss.xml` (Step 11).
+
+`/resources` is not a placeholder. Academic resources live as a bullet list
+inside each article, so the page reads them back out of the MDX at build time
+and groups them by the article that cited them. That keeps one source of truth:
+a writer edits the article, and the library follows. All 14 articles contribute.
+
+No pagination on the archives. With 14 articles it would be noise; the category
+filter carries the load. Worth revisiting past ~50 articles.
+
 ## Blocked — needs the user
 
 | # | Item | What the user must do | Blocks |
@@ -203,6 +219,7 @@ The test page lives at `/type-test`. It is not linked from anywhere.
 | Date | Session did | Stopped because |
 |---|---|---|
 | 2026-08-21 | Step 0 — read all docs, resolved content-set conflict, reorganised folder, wrote permissions/CLAUDE.md/PROGRESS.md, repo + resume setup | — |
+| 2026-08-22 | Step 7 — archives: articles, categories, topics + hub, authors + profiles, research, resources | — |
 | 2026-08-22 | Step 6 — homepage, all nine sections, plus feature/topic/author cards and the subscribe section | — |
 | 2026-08-22 | Step 5 — header, footer, mobile bar, SVG logo; fixed two AA contrast failures inherited from the design system doc | — |
 | 2026-08-22 | Step 10 (covers) — 14 covers generated, 3 regenerated after review, wired in with astro:assets and the design system's wash | — |

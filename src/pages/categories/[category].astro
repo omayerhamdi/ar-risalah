@@ -1,0 +1,30 @@
+---
+import Archive from '../../layouts/Archive.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import { getPublished, byCategory } from '../../lib/articles';
+import { toBn } from '../../lib/toBn';
+
+export async function getStaticPaths() {
+  const articles = await getPublished();
+  return [...byCategory(articles).entries()].map(([slug, group]) => ({
+    params: { category: slug },
+    props: { label: group.label, articles: group.articles },
+  }));
+}
+
+const { label, articles } = Astro.props;
+---
+<Archive
+  title={label}
+  eyebrow="ক্যাটাগরি"
+  lede={`এই বিভাগে ${toBn(articles.length)}টি লেখা।`}
+>
+  <div class="archive-grid">
+    {articles.map((a) => <ArticleCard article={a} />)}
+  </div>
+  <p class="back"><a href="/articles">← সব প্রবন্ধ</a></p>
+</Archive>
+
+<style>
+  .back { margin-top: var(--sp-7); font-family: var(--font-ui); font-size: var(--step--1); }
+</style>

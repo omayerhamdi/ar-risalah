@@ -1,0 +1,33 @@
+---
+import Archive from '../layouts/Archive.astro';
+import ArticleCard from '../components/cards/ArticleCard.astro';
+import { getPublished } from '../lib/articles';
+import { toBn } from '../lib/toBn';
+
+const articles = (await getPublished()).filter((a) => a.data.hasResearch);
+---
+<Archive
+  title="গবেষণা"
+  eyebrow="গভীরে"
+  lede="কিছু বিষয়ে আমরা প্রবন্ধের বাইরেও যাই—উৎস, ঐতিহাসিক প্রেক্ষাপট, ফিকহি ইখতিলাফ ও তুলনামূলক বিশ্লেষণসহ। এই লেখাগুলোর ভেতরে একটি গবেষণা-স্তর আছে।"
+>
+  {articles.length > 0 ? (
+    <>
+      <p class="count">{toBn(articles.length)}টি লেখায় গবেষণা-স্তর আছে।</p>
+      <div class="archive-grid">
+        {articles.map((a) => <ArticleCard article={a} />)}
+      </div>
+    </>
+  ) : (
+    <p class="archive-empty">এখনো কোনো গবেষণা-স্তর প্রকাশিত হয়নি।</p>
+  )}
+</Archive>
+
+<style>
+  .count {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    margin-bottom: var(--sp-5);
+  }
+</style>

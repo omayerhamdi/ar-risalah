@@ -1,0 +1,93 @@
+---
+import { getCollection, render } from 'astro:content';
+import Archive from '../../layouts/Archive.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import { getPublished } from '../../lib/articles';
+import { toBn } from '../../lib/toBn';
+
+export async function getStaticPaths() {
+  const authors = await getCollection('authors');
+  const articles = await getPublished();
+  return authors.map((author) => ({
+    params: { slug: author.data.slug },
+    props: {
+      author,
+      articles: articles.filter((a) => a.data.authors.some((r) => r.id === author.id)),
+    },
+  }));
+}
+
+const { author, articles } = Astro.props;
+const a = author.data;
+const { Content } = await render(author);
+---
+<Archive
+  title={a.name}
+  metaTitle={`${a.name} — আর-রিসালাহ`}
+  description={a.shortBio}
+  eyebrow={a.role}
+>
+  <div class="profile">
+    <div class="bio prose">
+      <p class="arabic-name" lang="ar" dir="rtl">{a.nameArabic}</p>
+      <Content />
+    </div>
+
+    <aside class="interests">
+      <p class="label">যে বিষয়ে লেখেন</p>
+      <ul>
+        {a.areasOfInterest.map((i) => <li>{i}</li>)}
+      </ul>
+    </aside>
+  </div>
+
+  <section class="works" aria-labelledby="works-heading">
+    <h2 id="works-heading">
+      {articles.length > 0 ? `${a.name}-এর লেখা` : 'লেখা'}
+      <span class="count tabular">{toBn(articles.length)}</span>
+    </h2>
+    {articles.length > 0 ? (
+      <div class="archive-grid">
+        {articles.map((art) => <ArticleCard article={art} />)}
+      </div>
+    ) : (
+      <p class="archive-empty">
+        এখনো কোনো প্রকাশিত লেখা নেই। নতুন লেখা এলে এখানেই আসবে।
+      </p>
+    )}
+  </section>
+</Archive>
+
+<style>
+  .profile { display: grid; gap: var(--sp-6); }
+  .bio { max-width: var(--measure); }
+  .arabic-name {
+    font-family: var(--font-arabic);
+    font-size: var(--step-2);
+    color: var(--ink-soft);
+    margin-bottom: var(--sp-5);
+  }
+  .interests { border-top: 1px solid var(--rule); padding-top: var(--sp-4); }
+  .label { font-family: var(--font-ui); font-size: var(--step--1); color: var(--rubric); }
+  .interests ul { list-style: none; margin: var(--sp-3) 0 0; padding: 0; }
+  .interests li {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .interests li + li { margin-top: var(--sp-2); }
+
+  .works { margin-top: var(--sp-9); }
+  .works h2 {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+    margin-bottom: var(--sp-5);
+    display: flex; gap: var(--sp-2);
+  }
+  .count { color: var(--ink-faint); }
+
+  @media (min-width: 64rem) {
+    .profile { grid-template-columns: 7fr 3fr; gap: var(--sp-7); align-items: start; }
+  }
+</style>

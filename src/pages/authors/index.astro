@@ -1,0 +1,22 @@
+---
+import { getCollection } from 'astro:content';
+import Archive from '../../layouts/Archive.astro';
+import AuthorCard from '../../components/cards/AuthorCard.astro';
+
+const authors = (await getCollection('authors')).sort((a, b) => a.data.order - b.data.order);
+---
+<Archive
+  title="লেখকবৃন্দ"
+  eyebrow="পরিচয়"
+  lede="যাঁরা লেখেন, সম্পাদনা করেন ও যাচাই করেন।"
+>
+  <div class="author-grid">
+    {authors.map((a) => <AuthorCard author={a} />)}
+  </div>
+</Archive>
+
+<style>
+  .author-grid { display: grid; gap: var(--sp-5); }
+  @media (min-width: 48rem) { .author-grid { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); } }
+  @media (min-width: 64rem) { .author-grid { grid-template-columns: repeat(3, 1fr); } }
+</style>

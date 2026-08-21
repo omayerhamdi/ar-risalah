@@ -1,0 +1,50 @@
+---
+import Archive from '../../layouts/Archive.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import { getPublished, byCategory } from '../../lib/articles';
+import { toBn } from '../../lib/toBn';
+
+const articles = await getPublished();
+const categories = [...byCategory(articles).entries()];
+---
+<Archive
+  title="সব প্রবন্ধ"
+  eyebrow="আর্কাইভ"
+  lede={`${toBn(articles.length)}টি লেখা। ক্যাটাগরি ধরে ছেঁকে নিতে পারেন, অথবা পুরোটা ঘুরে দেখতে পারেন।`}
+>
+  <nav class="filters" aria-label="ক্যাটাগরি ছাঁকনি">
+    <a href="/articles" aria-current="page">সব</a>
+    {categories.map(([slug, group]) => (
+      <a href={`/categories/${slug}`}>{group.label} <span class="n tabular">{toBn(group.articles.length)}</span></a>
+    ))}
+  </nav>
+
+  <div class="archive-grid">
+    {articles.map((a) => <ArticleCard article={a} />)}
+  </div>
+</Archive>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-7);
+  }
+  .filters a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: var(--tap);
+    padding-inline: var(--sp-4);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  .filters a:hover { border-color: var(--ink); color: var(--ink); }
+  .filters a[aria-current='page'] { border-color: var(--ink); color: var(--ink); }
+  .n { color: var(--ink-faint); }
+</style>
