@@ -1,0 +1,252 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/cards/ArticleCard.astro';
+import { getPublished, byTopic } from '../lib/articles';
+import { toBn } from '../lib/toBn';
+
+const articles = await getPublished();
+const recent = articles.slice(0, 3);
+const topics = [...byTopic(articles).entries()]
+  .sort((a, b) => b[1].length - a[1].length)
+  .slice(0, 8)
+  .map(([t, list]) => ({ topic: t, count: list.length }));
+---
+<Base
+  title="খোঁজ — আর-রিসালাহ"
+  description="আর-রিসালাহর প্রবন্ধ ও গবেষণায় খুঁজুন।"
+>
+  <div class="container search-page">
+    <header class="head">
+      <p class="eyebrow">খোঁজ</p>
+      <h1>কী খুঁজছেন?</h1>
+    </header>
+
+    {/* A real GET form, so the URL is shareable and the page still works with
+        scripting off — it just lands on the unfiltered archive instead. */}
+    <form class="search-form" role="search" method="get" action="/search">
+      <label class="visually-hidden" for="q">খোঁজার শব্দ</label>
+      <input
+        id="q"
+        name="q"
+        type="search"
+        autocomplete="off"
+        placeholder="যৌতুক, শাশুড়ি, আখলাক…"
+        enterkeyhint="search"
+      />
+      <button type="submit">খুঁজুন</button>
+    </form>
+
+    <p class="status" id="search-status" role="status" aria-live="polite"></p>
+    <div id="search-results" class="archive-grid"></div>
+
+    <noscript>
+      <p class="archive-empty">
+        খোঁজের জন্য জাভাস্ক্রিপ্ট প্রয়োজন। আপনি বিষয় ধরে বা আর্কাইভ থেকেও
+        পৌঁছাতে পারেন — <a href="/topics">বিষয়সমূহ</a> বা
+        <a href="/articles">সব প্রবন্ধ</a>।
+      </p>
+    </noscript>
+
+    {/* The empty state is never a blank box: popular topics and recent work. */}
+    <div id="search-empty">
+      <section class="suggest">
+        <h2>জনপ্রিয় বিষয়</h2>
+        <ul class="chips">
+          {topics.map((t) => (
+            <li>
+              <a href={`/topics/${encodeURIComponent(t.topic)}`}>
+                {t.topic} <span class="n tabular">{toBn(t.count)}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="suggest">
+        <h2>সাম্প্রতিক লেখা</h2>
+        <div class="archive-grid">
+          {recent.map((a) => <ArticleCard article={a} />)}
+        </div>
+      </section>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .search-page { padding-block: var(--sp-7) var(--sp-8); }
+  .head { max-width: var(--measure-wide); }
+  .head h1 { margin-top: var(--sp-2); font-size: var(--step-4); }
+
+  .search-form {
+    display: flex;
+    gap: var(--sp-3);
+    margin-top: var(--sp-6);
+    padding-bottom: var(--sp-6);
+    border-bottom: 1px solid var(--rule);
+    max-width: var(--measure);
+  }
+  input[type='search'] {
+    flex: 1;
+    min-height: var(--tap);
+    padding: var(--sp-2) var(--sp-3);
+    background: var(--paper-raise);
+    color: var(--ink);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+  }
+  button {
+    min-height: var(--tap);
+    padding-inline: var(--sp-5);
+    background: var(--deep);
+    color: var(--paper);
+    border: 0;
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    font-size: var(--step-0);
+    cursor: pointer;
+  }
+
+  .status {
+    margin-top: var(--sp-5);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .status:empty { display: none; }
+
+  #search-results:empty { display: none; }
+  #search-results { margin-top: var(--sp-6); }
+
+  .suggest { margin-top: var(--sp-7); }
+  .suggest h2 {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+    margin-bottom: var(--sp-5);
+  }
+  .chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .chips a {
+    display: inline-flex; align-items: center; gap: var(--sp-2);
+    min-height: var(--tap); padding-inline: var(--sp-4);
+    border: 1px solid var(--rule); border-radius: var(--radius);
+    font-family: var(--font-ui); font-size: var(--step--1);
+    color: var(--ink-soft); text-decoration: none;
+  }
+  .chips a:hover { border-color: var(--ink); color: var(--ink); }
+  .n { color: var(--ink-faint); }
+
+  /* Result cards reuse the matra-rule pattern rather than inventing a style. */
+  :global(.result) { padding-top: var(--sp-3); border-top: 1px solid var(--rule); }
+  :global(.result h3) { font-size: var(--step-1); line-height: var(--leading-snug); margin-top: var(--sp-2); }
+  :global(.result h3 a) { text-decoration: none; }
+  :global(.result .excerpt) {
+    margin-top: var(--sp-3);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+  }
+  :global(.result mark) { background: var(--paper-deep); color: var(--ink); }
+</style>
+
+<script is:inline>
+  // Inline on purpose: Pagefind is generated by the postbuild step, so it does
+  // not exist while Vite is bundling. A processed script would try to resolve
+  // /pagefind/pagefind.js at build time and fail. Staying inline also keeps the
+  // whole search UI out of the shared bundle.
+  (() => {
+    const form = document.querySelector('.search-form');
+    const input = document.getElementById('q');
+    const status = document.getElementById('search-status');
+    const results = document.getElementById('search-results');
+    const empty = document.getElementById('search-empty');
+    if (!form || !input) return;
+
+    let pagefind = null;
+    let loadFailed = false;
+
+    async function load() {
+      if (pagefind || loadFailed) return pagefind;
+      try {
+        pagefind = await import('/pagefind/pagefind.js');
+        await pagefind.options({ excerptLength: 24 });
+        await pagefind.init();
+      } catch {
+        // Most likely `astro dev`, where the index has not been built.
+        loadFailed = true;
+        pagefind = null;
+      }
+      return pagefind;
+    }
+
+    const escape = (s) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[+d]);
+
+    let seq = 0;
+    async function run(query) {
+      const q = query.trim();
+      const mine = ++seq;
+
+      if (!q) {
+        results.innerHTML = '';
+        status.textContent = '';
+        empty.hidden = false;
+        return;
+      }
+
+      empty.hidden = true;
+      status.textContent = 'খুঁজছি…';
+
+      const pf = await load();
+      if (mine !== seq) return; // a newer keystroke already took over
+      if (!pf) {
+        status.textContent = 'খোঁজ এখন কাজ করছে না। আর্কাইভ থেকে দেখুন।';
+        empty.hidden = false;
+        return;
+      }
+
+      const search = await pf.search(q);
+      const found = await Promise.all(search.results.slice(0, 20).map((r) => r.data()));
+      if (mine !== seq) return;
+
+      if (!found.length) {
+        results.innerHTML = '';
+        status.textContent = '“' + q + '” লিখে কিছু পাওয়া গেল না।';
+        empty.hidden = false;
+        return;
+      }
+
+      status.textContent = '“' + q + '” — ' + bn(found.length) + 'টি ফল।';
+      results.innerHTML = found
+        .map(
+          (d) =>
+            '<article class="result">' +
+            '<h3><a href="' + d.url + '">' + escape(d.meta && d.meta.title ? d.meta.title : d.url) + '</a></h3>' +
+            '<p class="excerpt">' + d.excerpt + '</p>' +
+            '</article>',
+        )
+        .join('');
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      history.replaceState(null, '', q ? '/search?q=' + encodeURIComponent(q) : '/search');
+      run(q);
+    });
+
+    let timer;
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => run(input.value), 220);
+    });
+
+    const initial = new URLSearchParams(location.search).get('q');
+    if (initial) {
+      input.value = initial;
+      run(initial);
+    }
+  })();
+</script>
