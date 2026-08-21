@@ -3,13 +3,13 @@
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
 **Last updated:** 2026-08-21
-**Last session ended at:** Steps 1-11 complete. 87 pages, **zero broken internal
-links**, clean `astro build` and `astro check`.
-**Next action:** Step 12 — the final audit against
-`docs/07-verification-checklist.md` and brief §10. Run Lighthouse on mobile and
-desktop and record the numbers in `DECISIONS.md`. Delete `/type-test`. Write the
-README section on adding an article, adding an image, and how deploys work —
-the brief calls this out because future writers are not developers.
+**Last session ended at:** All twelve build steps complete. 86 pages, Lighthouse
+100/100/100/100 on desktop and 99/100/100/100 on mobile, every performance
+budget met.
+**Next action:** Nothing is blocking. What remains is small and listed under
+"Still outstanding" below — favicon, the `<link rel="icon">` tag, and correcting
+the three wrong contrast figures in `docs/03-design-system.md`. Everything else
+waits on the user (see Blocked).
 
 ---
 
@@ -41,10 +41,9 @@ the brief calls this out because future writers are not developers.
 - [x] **Step 8 — Static pages.** PASSED — about, contact, start-here, for-khateebs, privacy, terms, 404.
 - [x] **Step 9 — Search (Pagefind).** PASSED — Verify Bengali indexing with যৌতুক, শাশুড়ি, আখলাক.
       Fall back to Fuse.js over `searchKeywords[]` if Pagefind fails on Bengali.
-- [~] **Step 10 — Logo and visual assets.** Covers DONE (see below). **Logo still to do:**
-      hand-built SVG, typographic only, three options to compare, plus favicon.
+- [x] **Step 10 — Logo and visual assets.** Covers and logo done. **Favicon still to do.**
 - [x] **Step 11 — SEO, RSS, sitemap, OG images.** PASSED — OG images are typographic, build-time.
-- [ ] **Step 12 — Final audit.** Full checklist in `docs/07-verification-checklist.md`
+- [x] **Step 12 — Final audit.** PASSED — Full checklist in `docs/07-verification-checklist.md`
       and brief §10. Lighthouse results recorded in `DECISIONS.md`.
 
 ---
@@ -245,6 +244,60 @@ are fetched only after the reader types, and only on `/search`.
 in the output is the search input's HTML attribute, which holds real Bengali
 example terms — not placeholder content.
 
+## Step 12 — final audit result (2026-08-22)
+
+**Lighthouse**, built site served through `npm run preview`:
+
+| | Perf | A11y | Best Practices | SEO | LCP | CLS | TBT |
+|---|---|---|---|---|---|---|---|
+| mobile (throttled) | 99 | 100 | 100 | 100 | 2.3s | 0 | 0ms |
+| desktop | 100 | 100 | 100 | 100 | 0.5s | 0 | 0ms |
+
+Homepage and search score 98 and 99 on mobile, 100 across a11y/bp/seo.
+
+**Every budget in brief §9 is met:** LCP < 2.5s · CLS < 0.1 · JS per page
+< 25kb (actual 3.8-6.9kb) · fonts < 180kb (175.9kb) · any cover < 120kb
+(largest 54.4kb) · all four Lighthouse categories ≥ 90 on mobile.
+
+**Checklist findings, all resolved:**
+
+- **53 heading-level jumps** across the archive pages — cards used `h3` while
+  sitting directly under the page `h1`. `ArticleCard` now takes a
+  `headingLevel`. Zero jumps across all 86 pages.
+- **The mobile menu button was inert with JavaScript off**, and the desktop nav
+  is hidden below 64rem. It now ships `hidden` and the script reveals it; the
+  footer carries full navigation (13 links) either way.
+- **365kb of unused Pagefind UI** was being deployed. Three prebuilt bundles no
+  page loads — and they carry box-shadows, gradients and 8-12px radii that
+  contradict the design system. `scripts/prune-pagefind-ui.mjs` drops them,
+  and refuses to drop anything the HTML actually references.
+- Reported box-shadow/gradient/radius violations were **all** inside those
+  Pagefind files, not in this site's CSS.
+- The one image "without alt" is the feature card's cover, which carries
+  `alt=""` deliberately — the link is `aria-hidden` and the title carries the
+  meaning. Correct as it stands.
+- The only Latin digits in visible copy are `1204–1760` inside an English book
+  title, which is the documented exception.
+- `/type-test` deleted.
+
+**With JavaScript fully disabled:** 1453 words of article render, 25 internal
+links work, `<details>` opens natively, and no dead controls are shown.
+
+`README.md` is written for the writers rather than for developers: how to add
+an article with a full frontmatter example, how ayah blocks and the three
+closing sections format themselves, how to add a cover, and how publishing
+works.
+
+## Still outstanding (small, not blocking)
+
+- **Favicon.** The brief asks for the "রি" conjunct in a square with its matra.
+  Needs drawing as SVG plus the `<link rel="icon">` tag in `Base.astro`.
+- **`docs/03-design-system.md` still carries the three wrong contrast figures**
+  corrected in the tokens at Step 5. Worth fixing in the doc so nobody
+  reintroduces them.
+- `searchKeywords` is unused — Pagefind handles Bengali well enough that the
+  fallback was never needed.
+
 ## Blocked — needs the user
 
 | # | Item | What the user must do | Blocks |
@@ -287,6 +340,7 @@ The test page lives at `/type-test`. It is not linked from anywhere.
 | Date | Session did | Stopped because |
 |---|---|---|
 | 2026-08-21 | Step 0 — read all docs, resolved content-set conflict, reorganised folder, wrote permissions/CLAUDE.md/PROGRESS.md, repo + resume setup | — |
+| 2026-08-22 | Step 12 — final audit: Lighthouse, checklist sweep, fixed heading jumps and the no-JS menu, pruned 365kb, wrote the writers' README | — |
 | 2026-08-22 | Step 11 — RSS, sitemap, OG/Twitter meta, 14 build-time typographic OG cards | — |
 | 2026-08-22 | Step 9 — Pagefind search, verified against Bengali; fixed the bundler resolving Pagefind at build time | — |
 | 2026-08-22 | Step 8 — nine static pages, Page layout, contact form; fixed two type errors and made build+check warning-free | — |

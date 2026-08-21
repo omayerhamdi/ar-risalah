@@ -30,11 +30,14 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
           <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
         </svg>
       </a>
+      {/* Hidden until the script reveals it: with scripting off this button
+          could never open anything, and the footer carries full navigation. */}
       <button
         class="menu-toggle tap"
         type="button"
         aria-expanded="false"
         aria-controls="mobile-menu"
+        hidden
       >
         <span class="visually-hidden">মেনু</span>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -124,6 +127,8 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
   }
   .mobile-menu a[aria-current='page'] { color: var(--rubric); }
 
+  .menu-toggle[hidden] { display: none; }
+
   @media (min-width: 64rem) {
     .desktop-nav { display: block; }
     .menu-toggle { display: none; }
@@ -135,6 +140,7 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
     const toggle = document.querySelector('.menu-toggle');
     const menu = document.getElementById('mobile-menu');
     if (!toggle || !menu) return;
+    toggle.hidden = false;
 
     const open = () => {
       menu.hidden = false;

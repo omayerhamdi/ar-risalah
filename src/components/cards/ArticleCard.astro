@@ -5,8 +5,17 @@ import { bnReadingTime } from '../../lib/dates';
 import Cover from '../article/Cover.astro';
 import { getCover } from '../../lib/covers';
 
-interface Props { article: CollectionEntry<'articles'> }
-const { article } = Astro.props;
+interface Props {
+  article: CollectionEntry<'articles'>;
+  /**
+   * Heading level for the card title. Default h3 suits a card sitting under a
+   * section h2; archive pages pass 2 because the card sits directly under the
+   * page h1 and an h1 → h3 gap is a real screen-reader problem.
+   */
+  headingLevel?: 2 | 3 | 4;
+}
+const { article, headingLevel = 3 } = Astro.props;
+const Heading = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
 const d = article.data;
 
 const first = await getEntry(d.authors[0]);
@@ -26,7 +35,7 @@ const cover = getCover(d.slug);
   )}
   <div class="matra card-text">
   <p class="eyebrow">{d.category}</p>
-  <h3><a href={`/articles/${d.slug}`}>{d.title}</a></h3>
+  <Heading class="card-title"><a href={`/articles/${d.slug}`}>{d.title}</a></Heading>
   <p class="excerpt">{d.excerpt}</p>
   <p class="meta">{bnReadingTime(d.readingTime)} · {byline}</p>
   </div>
@@ -40,16 +49,19 @@ const cover = getCover(d.slug);
   .card-text { padding-top: var(--sp-3); }
   .card:hover .card-text { border-top-color: var(--ink); }
 
-  h3 {
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    color: var(--ink);
     font-size: var(--step-1);
     line-height: var(--leading-snug);
     margin-top: var(--sp-2);
   }
-  h3 a { text-decoration: none; }
+  .card-title a { text-decoration: none; }
 
   /* The whole card is clickable, but the focus ring stays on the title
      so keyboard users see a ring around something meaningful. */
-  h3 a::after { content: ''; position: absolute; inset: 0; }
+  .card-title a::after { content: ''; position: absolute; inset: 0; }
 
   .excerpt {
     margin-top: var(--sp-3);

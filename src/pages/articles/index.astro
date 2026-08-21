@@ -20,7 +20,7 @@ const categories = [...byCategory(articles).entries()];
   </nav>
 
   <div class="archive-grid">
-    {articles.map((a) => <ArticleCard article={a} />)}
+    {articles.map((a) => <ArticleCard article={a} headingLevel={2} />)}
   </div>
 </Archive>
 

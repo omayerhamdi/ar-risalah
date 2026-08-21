@@ -1,43 +1,173 @@
-# Astro Starter Kit: Minimal
+# আর-রিসালাহ
 
-```sh
-npm create astro@latest -- --template minimal
+বাংলা ভাষার ইসলামিক এডিটোরিয়াল ও গবেষণা প্ল্যাটফর্ম।
+Astro + MDX · Cloudflare Pages · <https://github.com/omayerhamdi/ar-risalah>
+
+> **এই ফাইলটি লেখকদের জন্য।** কোডিং জানার দরকার নেই। প্রযুক্তিগত সিদ্ধান্তের
+> কারণ `DECISIONS.md`-এ, আর কাজের অবস্থা `PROGRESS.md`-এ।
+
+---
+
+## নতুন প্রবন্ধ যোগ করা
+
+`src/content/articles/` ফোল্ডারে একটি নতুন ফাইল বানান। নাম হবে
+`১৫-your-slug.mdx` ধরনের — শুরুতে ক্রমিক সংখ্যা, তারপর ইংরেজি অক্ষরে slug।
+
+ফাইলের শুরুতে দুটি `---` রেখার মাঝে তথ্যগুলো বসাতে হয়। নিচেরটি হুবহু কপি করে
+বদলে নিলেই হবে:
+
+```mdx
+---
+title: "যবানের হিফাজত: যে অস্ত্র আমরা রোজ ব্যবহার করি"
+titleShort: "যবানের হিফাজত"
+slug: "jobaner-hifazat"
+category: "আখলাক ও পরিবার"
+categorySlug: "akhlaq-poribar"
+subcategory: "যবান ও ব্যবহার"
+topics: ["যবান", "গিবত", "পারিবারিক সম্পর্ক"]
+excerpt: "দুই থেকে তিন লাইনের সারাংশ। এটিই কার্ডে, গুগলে ও হোয়াটসঅ্যাপ প্রিভিউতে দেখা যাবে।"
+authors: ["mawlana-afsaruddin"]
+publishedAt: 2026-08-06
+readingTime: 12
+featured: true
+pillar: true
+cover:
+  alt: "ছবিতে কী দেখা যাচ্ছে, এক বাক্যে — যাঁরা দেখতে পান না তাঁদের জন্য"
+  prompt: "ছবিটি যে প্রম্পট দিয়ে বানানো হয়েছে, ভবিষ্যতে আবার বানাতে হলে কাজে লাগবে"
+keyTakeaways:
+  - "তিন থেকে পাঁচটি বাক্য।"
+  - "প্রতিটি নিজে থেকে সম্পূর্ণ হবে।"
+  - "লেখাটি না পড়েও যেন মূল কথাটা বোঝা যায়।"
+pullQuote: "লেখার সবচেয়ে জোরালো একটি বাক্য। এটি লেখার মাঝখানে বড় করে দেখানো হবে।"
+hasResearch: true
+hasKhutbahResource: true
+status: "published"
+---
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+**যা মনে রাখতে হবে**
 
-## 🚀 Project Structure
+| ফিল্ড | নিয়ম |
+|---|---|
+| `slug` | ইংরেজি অক্ষরে, বাংলা উচ্চারণ ধরে। **একবার প্রকাশের পর কখনো বদলাবেন না** — পুরনো লিংক ভেঙে যাবে। |
+| `authors` | `src/content/authors/` ফোল্ডারের ফাইলের নাম। ভুল নাম দিলে সাইট বিল্ড হবে না — এটি ইচ্ছাকৃত। |
+| `keyTakeaways` | কমপক্ষে ৩টি, সর্বোচ্চ ৫টি। |
+| `readingTime` | মিনিটে। বাংলায় প্রতি মিনিটে ~১৮০ শব্দ ধরুন। |
+| `status` | `published` না লিখলে লেখাটি সাইটে দেখাবে না। খসড়ার জন্য `draft`। |
 
-Inside of your Astro project, you'll see the following folders and files:
+### লেখার ভেতরে
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+সাধারণ মার্কডাউন লিখলেই হবে। তিনটি বিষয় নিজে থেকেই সেজে যায়:
+
+**আয়াত ও হাদিস** — শুধু `>` দিয়ে উদ্ধৃতি লিখুন। প্রথম লাইনে আরবি, তারপর
+অনুবাদ, শেষে `—` দিয়ে সূত্র:
+
+```md
+> وَقُولُوا لِلنَّاسِ حُسْنًا
+>
+> "মানুষের সঙ্গে সুন্দর কথা বলো।"
+>
+> — সূরা আল-বাকারা, ২:৮৩
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+আরবি লেখা, ডান-থেকে-বাম দিক, লাল রেখা — সব আপনাআপনি বসে যাবে।
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+**শেষের তিনটি অংশ** — প্রতিটি লেখা এই তিনটি শিরোনাম দিয়ে শেষ হয়। নাম হুবহু
+এই রকমই লিখতে হবে, নইলে সাজবে না:
 
-Any static assets, like images, can be placed in the `public/` directory.
+```md
+## দলিল ও রেফারেন্স
+## একাডেমিক রিসোর্স
+## গবেষণার দিক
+```
 
-## 🧞 Commands
+`গবেষণার দিক` অংশটি আপনাআপনি একটি খোলা-বন্ধ করা বাক্সে ঢুকে যাবে।
 
-All commands are run from the root of the project, from a terminal:
+**সংখ্যা** — বাংলায় লিখুন (১২, ২০২৬)। ব্যতিক্রম শুধু ইংরেজি বইয়ের নাম,
+প্রকাশসাল ও ISBN।
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+---
 
-## 👀 Want to learn more?
+## ছবি যোগ করা
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+কভার ছবি রাখুন `src/assets/covers/` ফোল্ডারে, নাম হবে `১৫-your-slug.jpg` —
+**ফাইলের নামের slug অংশটি লেখার `slug`-এর সঙ্গে হুবহু মিলতে হবে**, নইলে ছবি
+বসবে না।
+
+- অনুপাত **৩:২**, প্রস্থ **১২১৬px** (এর বেশি দিলে শুধু ফাইল ভারী হবে, লাভ নেই)
+- ছবি ছোট করা, AVIF-এ রূপান্তর ও রঙের ট্রিটমেন্ট সাইট নিজেই করে নেয়
+- মানুষ, মুখ, প্রাণী, মসজিদ-গম্বুজ-মিনার, চাঁদ-তারা, সবুজ-সোনালি গ্রেডিয়েন্ট
+  বা AI-দিয়ে-লেখা আরবি ক্যালিগ্রাফি **কখনো নয়**
+
+`cover.alt`-এ ছবিতে কী দেখা যাচ্ছে তা এক বাক্যে লিখুন। এটি ঐচ্ছিক নয়।
+
+---
+
+## লেখা প্রকাশ করা
+
+```bash
+npm run build
+```
+
+কোনো ভুল থাকলে এই কমান্ডই ধরিয়ে দেবে। তারপর:
+
+```bash
+git add . && git commit -m "নতুন প্রবন্ধ: যবানের হিফাজত" && git push
+```
+
+push করার ২-৩ মিনিটের মধ্যে Cloudflare Pages নিজে থেকেই সাইট আপডেট করে ফেলে।
+আলাদা করে কিছু করতে হয় না।
+
+---
+
+## স্থানীয়ভাবে দেখা
+
+```bash
+npm install
+npm run dev
+```
+
+তারপর ব্রাউজারে <http://localhost:4321>।
+
+খোঁজ (search) কাজ করতে হলে পুরো বিল্ড লাগে, কারণ ইনডেক্স বিল্ডের সময় তৈরি হয়:
+
+```bash
+npm run build && npm run preview
+```
+
+---
+
+## যা এখনো বাকি
+
+`.env` ফাইলে এই চারটি বসালে সংশ্লিষ্ট অংশ চালু হবে (`.env.example` দেখুন):
+
+| ভেরিয়েবল | কী চালু হয় |
+|---|---|
+| `PUBLIC_SUBSCRIBE_ENDPOINT` | ইমেইল সাবস্ক্রিপশন ফর্ম |
+| `PUBLIC_WHATSAPP_CHANNEL` | হোয়াটসঅ্যাপে যুক্ত হওয়ার লিংক |
+| `PUBLIC_CONTACT_ENDPOINT` | যোগাযোগ ফর্ম |
+| `PUBLIC_CONTACT_EMAIL` | ফর্ম না থাকলে যে ঠিকানা দেখাবে |
+
+এগুলো সেট না থাকলে ফর্ম দেখানোই হয় না — কারণ যে ফর্ম নিঃশব্দে ঠিকানা ফেলে
+দেয়, সেটি ফর্ম না থাকার চেয়ে খারাপ।
+
+পরিভাষা কোষ (`/glossary`) এখনো খালি। প্রথম পরিভাষা লিখতে
+`src/content.config.ts` ফাইলের শেষের নির্দেশ দেখুন।
+
+---
+
+## ফোল্ডারের মানচিত্র
+
+```
+src/
+├── content/articles/    ← লেখা এখানে
+├── content/authors/     ← লেখক পরিচিতি
+├── assets/covers/       ← কভার ছবি
+├── components/          ← পাতার উপাদান
+├── layouts/             ← পাতার কাঠামো
+├── pages/               ← সাইটের ঠিকানা
+├── styles/              ← রঙ, ফন্ট, মাপ
+└── lib/                 ← সহায়ক ফাংশন
+docs/                    ← প্রজেক্টের পরিকল্পনা ও ডিজাইন সিস্টেম
+_archive/                ← পুরনো খসড়া, ব্যবহার করবেন না
+```
