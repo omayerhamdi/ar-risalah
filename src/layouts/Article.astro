@@ -9,6 +9,8 @@ import ReadingProgress from '../components/article/ReadingProgress.astro';
 import ShareRow from '../components/article/ShareRow.astro';
 import TOC from '../components/article/TOC.astro';
 import ArticleCard from '../components/cards/ArticleCard.astro';
+import Cover from '../components/article/Cover.astro';
+import { getCover } from '../lib/covers';
 import { bnDate, isoDate, bnReadingTime } from '../lib/dates';
 
 interface Props {
@@ -23,6 +25,7 @@ const d = article.data;
 const authors = await Promise.all(d.authors.map((ref) => getEntry(ref)));
 const bylines = authors.filter(Boolean).map((a) => a!.data);
 const url = new URL(`/articles/${d.slug}`, Astro.site).href;
+const cover = getCover(d.slug);
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -90,6 +93,11 @@ const jsonLd = {
       </aside>
 
       <div class="body">
+        {cover && (
+          <div class="hero">
+            <Cover src={cover} alt={d.cover.alt} priority={true} />
+          </div>
+        )}
         <KeyTakeaways items={d.keyTakeaways} />
         <div class="prose"><slot /></div>
         <References references={d.references} academicResources={d.academicResources} />
@@ -128,6 +136,10 @@ const jsonLd = {
 
 <style>
   .article { padding-block: var(--sp-6) var(--sp-8); }
+
+  /* The hero sits above the key takeaways so the reader meets the image, then
+     the argument. It is the LCP element, hence eager and high priority. */
+  .hero { margin-bottom: var(--sp-6); }
 
   .layout { width: var(--container); margin-inline: auto; }
 

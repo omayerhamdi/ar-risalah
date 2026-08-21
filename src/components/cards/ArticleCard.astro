@@ -2,6 +2,8 @@
 import type { CollectionEntry } from 'astro:content';
 import { getEntry } from 'astro:content';
 import { bnReadingTime } from '../../lib/dates';
+import Cover from '../article/Cover.astro';
+import { getCover } from '../../lib/covers';
 
 interface Props { article: CollectionEntry<'articles'> }
 const { article } = Astro.props;
@@ -9,19 +11,34 @@ const d = article.data;
 
 const first = await getEntry(d.authors[0]);
 const byline = first?.data.name ?? '';
+const cover = getCover(d.slug);
 ---
-<article class="card matra">
+<article class="card">
+  {cover && (
+    <div class="card-cover">
+      <Cover
+        src={cover}
+        alt={d.cover.alt}
+        widths={[320, 480, 640]}
+        sizes="(min-width: 64rem) 380px, (min-width: 48rem) 45vw, 90vw"
+      />
+    </div>
+  )}
+  <div class="matra card-text">
   <p class="eyebrow">{d.category}</p>
   <h3><a href={`/articles/${d.slug}`}>{d.title}</a></h3>
   <p class="excerpt">{d.excerpt}</p>
   <p class="meta">{bnReadingTime(d.readingTime)} · {byline}</p>
+  </div>
 </article>
 
 <style>
   /* No background, no shadow, no border on three sides, no transform on hover.
      The rule above the card is the whole idea. */
-  .card { position: relative; padding-top: var(--sp-3); }
-  .card:hover { border-top-color: var(--ink); }
+  .card { position: relative; }
+  .card-cover { margin-bottom: var(--sp-3); }
+  .card-text { padding-top: var(--sp-3); }
+  .card:hover .card-text { border-top-color: var(--ink); }
 
   h3 {
     font-size: var(--step-1);

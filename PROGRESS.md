@@ -3,12 +3,11 @@
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
 **Last updated:** 2026-08-21
-**Last session ended at:** Steps 1-4 complete. The article page renders and was
-verified at 390px and 1440px. Magnific is now connected, so B1 is cleared.
-**Next action:** Step 5 — Header, Footer, MobileBar, SkipLink. The SkipLink
-already exists in `Base.astro`; the rest are new. After that, Step 6 homepage.
-Cover images (Step 10) are now unblocked and can be started in parallel —
-generate three first and compare them side by side before doing the other 11.
+**Last session ended at:** Steps 1-4 complete, plus all 14 cover images from
+Step 10.
+**Next action:** Step 5 — Header, Footer, MobileBar. The SkipLink already exists
+in `Base.astro`. Then Step 6 homepage, Step 7 archives, Step 8 static pages,
+Step 9 search. The logo (rest of Step 10) is still outstanding.
 
 ---
 
@@ -40,9 +39,8 @@ generate three first and compare them side by side before doing the other 11.
 - [ ] **Step 8 — Static pages.** about, contact, start-here, for-khateebs, privacy, terms, 404.
 - [ ] **Step 9 — Search (Pagefind).** Verify Bengali indexing with যৌতুক, শাশুড়ি, আখলাক.
       Fall back to Fuse.js over `searchKeywords[]` if Pagefind fails on Bengali.
-- [ ] **Step 10 — Logo and visual assets.** Logo is hand-built SVG, typographic only.
-      **Covers: BLOCKED — waiting on Magnific MCP connection.** Everything else in this
-      step can proceed. See "Blocked" below.
+- [~] **Step 10 — Logo and visual assets.** Covers DONE (see below). **Logo still to do:**
+      hand-built SVG, typographic only, three options to compare, plus favicon.
 - [ ] **Step 11 — SEO, RSS, sitemap, OG images.** OG images are typographic, build-time.
 - [ ] **Step 12 — Final audit.** Full checklist in `docs/07-verification-checklist.md`
       and brief §10. Lighthouse results recorded in `DECISIONS.md`.
@@ -92,6 +90,28 @@ the reader had scrolled it stayed off-screen even when focused. Now `fixed` —
 verified by pressing Tab at scrollY 2500 and confirming it lands on screen at
 top: 16px. Focus ring is `solid 2px #1E5F8C` at 2px offset.
 
+## Cover images (2026-08-22)
+
+All 14 generated with Magnific from the prompts already in each article's
+frontmatter, with the brief's unity clause appended. Three were made and
+compared first, as the brief instructs, before the other eleven.
+
+Three were regenerated after review:
+- #2 (যৌতুক) came back with the balance scale level, which reads as justice —
+  the opposite of the article's point. Redone clearly tipped.
+- #4 and #6 came back as a sheet of paper photographed on white with a drop
+  shadow, while the other twelve are full-bleed textures. They would have
+  broken the card grid. Redone as full-bleed macros.
+
+Treatment: `saturate(0.72) contrast(0.96)` plus a `#F7F5EF` soft-light wash at
+28% opacity, per the design system. This is what makes covers from different
+prompts read as one family — verified on a 14-up contact sheet.
+
+Budget: sources capped at 1216px (2x the 608px reading column). AVIF quality 40,
+chosen by comparing 1:1 crops against the source — the weave and stitching in
+the noisiest cover survive intact. Largest variant anywhere is 54.4kb against a
+70kb target. A 390px phone downloads 14.6kb of images for a whole article page.
+
 ## Blocked — needs the user
 
 | # | Item | What the user must do | Blocks |
@@ -130,6 +150,7 @@ The test page lives at `/type-test`. It is not linked from anywhere.
 | Date | Session did | Stopped because |
 |---|---|---|
 | 2026-08-21 | Step 0 — read all docs, resolved content-set conflict, reorganised folder, wrote permissions/CLAUDE.md/PROGRESS.md, repo + resume setup | — |
+| 2026-08-22 | Step 10 (covers) — 14 covers generated, 3 regenerated after review, wired in with astro:assets and the design system's wash | — |
 | 2026-08-21 | Step 4 — article page, 8 components, 3 rehype plugins, verified at 390/1440px; fixed skip-link positioning | — |
 | 2026-08-21 | Step 3 — content schema derived from real frontmatter, validated across all 19 files | — |
 | 2026-08-21 | Steps 1–2 — Astro 7 + Tailwind v4 scaffold, self-hosted subsetted fonts inside budget, tokens/base/bangla CSS, Base layout, typography test page verified at 3 widths | — |
