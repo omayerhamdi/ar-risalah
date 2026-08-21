@@ -1,0 +1,257 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/cards/ArticleCard.astro';
+import FeatureCard from '../components/cards/FeatureCard.astro';
+import TopicCard from '../components/cards/TopicCard.astro';
+import AuthorCard from '../components/cards/AuthorCard.astro';
+import SubscribeSection from '../components/forms/SubscribeSection.astro';
+import { SITE } from '../lib/nav';
+
+const all = (await getCollection('articles', (a) => a.data.status === 'published'))
+  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+
+// Section 2 — one piece, large. Prefer an explicitly featured pillar.
+const feature = all.find((a) => a.data.featured && a.data.pillar) ?? all[0];
+
+// Section 3 — akhlaq deliberately gets more room than the other pillars.
+const akhlaq = all.filter((a) => a.data.categorySlug === 'akhlaq-poribar').slice(0, 3);
+
+// Section 4 — six most recent, excluding whatever is already above.
+const shown = new Set([feature.id, ...akhlaq.map((a) => a.id)]);
+const recent = all.filter((a) => !shown.has(a.id)).slice(0, 6);
+
+// Section 5 — topic hubs by how much has been written on each.
+const counts = new Map<string, number>();
+for (const a of all) for (const t of a.data.topics) counts.set(t, (counts.get(t) ?? 0) + 1);
+const topics = [...counts.entries()]
+  .filter(([, n]) => n > 1)
+  .sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0], 'bn'))
+  .slice(0, 12);
+
+const research = all.filter((a) => a.data.hasResearch).slice(0, 2);
+
+const authors = (await getCollection('authors')).sort((a, b) => a.data.order - b.data.order);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'Organization', name: SITE.name, alternateName: SITE.nameArabic, url: Astro.site?.href },
+    {
+      '@type': 'WebSite',
+      name: SITE.name,
+      url: Astro.site?.href,
+      inLanguage: 'bn',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: { '@type': 'EntryPoint', urlTemplate: new URL('/search?q={search_term_string}', Astro.site).href },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  ],
+};
+---
+
+<Base
+  title={`${SITE.name} — চিন্তা করার জন্য একটি জায়গা`}
+  description="দলিল, গবেষণা ও বাস্তবতার আলোকে দ্বীন ও সমকালের পাঠ। আখলাক থেকে মতবাদ পর্যন্ত।"
+>
+  {/* Section 1 — no image, no slider. A reading platform should look like one
+      from the first screen. */}
+  <section class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <p class="wordmark">
+          {SITE.name}
+          <span class="ar" lang="ar" dir="rtl">{SITE.nameArabic}</span>
+        </p>
+        <h1>চিন্তা করার জন্য একটি জায়গা।</h1>
+        <p class="lede">
+          দলিল, গবেষণা ও বাস্তবতার আলোকে দ্বীন ও সমকালের পাঠ। আখলাক থেকে মতবাদ পর্যন্ত।
+        </p>
+        <p class="cta">
+          <a class="btn-primary" href="/articles">সাম্প্রতিক লেখা</a>
+          <a class="btn-secondary" href="/start-here">শুরু করুন এখান থেকে</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="feature-heading">
+    <div class="container">
+      <h2 class="section-heading" id="feature-heading">এ সপ্তাহের লেখা</h2>
+      <FeatureCard article={feature} />
+    </div>
+  </section>
+
+  {akhlaq.length > 0 && (
+    <section class="band" aria-labelledby="akhlaq-heading">
+      <div class="container">
+        <div class="band-head">
+          <h2 class="section-heading" id="akhlaq-heading">আখলাক ও পরিবার</h2>
+          <p class="band-lede">
+            সবচেয়ে কাছের ময়দান—নিজের ঘর। আমাদের সমাজে যত অব্যবস্থাপনা,
+            তার বড় অংশের গোড়া এখানেই।
+          </p>
+        </div>
+        <div class="grid-3">
+          {akhlaq.map((a) => <ArticleCard article={a} />)}
+        </div>
+        <p class="more"><a href="/categories/akhlaq-poribar">সব লেখা →</a></p>
+      </div>
+    </section>
+  )}
+
+  <section class="band" aria-labelledby="recent-heading">
+    <div class="container">
+      <h2 class="section-heading" id="recent-heading">সাম্প্রতিক লেখা</h2>
+      <div class="grid-2">
+        {recent.map((a) => <ArticleCard article={a} />)}
+      </div>
+      <p class="more"><a href="/articles">সব প্রবন্ধ →</a></p>
+    </div>
+  </section>
+
+  {topics.length > 0 && (
+    <section class="band" aria-labelledby="topics-heading">
+      <div class="container">
+        <h2 class="section-heading" id="topics-heading">বিষয় ধরে পড়ুন</h2>
+        <div class="grid-topics">
+          {topics.map(([t, n]) => <TopicCard topic={t} count={n} />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {research.length > 0 && (
+    <section class="band" aria-labelledby="research-heading">
+      <div class="container">
+        <div class="band-head">
+          <h2 class="section-heading" id="research-heading">গবেষণা</h2>
+          <p class="band-lede">
+            কিছু বিষয়ে আমরা প্রবন্ধের বাইরেও যাই—উৎস, ঐতিহাসিক প্রেক্ষাপট,
+            ফিকহি ইখতিলাফ ও তুলনামূলক বিশ্লেষণসহ।
+          </p>
+        </div>
+        <div class="grid-2">
+          {research.map((a) => <ArticleCard article={a} />)}
+        </div>
+        <p class="more"><a href="/research">গবেষণা দেখুন →</a></p>
+      </div>
+    </section>
+  )}
+
+  <section class="band khateeb" aria-labelledby="khateeb-heading">
+    <div class="container">
+      <div class="khateeb-inner matra">
+        <h2 class="section-heading" id="khateeb-heading">আপনি কি খতীব বা দাঈ?</h2>
+        <p class="band-lede">
+          প্রতিটি গুরুত্বপূর্ণ বিষয়ের সঙ্গে আমরা খুতবা ও আলোচনার উপযোগী রিসোর্স
+          তৈরি করি—উৎস, কাঠামো ও প্রস্তুত নোটসহ।
+        </p>
+        <p class="cta"><a class="btn-secondary" href="/for-khateebs">রিসোর্স দেখুন</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="authors-heading">
+    <div class="container">
+      <h2 class="section-heading" id="authors-heading">লেখকবৃন্দ</h2>
+      <div class="grid-authors">
+        {authors.map((a) => <AuthorCard author={a} />)}
+      </div>
+    </div>
+  </section>
+
+  <SubscribeSection />
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+</Base>
+
+<style>
+  /* Section 1 — matra rules above and below, and nothing else. */
+  .hero { padding-block: var(--sp-7); }
+  .hero-inner {
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding-block: var(--sp-7);
+    max-width: var(--measure-wide);
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    color: var(--ink);
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-3);
+  }
+  .wordmark .ar {
+    font-family: var(--font-arabic);
+    font-size: var(--step-0);
+    color: var(--ink-soft);
+  }
+  .hero h1 {
+    margin-top: var(--sp-5);
+    font-size: var(--step-5);
+  }
+  .hero .lede {
+    margin-top: var(--sp-4);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+    max-width: 34ch;
+  }
+
+  .cta { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-6); }
+  .btn-primary, .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding-inline: var(--sp-5);
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--deep); color: var(--paper); }
+  .btn-primary:hover { background: var(--deep-2); }
+  .btn-secondary { border: 1px solid var(--rule-strong); color: var(--ink); }
+  .btn-secondary:hover { border-color: var(--ink); background: var(--paper-raise); }
+
+  .band { padding-block: var(--sp-7); }
+  .band-head { max-width: var(--measure); }
+  .band-lede { margin-top: var(--sp-3); color: var(--ink-soft); }
+  .section-heading {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+    margin-bottom: var(--sp-5);
+  }
+  .band-head .section-heading { margin-bottom: 0; }
+  .band-head + * { margin-top: var(--sp-6); }
+
+  .grid-2, .grid-3 { display: grid; gap: var(--sp-6); }
+  .grid-topics { display: grid; gap: var(--sp-3); }
+  .grid-authors { display: grid; gap: var(--sp-4); }
+
+  .more { margin-top: var(--sp-6); font-family: var(--font-ui); font-size: var(--step--1); }
+  .more a { color: var(--ink); text-underline-offset: 0.25em; }
+
+  .khateeb .khateeb-inner {
+    padding-top: var(--sp-5);
+    background: var(--paper-deep);
+    padding: var(--sp-6);
+  }
+  .khateeb .band-lede { max-width: 46ch; }
+
+  @media (min-width: 48rem) {
+    .grid-2, .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-topics { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); }
+    .grid-authors { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); }
+  }
+  @media (min-width: 64rem) {
+    .band { padding-block: var(--sp-9); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-topics { grid-template-columns: repeat(3, 1fr); }
+    .grid-authors { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>

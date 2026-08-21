@@ -1,0 +1,117 @@
+---
+/**
+ * The WhatsApp route works today with no backend. Email needs a POST endpoint,
+ * supplied via PUBLIC_SUBSCRIBE_ENDPOINT; until that exists the email field is
+ * not shown, because a form that silently discards addresses is worse than no
+ * form. See PROGRESS.md.
+ */
+const endpoint = import.meta.env.PUBLIC_SUBSCRIBE_ENDPOINT;
+const whatsapp = import.meta.env.PUBLIC_WHATSAPP_CHANNEL;
+---
+<section class="subscribe" aria-labelledby="subscribe-heading">
+  <div class="container inner">
+    <h2 id="subscribe-heading">সপ্তাহে একটি লেখা। এর বেশি নয়।</h2>
+    <p class="lede">
+      নতুন প্রবন্ধ ও গবেষণা ইমেইলে অথবা হোয়াটসঅ্যাপে পেতে যুক্ত হোন।
+    </p>
+
+    {endpoint ? (
+      <form class="form" method="post" action={endpoint}>
+        <div class="field">
+          <label for="subscribe-email">ইমেইল ঠিকানা</label>
+          <input
+            id="subscribe-email"
+            type="email"
+            name="email"
+            autocomplete="email"
+            required
+            placeholder="you@example.com"
+          />
+        </div>
+        <button type="submit">যুক্ত হোন</button>
+      </form>
+    ) : (
+      <p class="pending">
+        ইমেইল তালিকা এখনো সংযুক্ত হয়নি। ততক্ষণ হোয়াটসঅ্যাপে যুক্ত হতে পারেন।
+      </p>
+    )}
+
+    {whatsapp && (
+      <p class="alt">
+        <a href={whatsapp} target="_blank" rel="noopener">হোয়াটসঅ্যাপে যুক্ত হোন →</a>
+      </p>
+    )}
+
+    <p class="promise">
+      আমরা কখনো আপনার ঠিকানা কারও সঙ্গে ভাগ করব না। এক ক্লিকে বেরিয়ে যেতে পারবেন।
+    </p>
+  </div>
+</section>
+
+<style>
+  .subscribe {
+    background: var(--deep);
+    color: var(--paper);
+    padding-block: var(--sp-8);
+  }
+  .inner { max-width: var(--measure-wide); }
+  h2 {
+    color: var(--paper);
+    font-size: var(--step-3);
+    max-width: 20ch;
+  }
+  .lede {
+    margin-top: var(--sp-4);
+    color: color-mix(in srgb, var(--paper) 82%, transparent);
+    max-width: 40ch;
+  }
+
+  .form {
+    margin-top: var(--sp-5);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    align-items: end;
+  }
+  .field { display: grid; gap: var(--sp-2); flex: 1 1 16rem; }
+  label {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: color-mix(in srgb, var(--paper) 82%, transparent);
+  }
+  input {
+    min-height: var(--tap);
+    padding: var(--sp-2) var(--sp-3);
+    background: var(--paper-raise);
+    color: var(--ink);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    font-size: var(--step-0);
+  }
+  button {
+    padding: var(--sp-3) var(--sp-5);
+    background: var(--paper);
+    color: var(--deep);
+    border: 0;
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    font-size: var(--step-0);
+    cursor: pointer;
+  }
+  button:hover { background: var(--paper-raise); }
+
+  .pending, .alt, .promise { margin-top: var(--sp-4); }
+  .pending { color: color-mix(in srgb, var(--paper) 82%, transparent); }
+  .alt a {
+    font-family: var(--font-ui);
+    color: var(--rubric-soft);
+    text-underline-offset: 0.25em;
+  }
+  .promise {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: color-mix(in srgb, var(--paper) 72%, transparent);
+    max-width: 44ch;
+  }
+</style>

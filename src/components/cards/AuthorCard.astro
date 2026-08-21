@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from 'astro:content';
+interface Props { author: CollectionEntry<'authors'> }
+const a = Astro.props.author.data;
+// No portraits on this site; the initial conjunct stands in.
+const initial = a.name.trim().slice(0, 1);
+---
+<a class="author matra" href={`/authors/${a.slug}`}>
+  <span class="mark" aria-hidden="true">{initial}</span>
+  <span class="body">
+    <span class="name">{a.name}</span>
+    <span class="role">{a.role}</span>
+  </span>
+</a>
+
+<style>
+  .author {
+    display: flex;
+    gap: var(--sp-3);
+    align-items: flex-start;
+    padding-top: var(--sp-3);
+    text-decoration: none;
+  }
+  .author:hover { border-top-color: var(--ink); }
+  .mark {
+    flex: 0 0 auto;
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    color: var(--ink);
+  }
+  .body { display: grid; gap: var(--sp-1); }
+  .name { font-family: var(--font-display); color: var(--ink); }
+  .role {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+</style>

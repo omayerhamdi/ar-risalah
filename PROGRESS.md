@@ -3,12 +3,12 @@
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
 **Last updated:** 2026-08-21
-**Last session ended at:** Steps 1-5 complete, plus all 14 cover images and the
+**Last session ended at:** Steps 1-6 complete, plus all 14 cover images and the
 logo from Step 10.
-**Next action:** Step 6 — the homepage. Then Step 7 archives
-(articles, categories, topics, authors, research, resources), Step 8 static
-pages, Step 9 Pagefind search. Many nav links currently 404 because their pages
-do not exist yet — that is expected until Steps 7 and 8 land.
+**Next action:** Step 7 — archive pages: `/articles`, `/categories/[category]`,
+`/topics/[topic]`, `/authors` and `/authors/[slug]`, `/research`, `/resources`.
+Every one of these is already linked from the homepage, header or footer, so
+they are currently 404s. Then Step 8 static pages, Step 9 Pagefind search.
 
 ---
 
@@ -35,7 +35,7 @@ do not exist yet — that is expected until Steps 7 and 8 land.
 - [x] **Step 4 — Single article page.** PASSED — The most important page. All components born here.
       Do not move on until mobile is flawless.
 - [x] **Step 5 — Header, footer, mobile bar.** PASSED —
-- [ ] **Step 6 — Homepage.**
+- [x] **Step 6 — Homepage.** PASSED —
 - [ ] **Step 7 — Archive pages.** articles, categories, topics, authors, research, resources.
 - [ ] **Step 8 — Static pages.** about, contact, start-here, for-khateebs, privacy, terms, 404.
 - [ ] **Step 9 — Search (Pagefind).** Verify Bengali indexing with যৌতুক, শাশুড়ি, আখলাক.
@@ -145,10 +145,30 @@ time and byline. The colour rule wins; card meta now uses `--ink-soft`.
 **`docs/03-design-system.md` still carries the wrong figures — worth correcting
 in the doc so the next person does not reintroduce them.**
 
+## Step 6 verification result (2026-08-22)
+
+All nine homepage sections from `docs/04-page-content.md` are present, in order,
+with the right counts: feature 1, akhlaq 3, recent 6, topics 7, research 2,
+authors 5, plus hero, khateeb band and subscribe.
+
+- The hero holds to the doc: no image, no slider, matra rules above and below,
+  and it fits entirely within the first screen at 390px — verified, not assumed.
+- One `h1`, heading order H1 → H2 → H3 with no jumps, no horizontal scroll.
+- Topic hubs show only topics with more than one article. Of the 47 distinct
+  topics, most appear once, and a hub holding a single card is not a hub.
+
+The subscribe form deliberately hides its email field until
+`PUBLIC_SUBSCRIBE_ENDPOINT` is set (see `.env.example`). A form that accepts an
+address and silently drops it is worse than no form — the reader believes they
+subscribed. The WhatsApp route works as soon as `PUBLIC_WHATSAPP_CHANNEL` is
+set. **Both need the user.**
+
 ## Blocked — needs the user
 
 | # | Item | What the user must do | Blocks |
 |---|---|---|---|
+| B3 | Email list backend | Choose a provider (Buttondown, a Cloudflare Worker, anything taking a POST with `email`) and set `PUBLIC_SUBSCRIBE_ENDPOINT` | The email half of the subscribe section |
+| B4 | WhatsApp channel link | Set `PUBLIC_WHATSAPP_CHANNEL` to the channel or group invite URL | The WhatsApp subscribe link |
 | ~~B1~~ | ~~Magnific MCP not connected~~ | **Cleared 2026-08-21** — Magnific is connected; `images_generate` is available | — |
 | B2 | Cloudflare Pages not connected | Connect `omayerhamdi/ar-risalah` in the Cloudflare Pages dashboard | Live deploy only |
 
@@ -183,6 +203,7 @@ The test page lives at `/type-test`. It is not linked from anywhere.
 | Date | Session did | Stopped because |
 |---|---|---|
 | 2026-08-21 | Step 0 — read all docs, resolved content-set conflict, reorganised folder, wrote permissions/CLAUDE.md/PROGRESS.md, repo + resume setup | — |
+| 2026-08-22 | Step 6 — homepage, all nine sections, plus feature/topic/author cards and the subscribe section | — |
 | 2026-08-22 | Step 5 — header, footer, mobile bar, SVG logo; fixed two AA contrast failures inherited from the design system doc | — |
 | 2026-08-22 | Step 10 (covers) — 14 covers generated, 3 regenerated after review, wired in with astro:assets and the design system's wash | — |
 | 2026-08-21 | Step 4 — article page, 8 components, 3 rehype plugins, verified at 390/1440px; fixed skip-link positioning | — |

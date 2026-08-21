@@ -1,0 +1,25 @@
+---
+import { toBn } from '../../lib/toBn';
+interface Props { topic: string; count: number }
+const { topic, count } = Astro.props;
+---
+<a class="topic matra" href={`/topics/${encodeURIComponent(topic)}`}>
+  <span class="name">{topic}</span>
+  <span class="count tabular">{toBn(count)}</span>
+</a>
+
+<style>
+  .topic {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    padding-top: var(--sp-2);
+    min-height: var(--tap);
+    text-decoration: none;
+    font-family: var(--font-ui);
+  }
+  .topic:hover { border-top-color: var(--ink); }
+  .name { color: var(--ink); font-size: var(--step--1); }
+  .count { color: var(--ink-soft); font-size: var(--step--1); }
+</style>

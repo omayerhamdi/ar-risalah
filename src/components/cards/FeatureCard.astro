@@ -1,0 +1,60 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getEntry } from 'astro:content';
+import { bnReadingTime, bnDate } from '../../lib/dates';
+import Cover from '../article/Cover.astro';
+import { getCover } from '../../lib/covers';
+
+interface Props { article: CollectionEntry<'articles'> }
+const { article } = Astro.props;
+const d = article.data;
+const author = await getEntry(d.authors[0]);
+const cover = getCover(d.slug);
+---
+<article class="feature">
+  {cover && (
+    <a class="feature-cover" href={`/articles/${d.slug}`} tabindex="-1" aria-hidden="true">
+      <Cover
+        src={cover}
+        alt=""
+        widths={[480, 800, 1216]}
+        sizes="(min-width: 64rem) 640px, 100vw"
+      />
+    </a>
+  )}
+  <div class="feature-text matra">
+    <p class="eyebrow">{d.category}</p>
+    <h3><a href={`/articles/${d.slug}`}>{d.title}</a></h3>
+    <p class="excerpt">{d.excerpt}</p>
+    <p class="meta">
+      {bnReadingTime(d.readingTime)} · {author?.data.name} · {bnDate(d.publishedAt)}
+    </p>
+  </div>
+</article>
+
+<style>
+  .feature { display: grid; gap: var(--sp-5); }
+  .feature-cover { display: block; }
+  .feature-text { padding-top: var(--sp-3); }
+  h3 {
+    font-size: var(--step-3);
+    line-height: var(--leading-snug);
+    margin-top: var(--sp-2);
+  }
+  h3 a { text-decoration: none; }
+  .excerpt {
+    margin-top: var(--sp-4);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+  .meta {
+    margin-top: var(--sp-4);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  @media (min-width: 64rem) {
+    .feature { grid-template-columns: 1.1fr 1fr; align-items: start; gap: var(--sp-6); }
+    h3 { font-size: var(--step-4); }
+  }
+</style>
