@@ -1,0 +1,64 @@
+---
+import Page from '../layouts/Page.astro';
+import ArticleCard from '../components/cards/ArticleCard.astro';
+import { getPublished } from '../lib/articles';
+
+const all = await getPublished();
+const bySlug = new Map(all.map((a) => [a.data.slug, a]));
+const pick = (slugs: string[]) => slugs.map((s) => bySlug.get(s)).filter(Boolean);
+
+const paths = [
+  {
+    heading: 'যদি আপনি নিজের ঘর নিয়ে ভাবছেন',
+    slugs: ['jobaner-hifazat', 'odhikarer-bhasha-ihsaner-bhasha', 'sontan-kar-hate-boro-hocche'],
+  },
+  {
+    heading: 'যদি আপনার মনে প্রশ্ন জমেছে',
+    slugs: ['shongshoy-bhoy-pawar-bishoy-noy', 'adhunikota-projukti-noy', 'amar-jibon-amar-siddhanto'],
+  },
+  {
+    heading: 'যদি আপনি খতীব বা দাঈ',
+    slugs: ['joutuk-ekti-sanskritik-byadhi', 'bhogobad-obhab-toirir-karkhana', 'ilm-mane-tottho-noy'],
+  },
+];
+const short = bySlug.get('dunia-o-akhirat-amanot');
+---
+<Page
+  title="শুরু করুন এখান থেকে"
+  eyebrow="প্রথমবার এসেছেন?"
+  lede="আর-রিসালাহতে এখন অনেকগুলো লেখা আছে। কোথা থেকে শুরু করবেন, তার একটি প্রস্তাবিত পথ।"
+  wide={true}
+>
+  {paths.map((p) => (
+    <section class="path">
+      <h2>{p.heading}</h2>
+      <div class="archive-grid">
+        {pick([...p.slugs]).map((a) => <ArticleCard article={a!} />)}
+      </div>
+    </section>
+  ))}
+
+  {short && (
+    <section class="path">
+      <h2>যদি হাতে সময় কম</h2>
+      <p class="one-lede">
+        একটি লেখা পড়ুন। এটি আমাদের পুরো দৃষ্টিভঙ্গির সংক্ষিপ্ত রূপ।
+      </p>
+      <div class="one">
+        <ArticleCard article={short} />
+      </div>
+    </section>
+  )}
+</Page>
+
+<style>
+  .path + .path { margin-top: var(--sp-9); }
+  .path h2 {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+    margin-bottom: var(--sp-5);
+  }
+  .one-lede { color: var(--ink-soft); margin-bottom: var(--sp-5); max-width: var(--measure); }
+  .one { max-width: 26rem; }
+</style>

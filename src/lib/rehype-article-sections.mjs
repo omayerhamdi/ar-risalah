@@ -1,4 +1,3 @@
-import { visit } from 'unist-util-visit';
 
 const textOf = (node) =>
   node.type === 'text' ? node.value : (node.children ?? []).map(textOf).join('');

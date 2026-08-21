@@ -1,0 +1,65 @@
+---
+import Archive from '../layouts/Archive.astro';
+
+// The glossary collection is not defined yet — see the note at the bottom of
+// src/content.config.ts. Until the editors write the first terms this page
+// shows an honest empty state rather than invented definitions.
+const terms: { data: { term: string; termArabic?: string; slug: string; shortDefinition: string } }[] = [];
+---
+<Archive
+  title="পরিভাষা কোষ"
+  eyebrow="সহায়িকা"
+  lede="মাকাসিদ, তাযকিয়া, উসুল, হেজিমনি, সেক্যুলারিজম—প্রবন্ধে যেসব পরিভাষা আসে, তার সংক্ষিপ্ত ব্যাখ্যা।"
+>
+  {terms.length > 0 ? (
+    <>
+      <dl class="terms">
+        {terms.map((t) => (
+          <div class="term matra" id={t.data.slug}>
+            <dt>
+              {t.data.term}
+              {t.data.termArabic && (
+                <span class="ar" lang="ar" dir="rtl">{t.data.termArabic}</span>
+              )}
+            </dt>
+            <dd>{t.data.shortDefinition}</dd>
+          </div>
+        ))}
+      </dl>
+    </>
+  ) : (
+    <div class="archive-empty">
+      <p>পরিভাষা কোষ এখনো লেখা হয়নি।</p>
+      <p class="second">
+        ততক্ষণ পরিভাষাগুলো যে লেখায় এসেছে, সেখানেই ব্যাখ্যা করা আছে।
+        <a href="/articles">সব প্রবন্ধ দেখুন</a>।
+      </p>
+    </div>
+  )}
+</Archive>
+
+<style>
+  .count {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    margin-bottom: var(--sp-5);
+  }
+  .terms { margin: 0; display: grid; gap: var(--sp-5); }
+  .term { padding-top: var(--sp-3); scroll-margin-top: var(--sp-6); }
+  dt {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    color: var(--ink);
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-3);
+  }
+  dt .ar { font-family: var(--font-arabic); font-size: var(--step-0); color: var(--ink-soft); }
+  dd { margin: var(--sp-2) 0 0; color: var(--ink-soft); max-width: var(--measure); }
+  .second { margin-top: var(--sp-3); }
+
+  @media (min-width: 64rem) {
+    .terms { grid-template-columns: repeat(2, 1fr); gap: var(--sp-5) var(--sp-6); }
+  }
+</style>

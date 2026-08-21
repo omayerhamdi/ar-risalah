@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/cards/ArticleCard.astro';
+import { getPublished } from '../lib/articles';
+import { toBn } from '../lib/toBn';
+
+const recent = (await getPublished()).slice(0, 3);
+---
+<Base title="৪০৪ — আর-রিসালাহ">
+  <div class="container notfound">
+    <div class="panel">
+      <p class="code tabular">{toBn(404)}</p>
+      <h1>এই ঠিকানায় কোনো লেখা নেই।</h1>
+      <p class="lede">সম্ভবত লিংকটি পুরোনো, অথবা ঠিকানায় কোথাও ভুল আছে।</p>
+      <p class="cta">
+        <a class="btn-primary" href="/articles">সব লেখা দেখুন</a>
+        <a class="btn-secondary" href="/search">খুঁজে দেখুন</a>
+      </p>
+    </div>
+
+    <section class="recent" aria-labelledby="nf-recent">
+      <h2 id="nf-recent">সাম্প্রতিক লেখা</h2>
+      <div class="archive-grid">
+        {recent.map((a) => <ArticleCard article={a} />)}
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .notfound { padding-block: var(--sp-8); }
+  .panel {
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding-block: var(--sp-7);
+    max-width: var(--measure);
+  }
+  .code {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    color: var(--rubric);
+  }
+  .panel h1 { margin-top: var(--sp-4); font-size: var(--step-4); }
+  .lede { margin-top: var(--sp-4); color: var(--ink-soft); }
+  .cta { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-6); }
+  .btn-primary, .btn-secondary {
+    display: inline-flex; align-items: center;
+    min-height: var(--tap); padding-inline: var(--sp-5);
+    border-radius: var(--radius);
+    font-family: var(--font-ui); text-decoration: none;
+  }
+  .btn-primary { background: var(--deep); color: var(--paper); }
+  .btn-secondary { border: 1px solid var(--rule-strong); color: var(--ink); }
+
+  .recent { margin-top: var(--sp-8); }
+  .recent h2 {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+    margin-bottom: var(--sp-5);
+  }
+</style>

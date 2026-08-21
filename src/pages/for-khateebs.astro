@@ -1,0 +1,57 @@
+---
+import Page from '../layouts/Page.astro';
+import ArticleCard from '../components/cards/ArticleCard.astro';
+import SubscribeSection from '../components/forms/SubscribeSection.astro';
+import { getPublished } from '../lib/articles';
+
+const resourceful = (await getPublished()).filter((a) => a.data.hasKhutbahResource).slice(0, 6);
+---
+<Page
+  title="খতীব ও দাঈদের জন্য"
+  eyebrow="আপনার জুমার প্রস্তুতির জন্য"
+  lede="প্রতি বৃহস্পতিবার সকালে আমাদের নতুন লেখা প্রকাশিত হয়—জুমার আগের দিন, ইচ্ছাকৃতভাবে।"
+  wide={true}
+>
+  <div class="intro">
+    <p>প্রতিটি গুরুত্বপূর্ণ বিষয়ের সঙ্গে থাকে:</p>
+    <ul class="offering">
+      <li><strong>প্রবন্ধ</strong> — বিষয়টির পূর্ণাঙ্গ উপস্থাপনা</li>
+      <li><strong>গবেষণা স্তর</strong> — ফিকহি বিস্তার, ঐতিহাসিক প্রেক্ষাপট, ইখতিলাফ</li>
+      <li><strong>দলিল তালিকা</strong> — যাচাইকৃত, সূত্রসহ</li>
+      <li><strong>একাডেমিক রিসোর্স</strong> — আরও পড়ার জন্য</li>
+    </ul>
+    <p>খুতবার জন্য প্রস্তুত সংক্ষিপ্ত রিসোর্স আমরা ক্রমান্বয়ে যুক্ত করছি।</p>
+  </div>
+
+  {resourceful.length > 0 && (
+    <section class="picks">
+      <h2>খুতবার উপযোগী বিষয়</h2>
+      <div class="archive-grid">
+        {resourceful.map((a) => <ArticleCard article={a} />)}
+      </div>
+    </section>
+  )}
+</Page>
+
+<SubscribeSection />
+
+<style>
+  .intro { max-width: var(--measure); }
+  .offering { list-style: none; padding-left: 0; }
+  .offering li { padding-left: var(--sp-5); position: relative; }
+  .offering li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: calc(var(--leading-body) * 0.5em - 3px);
+    width: 6px; height: 6px;
+    background: var(--rubric);
+  }
+  .picks { margin-top: var(--sp-9); }
+  .picks h2 {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+    margin-bottom: var(--sp-5);
+  }
+</style>

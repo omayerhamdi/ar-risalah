@@ -13,7 +13,13 @@ interface Props {
 
 const { src, alt, priority = false, widths, sizes } = Astro.props;
 ---
-{/* The wrapper carries the paper wash. Covers come from different sources and
+{/* Widths cap at 1216px — 2x the 608px reading column, and nothing ever needs
+    more. These covers are grainy film textures, and grain is what AVIF spends
+    its bytes on: quality 40 holds the weave and the stitching at 1:1 while
+    keeping every variant under the 70kb target, verified by comparing crops
+    against the source.
+
+    The wrapper carries the paper wash. Covers come from different sources and
     different prompts; this treatment is what makes them one family. */}
 <figure class="cover">
   <Image
@@ -22,11 +28,6 @@ const { src, alt, priority = false, widths, sizes } = Astro.props;
     widths={widths ?? [400, 640, 1216]}
     sizes={sizes ?? '(min-width: 64rem) 608px, 100vw'}
     format="avif"
-    {/* 1216px is 2x the 608px reading column — nothing ever needs more.
-        These covers are grainy film textures, and grain is what AVIF spends
-        bytes on: quality 40 holds the weave and the stitching at 1:1 while
-        landing each variant under the 70kb target. Verified by crop
-        comparison against the source. */}
     quality={40}
     loading={priority ? 'eager' : 'lazy'}
     fetchpriority={priority ? 'high' : 'auto'}

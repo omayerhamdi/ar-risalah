@@ -95,3 +95,16 @@ const authors = defineCollection({
 });
 
 export const collections = { articles, authors };
+
+/**
+ * A `glossary` collection is deliberately NOT defined yet. Astro warns on every
+ * build when a glob collection matches no files, and the brief requires builds
+ * to pass without warnings. To add it, create the first term at
+ * src/content/glossary/<slug>.md with:
+ *
+ *   term, termArabic (optional), slug, shortDefinition, seeAlso (optional)
+ *
+ * then define the collection here and switch /glossary over to getCollection.
+ * The terms themselves are editorial work — defining মাকাসিদ or তাযকিয়া belongs
+ * to the editors, not to the build.
+ */

@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import SubscribeSection from '../components/forms/SubscribeSection.astro';
+---
+<Base
+  title="যুক্ত হোন — আর-রিসালাহ"
+  description="সপ্তাহে একটি লেখা। নতুন প্রবন্ধ ও গবেষণা ইমেইলে অথবা হোয়াটসঅ্যাপে।"
+>
+  {/* A standalone landing page so the link can be shared straight into
+      WhatsApp or Facebook, per the IA doc. */}
+  <div class="container intro">
+    <p class="eyebrow">যুক্ত হোন</p>
+    <h1>সপ্তাহে একটি লেখা। এর বেশি নয়।</h1>
+    <p class="lede">
+      আমরা প্রতি বৃহস্পতিবার সকালে একটি লেখা প্রকাশ করি—জুমার আগের দিন।
+      নতুন প্রবন্ধ ও গবেষণার খবর সরাসরি পেতে যুক্ত হোন।
+    </p>
+  </div>
+  <SubscribeSection />
+</Base>
+
+<style>
+  .intro { padding-block: var(--sp-8) var(--sp-7); max-width: var(--measure-wide); }
+  .intro h1 { margin-top: var(--sp-2); font-size: var(--step-4); }
+  .lede {
+    margin-top: var(--sp-4);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+</style>

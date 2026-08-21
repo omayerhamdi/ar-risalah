@@ -3,13 +3,13 @@
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
 **Last updated:** 2026-08-21
-**Last session ended at:** Steps 1-7 complete, plus covers and logo from Step 10.
-77 pages build.
-**Next action:** Step 8 — static pages. Copy for all of them is already written
-in `docs/04-page-content.md`: about, contact, start-here, for-khateebs, privacy,
-terms, 404, plus a `/subscribe` landing page and `/glossary`. These are the only
-remaining broken internal links apart from `/search` (Step 9) and `/rss.xml`
-(Step 11).
+**Last session ended at:** Steps 1-8 complete, plus covers and logo from Step 10.
+86 pages build clean: 0 errors, 0 warnings from both `astro build` and
+`astro check`.
+**Next action:** Step 9 — Pagefind search. `/search` is the last broken internal
+link apart from `/rss.xml` (Step 11). Verify Bengali indexing with যৌতুক,
+শাশুড়ি, আখলাক; fall back to Fuse.js over `searchKeywords[]` if Pagefind cannot
+match Bengali. Then Step 11 (SEO, RSS, OG images) and Step 12 (final audit).
 
 ---
 
@@ -38,7 +38,7 @@ remaining broken internal links apart from `/search` (Step 9) and `/rss.xml`
 - [x] **Step 5 — Header, footer, mobile bar.** PASSED —
 - [x] **Step 6 — Homepage.** PASSED —
 - [x] **Step 7 — Archive pages.** PASSED — articles, categories, topics, authors, research, resources.
-- [ ] **Step 8 — Static pages.** about, contact, start-here, for-khateebs, privacy, terms, 404.
+- [x] **Step 8 — Static pages.** PASSED — about, contact, start-here, for-khateebs, privacy, terms, 404.
 - [ ] **Step 9 — Search (Pagefind).** Verify Bengali indexing with যৌতুক, শাশুড়ি, আখলাক.
       Fall back to Fuse.js over `searchKeywords[]` if Pagefind fails on Bengali.
 - [~] **Step 10 — Logo and visual assets.** Covers DONE (see below). **Logo still to do:**
@@ -179,10 +179,39 @@ a writer edits the article, and the library follows. All 14 articles contribute.
 No pagination on the archives. With 14 articles it would be noise; the category
 filter carries the load. Worth revisiting past ~50 articles.
 
+## Step 8 verification result (2026-08-22)
+
+about, contact, start-here, for-khateebs, privacy, terms, 404, subscribe and
+glossary. Copy is taken from `docs/04-page-content.md` verbatim — none of it is
+invented.
+
+86 pages build with **0 errors and 0 warnings** from `astro build`, and
+`astro check` is clean. Two real type errors were found and fixed on the way:
+a JSX comment sitting inside the `<Image />` attribute list in `Cover.astro`
+(the build tolerated it, the type checker did not), plus a dead `visit` import.
+
+A link crawl over all 86 pages leaves only `/search` (Step 9) and `/rss.xml`
+(Step 11) unresolved.
+
+**`/glossary` has no content and cannot be written by me.** Defining মাকাসিদ,
+তাযকিয়া, উসুল and the rest is scholarly editorial work. The page ships with an
+honest empty state that points readers at the articles. The `glossary`
+collection is deliberately *not* declared — Astro warns on every build when a
+glob collection matches no files, and the brief requires warning-free builds.
+`src/content.config.ts` ends with the exact steps to turn it on once the first
+term is written.
+
+The contact form follows the same rule as subscribe: it renders only when
+`PUBLIC_CONTACT_ENDPOINT` is set, and otherwise shows a fallback address. A
+contact form that swallows a correction notice is worse than a mailto link,
+because the reader believes the correction was filed.
+
 ## Blocked — needs the user
 
 | # | Item | What the user must do | Blocks |
 |---|---|---|---|
+| B5 | Glossary terms | Write the first terms as `src/content/glossary/<slug>.md`, then follow the note at the bottom of `src/content.config.ts` | `/glossary` shows an empty state |
+| B6 | Contact form backend | Set `PUBLIC_CONTACT_ENDPOINT`, and `PUBLIC_CONTACT_EMAIL` as the fallback | The contact form |
 | B3 | Email list backend | Choose a provider (Buttondown, a Cloudflare Worker, anything taking a POST with `email`) and set `PUBLIC_SUBSCRIBE_ENDPOINT` | The email half of the subscribe section |
 | B4 | WhatsApp channel link | Set `PUBLIC_WHATSAPP_CHANNEL` to the channel or group invite URL | The WhatsApp subscribe link |
 | ~~B1~~ | ~~Magnific MCP not connected~~ | **Cleared 2026-08-21** — Magnific is connected; `images_generate` is available | — |
@@ -219,6 +248,7 @@ The test page lives at `/type-test`. It is not linked from anywhere.
 | Date | Session did | Stopped because |
 |---|---|---|
 | 2026-08-21 | Step 0 — read all docs, resolved content-set conflict, reorganised folder, wrote permissions/CLAUDE.md/PROGRESS.md, repo + resume setup | — |
+| 2026-08-22 | Step 8 — nine static pages, Page layout, contact form; fixed two type errors and made build+check warning-free | — |
 | 2026-08-22 | Step 7 — archives: articles, categories, topics + hub, authors + profiles, research, resources | — |
 | 2026-08-22 | Step 6 — homepage, all nine sections, plus feature/topic/author cards and the subscribe section | — |
 | 2026-08-22 | Step 5 — header, footer, mobile bar, SVG logo; fixed two AA contrast failures inherited from the design system doc | — |

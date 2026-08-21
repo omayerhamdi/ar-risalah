@@ -1,0 +1,43 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  metaTitle?: string;
+  description?: string;
+  eyebrow?: string;
+  lede?: string;
+  /** Wide pages (start-here, for-khateebs) opt out of the reading measure. */
+  wide?: boolean;
+}
+const { title, metaTitle, description, eyebrow, lede, wide = false } = Astro.props;
+---
+<Base title={metaTitle ?? `${title} — আর-রিসালাহ`} description={description ?? lede}>
+  <div class:list={['page', 'container', { wide }]}>
+    <header class="head">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h1>{title}</h1>
+      {lede && <p class="lede">{lede}</p>}
+    </header>
+    <div class="body prose"><slot /></div>
+  </div>
+</Base>
+
+<style>
+  .page { padding-block: var(--sp-7) var(--sp-8); }
+  .head {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: var(--sp-5);
+    max-width: var(--measure-wide);
+  }
+  .head h1 { margin-top: var(--sp-2); font-size: var(--step-4); }
+  .lede {
+    margin-top: var(--sp-4);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+  .body { margin-top: var(--sp-7); max-width: var(--measure); }
+  .page.wide .body { max-width: none; }
+</style>
