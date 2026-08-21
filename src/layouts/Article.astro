@@ -42,6 +42,7 @@ const jsonLd = {
         name: a.name,
       })),
       publisher: { '@type': 'Organization', name: 'আর-রিসালাহ' },
+      image: new URL(`/og/${d.slug}.png`, Astro.site).href,
       mainEntityOfPage: url,
       articleSection: d.category,
       keywords: d.topics.join(', '),
@@ -58,7 +59,13 @@ const jsonLd = {
 };
 ---
 
-<Base title={`${d.title} — আর-রিসালাহ`} description={d.excerpt} arabic={true}>
+<Base
+  title={`${d.title} — আর-রিসালাহ`}
+  description={d.excerpt}
+  arabic={true}
+  ogType="article"
+  ogImage={`/og/${d.slug}.png`}
+>
   <ReadingProgress />
 
   <article class="article">

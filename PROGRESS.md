@@ -3,13 +3,13 @@
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
 **Last updated:** 2026-08-21
-**Last session ended at:** Steps 1-9 complete, plus covers and logo from Step 10.
-87 pages, clean `astro build` and `astro check`.
-**Next action:** Step 11 — SEO, RSS, sitemap, OG images. `/rss.xml` is the last
-broken internal link. Article JSON-LD, BreadcrumbList and the homepage
-Organization/WebSite blocks already exist; what is missing is `/rss.xml` and
-build-time typographic OG images. Then Step 12, the final audit against
-`docs/07-verification-checklist.md`.
+**Last session ended at:** Steps 1-11 complete. 87 pages, **zero broken internal
+links**, clean `astro build` and `astro check`.
+**Next action:** Step 12 — the final audit against
+`docs/07-verification-checklist.md` and brief §10. Run Lighthouse on mobile and
+desktop and record the numbers in `DECISIONS.md`. Delete `/type-test`. Write the
+README section on adding an article, adding an image, and how deploys work —
+the brief calls this out because future writers are not developers.
 
 ---
 
@@ -43,7 +43,7 @@ build-time typographic OG images. Then Step 12, the final audit against
       Fall back to Fuse.js over `searchKeywords[]` if Pagefind fails on Bengali.
 - [~] **Step 10 — Logo and visual assets.** Covers DONE (see below). **Logo still to do:**
       hand-built SVG, typographic only, three options to compare, plus favicon.
-- [ ] **Step 11 — SEO, RSS, sitemap, OG images.** OG images are typographic, build-time.
+- [x] **Step 11 — SEO, RSS, sitemap, OG images.** PASSED — OG images are typographic, build-time.
 - [ ] **Step 12 — Final audit.** Full checklist in `docs/07-verification-checklist.md`
       and brief §10. Lighthouse results recorded in `DECISIONS.md`.
 
@@ -228,6 +228,23 @@ than trusting the direct API test that had already passed.
 6.85kb — against a 25kb ceiling. Pagefind itself (44.5kb) and its index chunks
 are fetched only after the reader types, and only on `/search`.
 
+## Step 11 verification result (2026-08-22)
+
+- `/rss.xml` — excerpt and link only, never full text, per brief §8. `<language>bn</language>`.
+- `/sitemap-index.xml` via `@astrojs/sitemap`.
+- Article JSON-LD with `inLanguage: bn`, BreadcrumbList on every article,
+  Organization + WebSite with SearchAction on the homepage.
+- Open Graph and Twitter card meta on every page; article pages point at their
+  own OG card.
+- **14 typographic OG cards**, generated at build time with satori + resvg.
+  Paper ground, matra rule, rubric category, large title, byline and date —
+  no photograph. ~30-34kb each. Title size steps down for long Bengali titles
+  so they cannot overflow the 1200x630 canvas.
+
+87 pages, **no broken internal links anywhere**. The only `placeholder` string
+in the output is the search input's HTML attribute, which holds real Bengali
+example terms — not placeholder content.
+
 ## Blocked — needs the user
 
 | # | Item | What the user must do | Blocks |
@@ -270,6 +287,7 @@ The test page lives at `/type-test`. It is not linked from anywhere.
 | Date | Session did | Stopped because |
 |---|---|---|
 | 2026-08-21 | Step 0 — read all docs, resolved content-set conflict, reorganised folder, wrote permissions/CLAUDE.md/PROGRESS.md, repo + resume setup | — |
+| 2026-08-22 | Step 11 — RSS, sitemap, OG/Twitter meta, 14 build-time typographic OG cards | — |
 | 2026-08-22 | Step 9 — Pagefind search, verified against Bengali; fixed the bundler resolving Pagefind at build time | — |
 | 2026-08-22 | Step 8 — nine static pages, Page layout, contact form; fixed two type errors and made build+check warning-free | — |
 | 2026-08-22 | Step 7 — archives: articles, categories, topics + hub, authors + profiles, research, resources | — |
