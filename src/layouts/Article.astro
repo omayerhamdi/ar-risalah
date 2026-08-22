@@ -5,6 +5,7 @@ import { getEntry } from 'astro:content';
 import Base from './Base.astro';
 import KeyTakeaways from '../components/article/KeyTakeaways.astro';
 import References from '../components/article/References.astro';
+import TakeItFurther from '../components/article/TakeItFurther.astro';
 import ReadingProgress from '../components/article/ReadingProgress.astro';
 import ShareRow from '../components/article/ShareRow.astro';
 import TOC from '../components/article/TOC.astro';
@@ -108,6 +109,12 @@ const jsonLd = {
         <KeyTakeaways items={d.keyTakeaways} />
         <div class="prose"><slot /></div>
         <References references={d.references} academicResources={d.academicResources} />
+
+        <TakeItFurther
+          hasResearch={d.hasResearch}
+          hasKhutbahResource={d.hasKhutbahResource}
+          slug={d.slug}
+        />
 
         <div class="share-foot">
           <ShareRow title={d.title} url={url} />

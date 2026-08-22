@@ -1,50 +1,108 @@
 ---
 import Archive from '../../layouts/Archive.astro';
 import ArticleCard from '../../components/cards/ArticleCard.astro';
+import CategoryFilter from '../../components/CategoryFilter.astro';
 import { getPublished, byCategory } from '../../lib/articles';
 import { toBn } from '../../lib/toBn';
 
 const articles = await getPublished();
-const categories = [...byCategory(articles).entries()];
+const grouped = byCategory(articles);
+const counts = Object.fromEntries(
+  [...grouped.entries()].map(([slug, g]) => [slug, g.articles.length]),
+);
 ---
 <Archive
   title="সব প্রবন্ধ"
   eyebrow="আর্কাইভ"
-  lede={`${toBn(articles.length)}টি লেখা। ক্যাটাগরি ধরে ছেঁকে নিতে পারেন, অথবা পুরোটা ঘুরে দেখতে পারেন।`}
+  lede={`${toBn(articles.length)}টি লেখা। বিভাগ ধরে ছেঁকে নিতে পারেন, অথবা পুরোটা ঘুরে দেখতে পারেন।`}
 >
-  <nav class="filters" aria-label="ক্যাটাগরি ছাঁকনি">
-    <a href="/articles" aria-current="page">সব</a>
-    {categories.map(([slug, group]) => (
-      <a href={`/categories/${slug}`}>{group.label} <span class="n tabular">{toBn(group.articles.length)}</span></a>
-    ))}
-  </nav>
+  <CategoryFilter active="all" counts={counts} total={articles.length} />
 
-  <div class="archive-grid">
-    {articles.map((a) => <ArticleCard article={a} headingLevel={2} />)}
+  <p class="count" data-count aria-live="polite" hidden></p>
+
+  <div class="archive-grid" data-grid>
+    {articles.map((a) => (
+      <div data-category={a.data.categorySlug}>
+        <ArticleCard article={a} headingLevel={2} />
+      </div>
+    ))}
   </div>
 </Archive>
 
 <style>
-  .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-2);
-    margin-bottom: var(--sp-7);
-  }
-  .filters a {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sp-2);
-    min-height: var(--tap);
-    padding-inline: var(--sp-4);
-    border: 1px solid var(--rule);
-    border-radius: var(--radius);
+  .count {
+    margin-bottom: var(--sp-5);
     font-family: var(--font-ui);
     font-size: var(--step--1);
     color: var(--ink-soft);
-    text-decoration: none;
   }
-  .filters a:hover { border-color: var(--ink); color: var(--ink); }
-  .filters a[aria-current='page'] { border-color: var(--ink); color: var(--ink); }
-  .n { color: var(--ink-faint); }
+  .count[hidden] { display: none; }
 </style>
+
+<script>
+  /*
+   * Progressive enhancement for the chip row. Without this the chips are plain
+   * links to /categories/<slug>; with it they filter this grid in place, so the
+   * reader keeps their scroll position and the page never reloads.
+   */
+  const nav = document.querySelector<HTMLElement>('[data-filters]');
+  const grid = document.querySelector<HTMLElement>('[data-grid]');
+  const count = document.querySelector<HTMLElement>('[data-count]');
+
+  if (nav && grid && count) {
+    const chips = [...nav.querySelectorAll<HTMLAnchorElement>('a[data-filter]')];
+    const items = [...grid.querySelectorAll<HTMLElement>('[data-category]')];
+    const bn = (n: number) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[Number(d)]);
+
+    const apply = (slug: string, push: boolean) => {
+      let shown = 0;
+      for (const item of items) {
+        const match = slug === 'all' || item.dataset.category === slug;
+        item.hidden = !match;
+        if (match) shown++;
+      }
+
+      let label = 'সব লেখা';
+      for (const chip of chips) {
+        if (chip.dataset.filter === slug) {
+          label = chip.querySelector('span')?.textContent ?? label;
+          chip.setAttribute('aria-current', 'page');
+        } else {
+          chip.removeAttribute('aria-current');
+        }
+      }
+
+      count.hidden = slug === 'all';
+      count.textContent = `${label} — ${bn(shown)}টি লেখা।`;
+
+      if (push) {
+        history.pushState(
+          { slug },
+          '',
+          slug === 'all' ? '/articles' : `/articles?bibhag=${slug}`,
+        );
+      }
+    };
+
+    const known = (slug: string | null): slug is string =>
+      !!slug && chips.some((c) => c.dataset.filter === slug);
+
+    for (const chip of chips) {
+      chip.addEventListener('click', (e) => {
+        // Modified clicks still open the real category page.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        apply(chip.dataset.filter!, true);
+      });
+    }
+
+    addEventListener('popstate', () => {
+      const slug = new URLSearchParams(location.search).get('bibhag');
+      apply(known(slug) ? slug : 'all', false);
+    });
+
+    // Honour ?bibhag= on first paint so a filtered view stays linkable.
+    const initial = new URLSearchParams(location.search).get('bibhag');
+    if (known(initial)) apply(initial, false);
+  }
+</script>

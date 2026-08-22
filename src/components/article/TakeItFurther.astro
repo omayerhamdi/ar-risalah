@@ -1,0 +1,168 @@
+---
+/**
+ * What a reader can carry away from an article: the research layer, the source
+ * archive, a khutbah draft and a printable leaflet.
+ *
+ * The PDFs are not generated yet, so the two download cards point at
+ * /for-khateebs and say plainly that the file is on its way. A button that
+ * downloads nothing is worse than a button that admits it.
+ */
+interface Props {
+  hasResearch: boolean;
+  hasKhutbahResource: boolean;
+  /** Slug of the article, for the research and archive links. */
+  slug: string;
+}
+const { hasResearch, hasKhutbahResource } = Astro.props;
+---
+<section class="further" aria-labelledby="further-heading">
+  <div class="head">
+    <p class="eyebrow">এই বিষয়ে আরও</p>
+    <h2 id="further-heading">লেখাটি এখানেই শেষ নয়</h2>
+    <p class="lede">
+      প্রবন্ধটি বিষয়ের প্রথম স্তর। যিনি গভীরে যেতে চান, যিনি মিম্বারে
+      দাঁড়াবেন, আর যিনি ছাপিয়ে বিলি করতে চান—সবার জন্য আলাদা করে সাজানো আছে।
+    </p>
+  </div>
+
+  <ul class="cards">
+    <li class={hasResearch ? '' : 'soon'}>
+      <p class="t">গবেষণা স্তর</p>
+      <p class="b">
+        ঐতিহাসিক প্রেক্ষাপট, ফিকহি ইখতিলাফ ও বিরোধী মতের পূর্ণাঙ্গ উপস্থাপনা।
+      </p>
+      {hasResearch
+        ? <a class="act" href="/research">গবেষণা পড়ুন →</a>
+        : <p class="wait">প্রস্তুত হচ্ছে</p>}
+    </li>
+
+    <li>
+      <p class="t">রিসোর্স আর্কাইভ</p>
+      <p class="b">
+        এই বিষয়ে জড়ো করা মূল নথি, বইপত্র ও উদ্ধৃতির সংগ্রহ—সূত্রসহ।
+      </p>
+      <a class="act" href="/resources">আর্কাইভ দেখুন →</a>
+    </li>
+
+    <li class={hasKhutbahResource ? '' : 'soon'}>
+      <p class="t">খুতবার খসড়া</p>
+      <p class="b">
+        আয়াত, হাদিস ও তাখরিজসহ পূর্ণাঙ্গ খুতবা। ছাপিয়ে নিয়ে মিম্বারে দাঁড়ানো যায়।
+      </p>
+      {hasKhutbahResource
+        ? (
+          <a class="act dl" href="/for-khateebs">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 4v11m0 0 4-4m-4 4-4-4M4 19h16" />
+            </svg>
+            পিডিএফ নামান
+          </a>
+        )
+        : <p class="wait">প্রস্তুত হচ্ছে</p>}
+    </li>
+
+    <li class={hasKhutbahResource ? '' : 'soon'}>
+      <p class="t">বিতরণযোগ্য লিফলেট</p>
+      <p class="b">
+        এক পাতার সংক্ষিপ্ত রূপ। মসজিদ কমিটি বা সচেতন সংগঠন ছাপিয়ে বিলি করতে পারেন।
+      </p>
+      {hasKhutbahResource
+        ? (
+          <a class="act dl" href="/for-khateebs">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 4v11m0 0 4-4m-4 4-4-4M4 19h16" />
+            </svg>
+            পিডিএফ নামান
+          </a>
+        )
+        : <p class="wait">প্রস্তুত হচ্ছে</p>}
+    </li>
+  </ul>
+
+  <p class="licence">
+    ছাপানো, বিলি করা বা খুতবায় ব্যবহারে আমাদের অনুমতি লাগে না, কোনো ফি নেই।
+    শুধু উৎসটুকু উল্লেখ করবেন।
+  </p>
+</section>
+
+<style>
+  .further {
+    margin-top: var(--sp-8);
+    padding-top: var(--sp-5);
+    border-top: 2px solid var(--ink);
+  }
+  .head { max-width: var(--measure); }
+  .head h2 { margin-top: var(--sp-2); font-size: var(--step-2); }
+  .lede {
+    margin-top: var(--sp-3);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+  }
+
+  .cards {
+    list-style: none;
+    margin: var(--sp-6) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--sp-5);
+  }
+  .cards li {
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--rule-strong);
+  }
+  .cards li.soon { opacity: 0.62; }
+
+  .t { font-family: var(--font-display); font-size: var(--step-1); color: var(--ink); }
+  .b {
+    margin-top: var(--sp-2);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+  }
+  .act {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: var(--tap);
+    margin-top: var(--sp-3);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink);
+    text-underline-offset: 0.25em;
+  }
+  .act.dl {
+    padding-inline: var(--sp-4);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  }
+  .act.dl:hover { border-color: var(--ink); background: var(--paper-raise); }
+  .wait {
+    display: flex;
+    align-items: center;
+    min-height: var(--tap);
+    margin-top: var(--sp-3);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  .licence {
+    margin-top: var(--sp-6);
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+
+  @media (min-width: 40rem) {
+    .cards { grid-template-columns: repeat(2, 1fr); gap: var(--sp-5) var(--sp-6); }
+  }
+</style>

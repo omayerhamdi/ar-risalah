@@ -3,7 +3,10 @@
 export const SITE = {
   name: 'আর-রিসালাহ',
   nameArabic: 'الرسالة',
-  tagline: 'চিন্তার পরিশুদ্ধি, আখলাকের পুনরুদ্ধার',
+  /** What the platform is, in one line. Used in the footer and the <title>. */
+  tagline: 'সুন্নাহ ও মাকাসিদের আলোকে প্রজন্ম গঠনের দাওয়াহ ও গবেষণা কেন্দ্র',
+  /** Where the header wordmark is too tight for the full line. */
+  taglineShort: 'দাওয়াহ ও গবেষণা কেন্দ্র',
 } as const;
 
 export const PRIMARY_NAV = [
@@ -21,6 +24,14 @@ export const MOBILE_NAV = [
   { href: '/subscribe', label: 'যুক্ত হোন' },
 ] as const;
 
+/** The four pillars, in the order the editorial plan gives them. */
+export const CATEGORIES = [
+  { slug: 'akhlaq-poribar', label: 'আখলাক ও পরিবার' },
+  { slug: 'chinta-motobad', label: 'চিন্তা ও মতবাদ' },
+  { slug: 'jubosomaj-somokal', label: 'যুবসমাজ ও সমকাল' },
+  { slug: 'ilm-jibondorshon', label: 'ইলম ও জীবনদর্শন' },
+] as const;
+
 export const FOOTER_NAV = [
   {
     heading: 'পড়ুন',
@@ -28,25 +39,48 @@ export const FOOTER_NAV = [
       { href: '/start-here', label: 'শুরু করুন এখান থেকে' },
       { href: '/articles', label: 'সব প্রবন্ধ' },
       { href: '/topics', label: 'বিষয়সমূহ' },
-      { href: '/research', label: 'গবেষণা' },
+      { href: '/search', label: 'খুঁজে দেখুন' },
     ],
   },
   {
-    heading: 'সম্পদ',
+    heading: 'বিভাগ',
+    links: CATEGORIES.map((c) => ({ href: `/categories/${c.slug}`, label: c.label })),
+  },
+  {
+    heading: 'গবেষণা ও রিসোর্স',
     links: [
-      { href: '/resources', label: 'একাডেমিক রিসোর্স' },
-      { href: '/for-khateebs', label: 'খতীব ও দাঈদের জন্য' },
+      { href: '/research', label: 'গবেষণা স্তর' },
+      { href: '/resources', label: 'রিসোর্স আর্কাইভ' },
+      { href: '/for-khateebs', label: 'খুতবা ও লিফলেট' },
       { href: '/glossary', label: 'পরিভাষা কোষ' },
-      { href: '/authors', label: 'লেখকবৃন্দ' },
     ],
   },
   {
     heading: 'আর-রিসালাহ',
     links: [
       { href: '/about', label: 'আমাদের পরিচয়' },
+      { href: '/authors', label: 'লেখকবৃন্দ' },
+      { href: '/subscribe', label: 'যুক্ত হোন' },
       { href: '/contact', label: 'যোগাযোগ' },
-      { href: '/privacy', label: 'গোপনীয়তা নীতি' },
-      { href: '/terms', label: 'ব্যবহারের শর্ত' },
     ],
   },
+] as const;
+
+export const LEGAL_NAV = [
+  { href: '/privacy', label: 'গোপনীয়তা নীতি' },
+  { href: '/terms', label: 'ব্যবহারের শর্ত' },
+  { href: '/rss.xml', label: 'RSS ফিড' },
+] as const;
+
+/**
+ * Accounts are not open yet, so every href is a placeholder. The icons are
+ * here so the footer can be judged as a whole; swap the '#' when the pages
+ * exist. `icon` keys the inline SVG in Footer.astro.
+ */
+export const SOCIAL = [
+  { icon: 'facebook', label: 'ফেসবুক', href: '#' },
+  { icon: 'youtube', label: 'ইউটিউব', href: '#' },
+  { icon: 'telegram', label: 'টেলিগ্রাম', href: '#' },
+  { icon: 'whatsapp', label: 'হোয়াটসঅ্যাপ চ্যানেল', href: '#' },
+  { icon: 'x', label: 'এক্স', href: '#' },
 ] as const;

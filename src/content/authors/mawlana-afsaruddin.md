@@ -11,7 +11,7 @@ areasOfInterest:
   - "তাযকিয়া"
   - "সামাজিক কুপ্রথা"
 isCollective: false
-order: 2
+order: 1
 ---
 
 **সংক্ষিপ্ত পরিচিতি**

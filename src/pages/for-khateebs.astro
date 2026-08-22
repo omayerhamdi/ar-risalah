@@ -1,31 +1,80 @@
 ---
 import Page from '../layouts/Page.astro';
 import ArticleCard from '../components/cards/ArticleCard.astro';
-import SubscribeSection from '../components/forms/SubscribeSection.astro';
 import { getPublished } from '../lib/articles';
 
 const resourceful = (await getPublished()).filter((a) => a.data.hasKhutbahResource).slice(0, 6);
+
+const KITS = [
+  {
+    title: 'খুতবার পূর্ণাঙ্গ খসড়া',
+    body:
+      'ভূমিকা, মূল আলোচনা, প্রাসঙ্গিক আয়াত ও হাদিস—প্রতিটির তাখরিজসহ—এবং সমাপ্তির ' +
+      'দুআ পর্যন্ত সাজানো। মিম্বারে দাঁড়িয়ে পড়ার মতো করে লেখা, শুধু তথ্যের স্তূপ নয়।',
+    meta: 'পিডিএফ · ছাপার উপযোগী',
+  },
+  {
+    title: 'বিতরণযোগ্য লিফলেট',
+    body:
+      'এক পাতার সংক্ষিপ্ত রূপ। মসজিদ কমিটি, মাদরাসা বা সচেতন সংগঠন ছাপিয়ে বিলি ' +
+      'করতে পারেন। ছাপাখানায় দেওয়ার উপযোগী ফাইল আলাদা করে দেওয়া থাকে।',
+    meta: 'পিডিএফ · এ৪ ও এ৫',
+  },
+  {
+    title: 'দলিলের তালিকা',
+    body:
+      'প্রতিটি বর্ণনার সূত্র, গ্রন্থের নাম, খণ্ড ও পৃষ্ঠা। কেউ প্রশ্ন করলে যেন ' +
+      'উত্তরটি হাতের কাছেই থাকে—খুঁজতে বসতে না হয়।',
+    meta: 'প্রবন্ধের সঙ্গেই',
+  },
+  {
+    title: 'একাডেমিক রিসোর্স',
+    body:
+      'যিনি আরও গভীরে যেতে চান তাঁর জন্য আরবি, উর্দু, বাংলা ও ইংরেজি উৎসের ' +
+      'তালিকা—প্রতিটির সঙ্গে সংক্ষিপ্ত টীকা, কেন এটি প্রাসঙ্গিক।',
+    meta: 'রিসোর্স আর্কাইভে',
+  },
+];
 ---
 <Page
   title="খতীব ও দাঈদের জন্য"
   eyebrow="আপনার জুমার প্রস্তুতির জন্য"
-  lede="প্রতি বৃহস্পতিবার সকালে আমাদের নতুন লেখা প্রকাশিত হয়—জুমার আগের দিন, ইচ্ছাকৃতভাবে।"
+  lede="একটি লেখা পড়ে দশজন নড়েচড়ে বসেন। সেই কথা জুমার খুতবায় উঠলে শোনেন তিনশ জন। তাই আমাদের প্রতিটি গুরুত্বপূর্ণ বিষয়ের সঙ্গে খুতবা ও লিফলেট আগেই তৈরি করে রাখা হয়।"
   wide={true}
 >
   <div class="intro">
-    <p>প্রতিটি গুরুত্বপূর্ণ বিষয়ের সঙ্গে থাকে:</p>
-    <ul class="offering">
-      <li><strong>প্রবন্ধ</strong> — বিষয়টির পূর্ণাঙ্গ উপস্থাপনা</li>
-      <li><strong>গবেষণা স্তর</strong> — ফিকহি বিস্তার, ঐতিহাসিক প্রেক্ষাপট, ইখতিলাফ</li>
-      <li><strong>দলিল তালিকা</strong> — যাচাইকৃত, সূত্রসহ</li>
-      <li><strong>একাডেমিক রিসোর্স</strong> — আরও পড়ার জন্য</li>
-    </ul>
-    <p>খুতবার জন্য প্রস্তুত সংক্ষিপ্ত রিসোর্স আমরা ক্রমান্বয়ে যুক্ত করছি।</p>
+    <p>
+      আমরা প্রতি বৃহস্পতিবার সকালে নতুন লেখা প্রকাশ করি—জুমার আগের দিন, ইচ্ছা
+      করেই। যাতে যিনি শুক্রবার মিম্বারে দাঁড়াবেন, তাঁর হাতে অন্তত একটি দিন থাকে।
+    </p>
+  </div>
+
+  <ul class="kits">
+    {KITS.map((k) => (
+      <li>
+        <p class="kit-meta">{k.meta}</p>
+        <h2 class="kit-title">{k.title}</h2>
+        <p class="kit-body">{k.body}</p>
+      </li>
+    ))}
+  </ul>
+
+  <div class="notice">
+    <p class="notice-title">ব্যবহারের শর্ত: কোনো শর্ত নেই</p>
+    <p>
+      ছাপানো, বিলি করা, খুতবায় ব্যবহার করা, নিজের ভাষায় সাজিয়ে নেওয়া—কোনো
+      কিছুতেই আমাদের অনুমতি লাগে না, কোনো ফি নেই। শুধু উৎসটুকু উল্লেখ করবেন,
+      যাতে কেউ যাচাই করতে চাইলে মূল লেখাটি খুঁজে পান।
+    </p>
+    <p class="notice-note">
+      খুতবা ও লিফলেটের ফাইলগুলো ক্রমান্বয়ে যুক্ত হচ্ছে। কোন বিষয়টি আগে দরকার,
+      <a href="/contact">জানিয়ে দিন</a>—সেটিই আগে তৈরি হবে।
+    </p>
   </div>
 
   {resourceful.length > 0 && (
     <section class="picks">
-      <h2>খুতবার উপযোগী বিষয়</h2>
+      <h2 class="picks-heading">খুতবার উপযোগী বিষয়</h2>
       <div class="archive-grid">
         {resourceful.map((a) => <ArticleCard article={a} />)}
       </div>
@@ -33,25 +82,50 @@ const resourceful = (await getPublished()).filter((a) => a.data.hasKhutbahResour
   )}
 </Page>
 
-<SubscribeSection />
-
 <style>
   .intro { max-width: var(--measure); }
-  .offering { list-style: none; padding-left: 0; }
-  .offering li { padding-left: var(--sp-5); position: relative; }
-  .offering li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: calc(var(--leading-body) * 0.5em - 3px);
-    width: 6px; height: 6px;
-    background: var(--rubric);
+
+  .kits {
+    list-style: none;
+    margin: var(--sp-8) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--sp-6);
   }
+  .kits li { padding-top: var(--sp-4); border-top: 1px solid var(--rule-strong); }
+  .kit-meta { font-family: var(--font-ui); font-size: var(--step--1); color: var(--rubric); }
+  .kit-title { margin-top: var(--sp-2); font-size: var(--step-2); }
+  .kit-body {
+    margin-top: var(--sp-3);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+  }
+
+  .notice {
+    margin-top: var(--sp-8);
+    padding: var(--sp-6);
+    background: var(--paper-deep);
+    border-top: 2px solid var(--rubric);
+    max-width: var(--measure-wide);
+  }
+  .notice-title { font-family: var(--font-display); font-size: var(--step-1); color: var(--ink); }
+  .notice p + p { margin-top: var(--sp-4); }
+  .notice-note {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
   .picks { margin-top: var(--sp-9); }
-  .picks h2 {
+  .picks-heading {
     font-family: var(--font-ui);
     font-size: var(--step--1);
     color: var(--rubric);
     margin-bottom: var(--sp-5);
+  }
+
+  @media (min-width: 48rem) {
+    .kits { grid-template-columns: repeat(2, 1fr); gap: var(--sp-6) var(--sp-7); }
   }
 </style>

@@ -11,7 +11,7 @@ areasOfInterest:
   - "দলিল যাচাই ও তাখরিজ"
   - "খতীবদের প্রস্তুতি"
 isCollective: false
-order: 3
+order: 2
 ---
 
 **সংক্ষিপ্ত পরিচিতি**

@@ -5,7 +5,6 @@ import ArticleCard from '../components/cards/ArticleCard.astro';
 import TopicCard from '../components/cards/TopicCard.astro';
 import AuthorCard from '../components/cards/AuthorCard.astro';
 import Cover from '../components/article/Cover.astro';
-import SubscribeSection from '../components/forms/SubscribeSection.astro';
 import { getCover } from '../lib/covers';
 import { bnDate, bnReadingTime } from '../lib/dates';
 import { toBn } from '../lib/toBn';
@@ -37,11 +36,53 @@ const topics = [...counts.entries()]
 const research = all.filter((a) => a.data.hasResearch).slice(0, 3);
 
 const authors = (await getCollection('authors')).sort((a, b) => a.data.order - b.data.order);
+const namedAuthors = authors.filter((a) => !a.data.isCollective);
+
+// The three layers every subject passes through. This is the platform's whole
+// method, so it sits directly under the masthead rather than on an inner page.
+const LAYERS = [
+  {
+    n: 1,
+    title: 'প্রবন্ধ',
+    lede: 'যে কেউ পড়তে পারেন।',
+    body:
+      'এক বসায় শেষ হয়, তবু ফাঁকা কথা থাকে না। প্রতিটি দাবির পেছনে সূত্র ধরিয়ে ' +
+      'দেওয়া থাকে, যাতে পাঠক আমাদের কথায় নয়—দলিলে আস্থা রাখেন।',
+    href: '/articles',
+    cta: 'প্রবন্ধ পড়ুন',
+  },
+  {
+    n: 2,
+    title: 'গবেষণা স্তর',
+    lede: 'একই বিষয়ের পূর্ণাঙ্গ পাঠ।',
+    body:
+      'ঐতিহাসিক প্রেক্ষাপট, ফিকহি ইখতিলাফ, আর বিরোধী মতের সবচেয়ে শক্তিশালী রূপটি—' +
+      'দুর্বল প্রতিপক্ষ বানিয়ে জিতে যাওয়া ইলমি সততা নয়।',
+    href: '/research',
+    cta: 'গবেষণা দেখুন',
+  },
+  {
+    n: 3,
+    title: 'রিসোর্স আর্কাইভ',
+    lede: 'যা কিছু আমরা জড়ো করেছি।',
+    body:
+      'মূল বইয়ের নথি, বক্তব্যের ক্লিপ, প্রচারপত্র, পুরোনো সংখ্যার স্ক্যান—এক জায়গায় ' +
+      'সাজানো। দশ বছর পর যিনি এই বিষয়ে বসবেন, তাঁকে যেন শূন্য থেকে শুরু করতে না হয়।',
+    href: '/resources',
+    cta: 'আর্কাইভ ঘুরে দেখুন',
+  },
+];
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
-    { '@type': 'Organization', name: SITE.name, alternateName: SITE.nameArabic, url: Astro.site?.href },
+    {
+      '@type': 'Organization',
+      name: SITE.name,
+      alternateName: SITE.nameArabic,
+      description: SITE.tagline,
+      url: Astro.site?.href,
+    },
     {
       '@type': 'WebSite',
       name: SITE.name,
@@ -59,23 +100,29 @@ const jsonLd = {
 
 <Base
   title={`${SITE.name} — ${SITE.tagline}`}
-  description="যৌতুক, দাম্পত্য, সন্তান প্রতিপালন, আধুনিকতা ও সংশয়—যে প্রশ্নগুলো নিয়ে আমরা কথা বলি না, দলিল ও বাস্তবতার আলোয় তার পাঠ।"
+  description="সুন্নাহ ও মাকাসিদে শরিয়াহর আলোকে প্রজন্ম গঠনের দাওয়াহ ও গবেষণা কেন্দ্র। প্রতিটি বিষয়ে প্রবন্ধ, গবেষণা স্তর ও উৎসের আর্কাইভ—সঙ্গে খুতবার খসড়া ও বিতরণযোগ্য লিফলেট।"
 >
-  {/* Front page: the statement on the left, the lead story on the right.
-      No slider, no stock photography, no hero image behind text. */}
+  {/* Front page: the statement on the left, the lead story on the right. */}
   <section class="front" aria-labelledby="front-heading">
     <div class="container front-grid">
       <div class="statement">
-        <p class="kicker">বাংলা ভাষায় ইসলামি চিন্তা ও সমকাল</p>
-        <h1 id="front-heading">যে প্রশ্নগুলো নিয়ে আমরা কথা বলি না</h1>
+        <p class="kicker">দাওয়াহ ও গবেষণা কেন্দ্র</p>
+        <h1 id="front-heading">যে প্রজন্ম প্রশ্ন করে, তাকে উত্তরও দিতে হয়</h1>
         <p class="lede">
-          যৌতুকের দেনদরবার, শাশুড়ি-বউয়ের টানাপোড়েন, সন্তানের হাতের স্ক্রিন,
-          নিজের ভেতরের সংশয়—মিম্বার থেকে এসব প্রায়ই বাদ পড়ে যায়। আর-রিসালাহ
-          শুরুই করে এখান থেকে: দলিলের ওপর দাঁড়িয়ে, বাস্তবতার দিকে চোখ রেখে।
+          আর-রিসালাহ কাজ করে সুন্নাহ ও মাকাসিদে শরিয়াহর আলোকে। আমরা এক বিষয়ে
+          তিনবার কাজ করি—পাঠকের জন্য প্রবন্ধ, গবেষকের জন্য পূর্ণাঙ্গ পাঠ, আর
+          ভবিষ্যতের জন্য উৎসের আর্কাইভ।
         </p>
         <p class="cta">
           <a class="btn-primary" href="/start-here">শুরু করুন এখান থেকে</a>
-          <a class="btn-secondary" href="/articles">সব প্রবন্ধ</a>
+          <a class="btn-secondary" href="/about">আমাদের কাজের ধরন</a>
+        </p>
+        <p class="stats">
+          <span>{toBn(all.length)}টি প্রবন্ধ</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span>{toBn(namedAuthors.length)} জন লেখক</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span>প্রতি বৃহস্পতিবার নতুন লেখা</span>
         </p>
       </div>
 
@@ -108,15 +155,43 @@ const jsonLd = {
     </div>
   </section>
 
+  {/* The method. This is what separates the platform from a blog, so it comes
+      before any further article listing. */}
+  <section class="band layers" aria-labelledby="layers-heading">
+    <div class="container">
+      <div class="band-head wide">
+        <h2 id="layers-heading">এক বিষয়, তিন স্তর</h2>
+        <p class="band-lede">
+          একটি বিষয় একবার পড়ে শেষ হয় না। যিনি সাধারণ পাঠক, যিনি গবেষক, আর যিনি
+          দশ বছর পর এই বিষয়েই কাজ করতে বসবেন—তিনজনের প্রয়োজন তিন রকম। আমরা
+          তিনটাই তৈরি করি।
+        </p>
+      </div>
+      <ol class="layer-grid">
+        {LAYERS.map((l) => (
+          <li class="layer">
+            <p class="layer-num tabular" aria-hidden="true">{toBn(l.n).padStart(2, '০')}</p>
+            <h3 class="layer-title">{l.title}</h3>
+            <p class="layer-lede">{l.lede}</p>
+            <p class="layer-body">{l.body}</p>
+            <p class="layer-cta"><a href={l.href}>{l.cta} →</a></p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
   {akhlaq.length > 0 && (
     <section class="band" aria-labelledby="akhlaq-heading">
       <div class="container">
-        <div class="band-head">
-          <h2 id="akhlaq-heading">আখলাক ও পরিবার</h2>
-          <p class="band-lede">
-            সংশোধনের প্রথম ময়দান মসজিদ নয়, নিজের ঘর। যে আচরণ ঘরে তৈরি হয় না,
-            সেটি ওয়াজ শুনে তৈরি হয় না।
-          </p>
+        <div class="band-head row">
+          <div>
+            <h2 id="akhlaq-heading">আখলাক ও পরিবার</h2>
+            <p class="band-lede">
+              সংশোধনের প্রথম ময়দান মসজিদ নয়, নিজের ঘর। যে আচরণ ঘরে তৈরি হয় না,
+              সেটি ওয়াজ শুনে তৈরি হয় না।
+            </p>
+          </div>
           <a class="band-more" href="/categories/akhlaq-poribar">এই বিভাগের সব লেখা →</a>
         </div>
         <div class="grid-3">
@@ -126,63 +201,104 @@ const jsonLd = {
     </section>
   )}
 
-  {/* The one dark surface on the page. It breaks a long run of paper and
-      carries the editorial position, which belongs early — not in a footer. */}
-  <section class="creed" aria-labelledby="creed-heading">
-    <div class="container creed-grid">
-      <div class="creed-text">
-        <h2 id="creed-heading">
-          আমরা দোষারোপ করতে বসিনি। বসেছি বুঝতে—জানা সত্ত্বেও একটি সমাজ কেন
-          উল্টো পথে হাঁটে।
-        </h2>
+  {/* The one dark surface above the footer. It carries what the platform hands
+      to khateebs and to organisations — the part that leaves the website. */}
+  <section class="minbar" aria-labelledby="minbar-heading">
+    <div class="container minbar-grid">
+      <div class="minbar-text">
+        <p class="kicker-light">খতীব, দাঈ ও সচেতন সংগঠনের জন্য</p>
+        <h2 id="minbar-heading">মিম্বার পর্যন্ত পৌঁছালে কাজটা আসলে শুরু হয়</h2>
         <p>
-          প্রতিটি লেখার পেছনে থাকে কুরআন ও সুন্নাহর দলিল, ফিকহি মতপার্থক্যের
-          সৎ স্বীকৃতি, আর মাঠের বাস্তবতা। যেখানে আমরা নিশ্চিত নই, সেখানে
-          নিশ্চিত হওয়ার ভান করি না।
+          একটি লেখা পড়ে দশজন নড়েচড়ে বসেন। সেই কথা যদি জুমার খুতবায় ওঠে, শোনেন
+          তিনশ জন। তাই প্রতিটি গুরুত্বপূর্ণ বিষয়ের সঙ্গে আমরা আগেই তৈরি করে রাখি—
         </p>
       </div>
-      <ul class="creed-links">
+
+      <ul class="offers">
         <li>
-          <a href="/about">
-            <span class="cl-title">আমাদের পরিচয়</span>
-            <span class="cl-sub">কারা লিখছেন, কোন পদ্ধতিতে</span>
+          <p class="offer-title">খুতবার পূর্ণাঙ্গ খসড়া</p>
+          <p class="offer-body">
+            প্রাসঙ্গিক আয়াত, হাদিস ও তার তাখরিজসহ সাজানো—ভূমিকা থেকে দুআ পর্যন্ত।
+            ছাপিয়ে নিয়ে মিম্বারে দাঁড়ানো যায়।
+          </p>
+          <a class="btn-download" href="/for-khateebs">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 4v11m0 0 4-4m-4 4-4-4M4 19h16" />
+            </svg>
+            খুতবার খসড়া দেখুন
           </a>
         </li>
         <li>
-          <a href="/for-khateebs">
-            <span class="cl-title">খতীব ও দাঈদের জন্য</span>
-            <span class="cl-sub">খুতবার কাঠামো, উৎস ও প্রস্তুত নোট</span>
+          <p class="offer-title">বিতরণযোগ্য লিফলেট</p>
+          <p class="offer-body">
+            এক পাতার, সংক্ষিপ্ত। মসজিদ কমিটি, মাদরাসা বা সচেতন সংগঠন ছাপিয়ে
+            বিলি করতে পারেন—ছাপার উপযোগী ফাইলসহ।
+          </p>
+          <a class="btn-download" href="/for-khateebs">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 4v11m0 0 4-4m-4 4-4-4M4 19h16" />
+            </svg>
+            লিফলেট দেখুন
           </a>
         </li>
       </ul>
+
+      {/* After the list, not before it — the sentence above ends in a dash and
+          hands straight over to the two offers. */}
+      <p class="minbar-note">
+        ব্যবহারে অনুমতি লাগে না, ফি নেই। শুধু উৎসটুকু উল্লেখ করবেন।
+      </p>
     </div>
   </section>
 
-  {/* Index list plus a sidebar rail — a different rhythm from the card grid
-      above, so the page does not read as one band repeated. */}
+  {/* Index list plus a rail — a different rhythm from the card grids above. */}
   <section class="band" aria-labelledby="recent-heading">
     <div class="container main-grid">
       <div>
-        <div class="band-head">
+        <div class="band-head row">
           <h2 id="recent-heading">সাম্প্রতিক লেখা</h2>
+          <a class="band-more" href="/articles">সব প্রবন্ধ →</a>
         </div>
         <ol class="index-list">
           {recent.map((a, i) => (
-            <li class="index-item matra">
+            <li class="index-item">
               <span class="index-num tabular" aria-hidden="true">{toBn(i + 1).padStart(2, '০')}</span>
               <div class="index-body">
                 <p class="index-cat">{a.data.category}</p>
                 <h3 class="index-title"><a href={`/articles/${a.data.slug}`}>{a.data.title}</a></h3>
                 <p class="index-excerpt">{a.data.excerpt}</p>
-                <p class="index-meta">{bnReadingTime(a.data.readingTime)} পড়া</p>
+                <p class="index-meta">
+                  {bnReadingTime(a.data.readingTime)} পড়া
+                  {a.data.hasResearch && <span class="tag">গবেষণা স্তর আছে</span>}
+                  {a.data.hasKhutbahResource && <span class="tag">খুতবা প্রস্তুত</span>}
+                </p>
               </div>
             </li>
           ))}
         </ol>
-        <p class="more"><a href="/articles">সব প্রবন্ধ →</a></p>
       </div>
 
-      <aside class="rail" aria-label="বিষয় ও গবেষণা">
+      <aside class="rail" aria-label="বিষয়, গবেষণা ও যুক্ত হওয়ার সুযোগ">
+        {/* Capture point one. The second is the footer's join block. */}
+        <div class="rail-block join">
+          <h2 class="rail-heading">সপ্তাহে একটি লেখা</h2>
+          <p class="rail-lede">
+            প্রতি বৃহস্পতিবার সকালে—জুমার আগের দিন, ইচ্ছা করেই। এর বেশি
+            আমরা আপনাকে বিরক্ত করি না।
+          </p>
+          <form class="join-form" method="post" action="#" aria-label="নিউজলেটারে যুক্ত হোন">
+            <label class="visually-hidden" for="home-email">ইমেইল ঠিকানা</label>
+            <input id="home-email" type="email" name="email" autocomplete="email"
+                   placeholder="ইমেইল ঠিকানা" />
+            <button type="submit">যুক্ত হোন</button>
+          </form>
+          <p class="join-alt">
+            <a href="/subscribe">হোয়াটসঅ্যাপে পেতে চান? →</a>
+          </p>
+        </div>
+
         {topics.length > 0 && (
           <div class="rail-block">
             <h2 class="rail-heading">বিষয় ধরে পড়ুন</h2>
@@ -195,19 +311,15 @@ const jsonLd = {
 
         {research.length > 0 && (
           <div class="rail-block">
-            <h2 class="rail-heading">গবেষণা</h2>
-            <p class="rail-lede">
-              কিছু বিষয়ে প্রবন্ধই যথেষ্ট নয়—উৎস, ঐতিহাসিক প্রেক্ষাপট ও
-              ইখতিলাফের বিবরণসহ আলাদা করে সাজানো।
-            </p>
+            <h2 class="rail-heading">গবেষণা স্তর</h2>
             <ul class="rail-list">
               {research.map((a) => (
-                <li class="matra">
+                <li>
                   <a href={`/articles/${a.data.slug}`}>{a.data.titleShort ?? a.data.title}</a>
                 </li>
               ))}
             </ul>
-            <p class="more"><a href="/research">গবেষণা দেখুন →</a></p>
+            <p class="more"><a href="/research">সব গবেষণা →</a></p>
           </div>
         )}
       </aside>
@@ -216,20 +328,21 @@ const jsonLd = {
 
   <section class="band" aria-labelledby="authors-heading">
     <div class="container">
-      <div class="band-head">
-        <h2 id="authors-heading">লেখকবৃন্দ</h2>
-        <p class="band-lede">
-          নাম গোপন রেখে লেখা হয় না। কে লিখছেন, কোন পড়াশোনার ওপর দাঁড়িয়ে
-          লিখছেন—পাঠকের তা জানার অধিকার আছে।
-        </p>
+      <div class="band-head row">
+        <div>
+          <h2 id="authors-heading">যাঁরা লিখছেন</h2>
+          <p class="band-lede">
+            নাম গোপন রেখে লেখা হয় না। কে লিখছেন, কোন পড়াশোনার ওপর দাঁড়িয়ে
+            লিখছেন—পাঠকের তা জানার অধিকার আছে।
+          </p>
+        </div>
+        <a class="band-more" href="/authors">সবার পরিচয় →</a>
       </div>
       <div class="grid-authors">
         {authors.map((a) => <AuthorCard author={a} />)}
       </div>
     </div>
   </section>
-
-  <SubscribeSection />
 
   <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </Base>
@@ -249,15 +362,25 @@ const jsonLd = {
     font-size: var(--step-5);
     line-height: 1.18;
     letter-spacing: -0.01em;
-    max-width: 16ch;
+    max-width: 17ch;
   }
   .statement .lede {
     margin-top: var(--sp-5);
     font-size: var(--step-1);
     line-height: var(--leading-snug);
     color: var(--ink-soft);
-    max-width: 40ch;
+    max-width: 42ch;
   }
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin-top: var(--sp-5);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .stats .dot { color: var(--rule-strong); }
 
   .cta { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-6); }
   .btn-primary, .btn-secondary {
@@ -317,6 +440,7 @@ const jsonLd = {
     padding-top: var(--sp-4);
     border-top: 2px solid var(--ink);
   }
+  .band-head.wide { max-width: var(--measure-wide); }
   .band-head h2 { font-size: var(--step-2); }
   .band-lede {
     margin-top: var(--sp-3);
@@ -324,66 +448,137 @@ const jsonLd = {
     line-height: var(--leading-snug);
   }
   .band-more {
-    display: inline-block;
-    margin-top: var(--sp-4);
     font-family: var(--font-ui);
     font-size: var(--step--1);
     color: var(--ink);
     text-underline-offset: 0.25em;
+    white-space: nowrap;
   }
+  /* Heading left, "see all" right — one line instead of two stacked ones. */
+  .band-head.row {
+    max-width: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-3) var(--sp-6);
+  }
+  .band-head.row .band-lede { max-width: var(--measure); }
 
   .grid-3 { display: grid; gap: var(--sp-6); }
   .grid-authors { display: grid; gap: var(--sp-4); }
 
-  .more { margin-top: var(--sp-5); font-family: var(--font-ui); font-size: var(--step--1); }
+  .more { margin-top: var(--sp-4); font-family: var(--font-ui); font-size: var(--step--1); }
   .more a { color: var(--ink); text-underline-offset: 0.25em; }
 
-  /* ---- Creed band ------------------------------------------------ */
-  .creed {
+  /* ---- Three layers ---------------------------------------------- */
+  .layer-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-6); }
+  .layer {
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--rule-strong);
+  }
+  .layer-num {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+  }
+  .layer-title { margin-top: var(--sp-3); font-size: var(--step-2); }
+  .layer-lede {
+    margin-top: var(--sp-2);
+    font-family: var(--font-display);
+    color: var(--ink);
+    line-height: var(--leading-snug);
+  }
+  .layer-body {
+    margin-top: var(--sp-3);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+  }
+  .layer-cta { margin-top: var(--sp-4); font-family: var(--font-ui); font-size: var(--step--1); }
+  .layer-cta a { color: var(--ink); text-underline-offset: 0.25em; }
+
+  /* ---- Minbar band ----------------------------------------------- */
+  .minbar {
     background: var(--deep);
     color: var(--paper);
     padding-block: var(--sp-8);
-    margin-block: var(--sp-6);
   }
-  .creed-grid { display: grid; gap: var(--sp-7); }
-  .creed h2 {
+  .minbar-grid { display: grid; gap: var(--sp-7); }
+  .kicker-light {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric-soft);
+    margin-bottom: var(--sp-4);
+  }
+  .minbar h2 {
     color: var(--paper);
-    font-size: var(--step-2);
-    line-height: 1.42;
-    max-width: 24ch;
-    text-wrap: balance;
-  }
-  .creed-text p {
-    margin-top: var(--sp-5);
-    color: #C9D2CC;
+    font-size: var(--step-3);
     line-height: var(--leading-snug);
-    max-width: 46ch;
+    max-width: 20ch;
   }
-  .creed-links { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-4); }
-  .creed-links a {
-    display: grid;
-    gap: var(--sp-1);
+  .minbar-text p {
+    margin-top: var(--sp-5);
+    color: color-mix(in srgb, var(--paper) 80%, transparent);
+    line-height: var(--leading-snug);
+    max-width: 44ch;
+  }
+  /* Sits below both columns of the grid, as a footnote to the pair. */
+  .minbar-note {
+    margin-top: var(--sp-6);
     padding-top: var(--sp-4);
-    border-top: 1px solid rgba(247, 245, 239, 0.28);
-    text-decoration: none;
-    min-height: var(--tap);
-    transition: border-color var(--dur-base) var(--ease);
+    border-top: 1px solid color-mix(in srgb, var(--paper) 18%, transparent);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: color-mix(in srgb, var(--paper) 62%, transparent);
   }
-  .creed-links a:hover { border-top-color: var(--paper); }
-  .cl-title { font-family: var(--font-display); font-size: var(--step-1); color: var(--paper); }
-  .cl-sub { font-family: var(--font-ui); font-size: var(--step--1); color: var(--rubric-soft); }
+
+  .offers { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-6); }
+  .offers li {
+    padding-top: var(--sp-4);
+    border-top: 1px solid color-mix(in srgb, var(--paper) 28%, transparent);
+  }
+  .offer-title { font-family: var(--font-display); font-size: var(--step-1); color: var(--paper); }
+  .offer-body {
+    margin-top: var(--sp-3);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: color-mix(in srgb, var(--paper) 76%, transparent);
+  }
+  .btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: var(--tap);
+    margin-top: var(--sp-4);
+    padding-inline: var(--sp-4);
+    border: 1px solid color-mix(in srgb, var(--paper) 40%, transparent);
+    border-radius: var(--radius);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--paper);
+    text-decoration: none;
+    transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+  }
+  .btn-download:hover {
+    background: color-mix(in srgb, var(--paper) 12%, transparent);
+    border-color: var(--paper);
+  }
 
   /* ---- Index list + rail ----------------------------------------- */
   .main-grid { display: grid; gap: var(--sp-8); }
 
-  .index-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-5); }
+  .index-list { list-style: none; margin: 0; padding: 0; display: grid; }
   .index-item {
     position: relative;
     display: grid;
-    grid-template-columns: 2.5rem 1fr;
+    grid-template-columns: 2.25rem 1fr;
     gap: var(--sp-3);
-    padding-top: var(--sp-4);
+    padding-block: var(--sp-5);
+    border-top: 1px solid var(--rule);
+    transition: border-color var(--dur-base) var(--ease);
   }
+  .index-item:first-child { border-top: 0; padding-top: 0; }
   .index-item:hover { border-top-color: var(--ink); }
   .index-num {
     font-family: var(--font-ui);
@@ -407,19 +602,28 @@ const jsonLd = {
     max-width: var(--measure);
   }
   .index-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2);
     margin-top: var(--sp-3);
     font-family: var(--font-ui);
     font-size: var(--step--1);
     color: var(--ink-soft);
   }
+  .tag {
+    padding: 2px var(--sp-2);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    color: var(--rubric);
+  }
 
-  .rail { display: grid; gap: var(--sp-7); align-content: start; }
+  .rail { display: grid; gap: var(--sp-6); align-content: start; }
+  .rail-block { padding-top: var(--sp-3); border-top: 2px solid var(--ink); }
   .rail-heading {
     font-family: var(--font-ui);
     font-size: var(--step--1);
     color: var(--ink);
-    padding-top: var(--sp-3);
-    border-top: 2px solid var(--ink);
   }
   .rail-lede {
     margin-top: var(--sp-3);
@@ -428,9 +632,9 @@ const jsonLd = {
     color: var(--ink-soft);
   }
   .rail-topics { margin-top: var(--sp-4); display: grid; gap: var(--sp-2); }
-  .rail-list { list-style: none; margin: var(--sp-4) 0 0; padding: 0; display: grid; gap: var(--sp-3); }
-  .rail-list li { padding-top: var(--sp-3); }
-  .rail-list li:hover { border-top-color: var(--ink); }
+  .rail-list { list-style: none; margin: var(--sp-4) 0 0; padding: 0; display: grid; }
+  .rail-list li { padding-block: var(--sp-3); border-top: 1px solid var(--rule); }
+  .rail-list li:first-child { border-top: 0; padding-top: 0; }
   .rail-list a {
     display: block;
     font-family: var(--font-display);
@@ -438,27 +642,66 @@ const jsonLd = {
     text-decoration: none;
     line-height: var(--leading-snug);
   }
+  .rail-list a:hover { text-decoration: underline; }
+
+  /* The rail's capture card is the only tinted box on the page. */
+  .rail-block.join {
+    background: var(--paper-deep);
+    border-top: 2px solid var(--rubric);
+    padding: var(--sp-5);
+  }
+  .join-form { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-4); }
+  .join-form input {
+    flex: 1 1 10rem;
+    min-height: var(--tap);
+    padding-inline: var(--sp-3);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    background: var(--paper-raise);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+  }
+  .join-form button {
+    min-height: var(--tap);
+    padding-inline: var(--sp-4);
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--deep);
+    color: var(--paper);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    cursor: pointer;
+  }
+  .join-form button:hover { background: var(--deep-2); }
+  .join-alt { margin-top: var(--sp-3); font-family: var(--font-ui); font-size: var(--step--1); }
+  .join-alt a { color: var(--rubric); text-underline-offset: 0.25em; }
 
   /* ---- Breakpoints ------------------------------------------------ */
   @media (min-width: 48rem) {
     .grid-3, .grid-authors { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); }
-    .creed-links { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); }
+    .layer-grid { grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); }
+    .offers { grid-template-columns: repeat(2, 1fr); gap: var(--sp-6); }
     .index-item { grid-template-columns: 3rem 1fr; }
   }
 
   @media (min-width: 64rem) {
-    .front { padding-block: var(--sp-8) var(--sp-9); }
+    .front { padding-block: var(--sp-8); }
     .front-grid { grid-template-columns: 5fr 7fr; gap: var(--sp-8); align-items: start; }
     .statement { position: sticky; top: var(--sp-6); }
 
-    .band { padding-block: var(--sp-9); }
+    .band { padding-block: var(--sp-8); }
     .grid-3 { grid-template-columns: repeat(3, 1fr); }
     .grid-authors { grid-template-columns: repeat(3, 1fr); }
 
-    .creed { padding-block: var(--sp-9); margin-block: var(--sp-7); }
-    .creed-grid { grid-template-columns: 7fr 5fr; gap: var(--sp-8); align-items: start; }
-    .creed h2 { font-size: var(--step-3); }
-    .creed-links { grid-template-columns: 1fr; }
+    .minbar { padding-block: var(--sp-9); }
+    .minbar-grid {
+      grid-template-columns: 5fr 7fr;
+      gap: var(--sp-8);
+      align-items: start;
+    }
+    .minbar-note { grid-column: 1 / -1; margin-top: var(--sp-2); }
+    .offers { gap: var(--sp-6); }
 
     .main-grid { grid-template-columns: minmax(0, 1fr) 19rem; gap: var(--sp-9); }
   }
