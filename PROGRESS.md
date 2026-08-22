@@ -2,10 +2,11 @@
 
 > **যেকোনো সেশনের প্রথম কাজ: এই ফাইল পড়া।** শেষ কাজ: এই ফাইল আপডেট করে কমিট করা।
 
-**Last updated:** 2026-08-21
+**Last updated:** 2026-08-22
 **Last session ended at:** All twelve build steps complete, plus favicon and a
-correction to the design system doc. 86 pages, Lighthouse 100/100/100/100
-desktop and 99/100/100/100 mobile, every performance budget met.
+correction to the design system doc, plus a fix to the broken `CLAUDE.md`
+symlink. 86 pages, Lighthouse 100/100/100/100 desktop and 99/100/100/100
+mobile, every performance budget met.
 **Next action:** Nothing is blocking on my side. Everything left needs the user
 — see Blocked below. The most valuable next work is connecting Cloudflare Pages
 so the site is actually live.
@@ -287,6 +288,18 @@ an article with a full frontmatter example, how ayah blocks and the three
 closing sections format themselves, how to add a cover, and how publishing
 works.
 
+## CLAUDE.md symlink fix (2026-08-22)
+
+`CLAUDE.md` has been a symlink to `AGENTS.md` since the Steps 1-2 commit
+(`fffe774`), but `AGENTS.md` was never created — the symlink swap deleted the
+original 44-line project rules instead of moving them. Every session since
+then that tried to read `CLAUDE.md` got a file-not-found. Recovered the
+original content from `git show 6822eba:CLAUDE.md` (the Step 0 commit, before
+the swap) and wrote it to `AGENTS.md`. The symlink now resolves. Ran a full
+`npm run build` afterward as a sanity check — 86 pages, 0 errors, Pagefind
+indexed cleanly. No content or behavior changed, only the rules file's
+readability.
+
 ## Still outstanding (small, not blocking)
 
 - `searchKeywords` in the schema is unused — Pagefind handles Bengali well
@@ -336,6 +349,7 @@ The test page lives at `/type-test`. It is not linked from anywhere.
 
 | Date | Session did | Stopped because |
 |---|---|---|
+| 2026-08-22 | Recovered `AGENTS.md` (the `CLAUDE.md` symlink had pointed at a file that never existed since the Steps 1-2 commit); verified with a full build. Nothing else unblocked — all open items need the user | Nothing left to do without the user |
 | 2026-08-21 | Step 0 — read all docs, resolved content-set conflict, reorganised folder, wrote permissions/CLAUDE.md/PROGRESS.md, repo + resume setup | — |
 | 2026-08-22 | Step 12 — final audit: Lighthouse, checklist sweep, fixed heading jumps and the no-JS menu, pruned 365kb, wrote the writers' README | — |
 | 2026-08-22 | Step 11 — RSS, sitemap, OG/Twitter meta, 14 build-time typographic OG cards | — |
