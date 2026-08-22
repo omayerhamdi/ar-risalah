@@ -9,10 +9,11 @@ interface Props {
   lede?: string;
   /** Wide pages (start-here, for-khateebs) opt out of the reading measure. */
   wide?: boolean;
+  noindex?: boolean;
 }
-const { title, metaTitle, description, eyebrow, lede, wide = false } = Astro.props;
+const { title, metaTitle, description, eyebrow, lede, wide = false, noindex = false } = Astro.props;
 ---
-<Base title={metaTitle ?? `${title} — আর-রিসালাহ`} description={description ?? lede}>
+<Base title={metaTitle ?? `${title} — আর-রিসালাহ`} description={description ?? lede} noindex={noindex}>
   <div class:list={['page', 'container', { wide }]}>
     <header class="head">
       {eyebrow && <p class="eyebrow">{eyebrow}</p>}

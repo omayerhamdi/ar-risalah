@@ -6,7 +6,11 @@ import { toBn } from '../lib/toBn';
 
 const recent = (await getPublished()).slice(0, 3);
 ---
-<Base title="৪০৪ — আর-রিসালাহ">
+<Base
+  title="৪০৪ — আর-রিসালাহ"
+  description="এই ঠিকানায় কোনো লেখা নেই। সম্ভবত লিংকটি পুরোনো, অথবা ঠিকানায় কোথাও ভুল আছে।"
+  noindex={true}
+>
   <div class="container notfound">
     <div class="panel">
       <p class="code tabular">{toBn(404)}</p>

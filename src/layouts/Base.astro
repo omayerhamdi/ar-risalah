@@ -9,14 +9,40 @@ interface Props {
   description?: string;
   /** Preload Amiri too. Only set on pages that render Arabic above the fold. */
   arabic?: boolean;
-  /** Path to a build-time OG card, e.g. /og/<slug>.png. */
+  /**
+   * Path to a build-time OG card, e.g. /og/<slug>.png. Articles pass their own;
+   * everything else falls through to the site card, so no page ever shares as a
+   * bare grey box.
+   */
   ogImage?: string;
+  /** Alt text for the card. Defaults to the site card's own description. */
+  ogImageAlt?: string;
   ogType?: 'website' | 'article';
+  /** Keep the page out of search results (404, search results, thank-yous). */
+  noindex?: boolean;
 }
 
-const { title, description = '', arabic = false, ogImage, ogType = 'website' } = Astro.props;
+/** Last-resort description, so no page ships without one. */
+const FALLBACK_DESCRIPTION =
+  'আর-রিসালাহ — দাওয়াহ, চিন্তা ও গবেষণা। কুরআন ও সুন্নাহর আলোচনার সঙ্গে ইতিহাস, ' +
+  'সমাজ ও সমকালীন বাস্তবতার পরিচয়, প্রয়োজনীয় দলিলসহ।';
+
+const SITE_CARD = '/og/site.png';
+const SITE_CARD_ALT = 'আর-রিসালাহ — ইসলামকে শুধু জানা নয়, বোঝা, ভাবা এবং জীবনে প্রয়োগ করা';
+
+const {
+  title,
+  description = FALLBACK_DESCRIPTION,
+  arabic = false,
+  ogImage = SITE_CARD,
+  ogImageAlt,
+  ogType = 'website',
+  noindex = false,
+} = Astro.props;
+
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
+const ogUrl = new URL(ogImage, Astro.site).href;
+const ogAlt = ogImageAlt ?? (ogImage === SITE_CARD ? SITE_CARD_ALT : title);
 ---
 
 <!doctype html>
@@ -25,8 +51,9 @@ const ogUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
-    {description && <meta name="description" content={description} />}
+    <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
     <link rel="alternate" type="application/rss+xml" title="আর-রিসালাহ" href="/rss.xml" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -37,16 +64,20 @@ const ogUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
     <meta property="og:type" content={ogType} />
     <meta property="og:title" content={title} />
     <meta property="og:url" content={canonical} />
-    {description && <meta property="og:description" content={description} />}
-    {ogUrl && (
-      <>
-        <meta property="og:image" content={ogUrl} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta name="twitter:card" content="summary_large_image" />
-      </>
-    )}
-    {!ogUrl && <meta name="twitter:card" content="summary" />}
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogAlt} />
+
+    {/* X reads og:* for most of this, but its own tags win where both exist,
+        and several Bengali-facing readers only look at the twitter:* set. */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+    <meta name="twitter:image:alt" content={ogAlt} />
 
     {/* The two faces every page paints with. Preloading them removes the
         swap flash on the headline, which is the largest CLS risk here. */}
