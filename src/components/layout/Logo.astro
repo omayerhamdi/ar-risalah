@@ -1,6 +1,6 @@
 ---
 interface Props {
-  /** Rendered height in px; the mark stays legible down to 24. */
+  /** Rendered height in px; the mark stays legible down to 20. */
   height?: number;
   /** Light marks sit on --deep; the default sits on paper. */
   onDark?: boolean;
@@ -8,38 +8,18 @@ interface Props {
 const { height = 34, onDark = false } = Astro.props;
 const ink = onDark ? 'var(--paper)' : 'var(--ink)';
 ---
-{/* Typographic only — no imagery. The rule above the wordmark is the matra of
-    the Bengali "আ" extended across the whole word: the same gesture the cards
-    and sections use, at logo scale. */}
-<span class="logo" style={`--logo-h:${height}px; --logo-ink:${ink}`}>
-  <span class="matra-line" aria-hidden="true"></span>
-  <span class="bn">আর-রিসালাহ</span>
-  <span class="ar" lang="ar" dir="rtl" aria-hidden="true">الرسالة</span>
-</span>
+{/* The wordmark is the whole mark: the Bengali name set in the display face,
+    nothing above it and nothing beneath it. */}
+<span class="logo" style={`--logo-h:${height}px; --logo-ink:${ink}`}>আর-রিসালাহ</span>
 
 <style>
   .logo {
-    display: inline-grid;
-    justify-items: center;
-    gap: 0.06em;
+    display: inline-block;
     color: var(--logo-ink);
-    line-height: 1;
-  }
-  .matra-line {
-    width: 100%;
-    border-top: 1px solid currentColor;
-    margin-bottom: 0.1em;
-  }
-  .bn {
     font-family: var(--font-display);
     font-size: var(--logo-h);
-    line-height: 1.05;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
     white-space: nowrap;
-  }
-  .ar {
-    font-family: var(--font-arabic);
-    font-size: calc(var(--logo-h) * 0.42);
-    opacity: 0.75;
-    line-height: 1.2;
   }
 </style>

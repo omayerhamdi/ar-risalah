@@ -171,3 +171,27 @@ src/
 docs/                    ← প্রজেক্টের পরিকল্পনা ও ডিজাইন সিস্টেম
 _archive/                ← পুরনো খসড়া, ব্যবহার করবেন না
 ```
+
+---
+
+## ডিপ্লয় — Cloudflare Pages
+
+Dashboard → Workers & Pages → এই প্রজেক্ট → Settings → Build:
+
+| Setting | Value |
+| --- | --- |
+| Framework preset | Astro (অথবা None) |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Root directory | *(খালি)* |
+
+**Node version.** Astro 7 চলে Node 22.12 বা তার ওপরে। Cloudflare-এর ডিফল্ট
+build image এখনো Node 18 দেয়, তাই বিল্ড শুরুতেই ভেঙে যায়। রিপোর তাই
+`.nvmrc` ও `.node-version` রাখা আছে — Cloudflare দুটোর যেকোনো একটি পড়ে
+নেয়। যদি তবু পুরনো Node ধরে, Settings → Environment variables-এ
+`NODE_VERSION = 22.12.0` যোগ করুন (Production ও Preview—দুটোতেই)।
+
+**pagefind.** সার্চ ইনডেক্স `postbuild`-এ তৈরি হয়, তাই `pagefind` থাকে
+`dependencies`-এ, `devDependencies`-এ নয়। CI যদি `NODE_ENV=production`
+সেট করে, devDependencies বাদ পড়ে যায় এবং `postbuild` "command not found"
+দিয়ে বিল্ড ফেল করে।

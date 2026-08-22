@@ -1,35 +1,40 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import ArticleCard from '../components/cards/ArticleCard.astro';
-import FeatureCard from '../components/cards/FeatureCard.astro';
 import TopicCard from '../components/cards/TopicCard.astro';
 import AuthorCard from '../components/cards/AuthorCard.astro';
+import Cover from '../components/article/Cover.astro';
 import SubscribeSection from '../components/forms/SubscribeSection.astro';
+import { getCover } from '../lib/covers';
+import { bnDate, bnReadingTime } from '../lib/dates';
+import { toBn } from '../lib/toBn';
 import { SITE } from '../lib/nav';
 
 const all = (await getCollection('articles', (a) => a.data.status === 'published'))
   .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 
-// Section 2 — one piece, large. Prefer an explicitly featured pillar.
-const feature = all.find((a) => a.data.featured && a.data.pillar) ?? all[0];
+// The lead story sits beside the masthead statement. Prefer a featured pillar.
+const lead = all.find((a) => a.data.featured && a.data.pillar) ?? all[0];
+const leadCover = getCover(lead.data.slug);
+const leadAuthor = await getEntry(lead.data.authors[0]);
 
-// Section 3 — akhlaq deliberately gets more room than the other pillars.
+// Akhlaq deliberately gets more room than the other pillars.
 const akhlaq = all.filter((a) => a.data.categorySlug === 'akhlaq-poribar').slice(0, 3);
 
-// Section 4 — six most recent, excluding whatever is already above.
-const shown = new Set([feature.id, ...akhlaq.map((a) => a.id)]);
+// The index list — everything recent that is not already above.
+const shown = new Set([lead.id, ...akhlaq.map((a) => a.id)]);
 const recent = all.filter((a) => !shown.has(a.id)).slice(0, 6);
 
-// Section 5 — topic hubs by how much has been written on each.
+// Sidebar rail — topic hubs by how much has been written on each.
 const counts = new Map<string, number>();
 for (const a of all) for (const t of a.data.topics) counts.set(t, (counts.get(t) ?? 0) + 1);
 const topics = [...counts.entries()]
   .filter(([, n]) => n > 1)
   .sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0], 'bn'))
-  .slice(0, 12);
+  .slice(0, 8);
 
-const research = all.filter((a) => a.data.hasResearch).slice(0, 2);
+const research = all.filter((a) => a.data.hasResearch).slice(0, 3);
 
 const authors = (await getCollection('authors')).sort((a, b) => a.data.order - b.data.order);
 
@@ -53,34 +58,53 @@ const jsonLd = {
 ---
 
 <Base
-  title={`${SITE.name} — চিন্তা করার জন্য একটি জায়গা`}
-  description="দলিল, গবেষণা ও বাস্তবতার আলোকে দ্বীন ও সমকালের পাঠ। আখলাক থেকে মতবাদ পর্যন্ত।"
+  title={`${SITE.name} — ${SITE.tagline}`}
+  description="যৌতুক, দাম্পত্য, সন্তান প্রতিপালন, আধুনিকতা ও সংশয়—যে প্রশ্নগুলো নিয়ে আমরা কথা বলি না, দলিল ও বাস্তবতার আলোয় তার পাঠ।"
 >
-  {/* Section 1 — no image, no slider. A reading platform should look like one
-      from the first screen. */}
-  <section class="hero">
-    <div class="container">
-      <div class="hero-inner">
-        <p class="wordmark">
-          {SITE.name}
-          <span class="ar" lang="ar" dir="rtl">{SITE.nameArabic}</span>
-        </p>
-        <h1>চিন্তা করার জন্য একটি জায়গা।</h1>
+  {/* Front page: the statement on the left, the lead story on the right.
+      No slider, no stock photography, no hero image behind text. */}
+  <section class="front" aria-labelledby="front-heading">
+    <div class="container front-grid">
+      <div class="statement">
+        <p class="kicker">বাংলা ভাষায় ইসলামি চিন্তা ও সমকাল</p>
+        <h1 id="front-heading">যে প্রশ্নগুলো নিয়ে আমরা কথা বলি না</h1>
         <p class="lede">
-          দলিল, গবেষণা ও বাস্তবতার আলোকে দ্বীন ও সমকালের পাঠ। আখলাক থেকে মতবাদ পর্যন্ত।
+          যৌতুকের দেনদরবার, শাশুড়ি-বউয়ের টানাপোড়েন, সন্তানের হাতের স্ক্রিন,
+          নিজের ভেতরের সংশয়—মিম্বার থেকে এসব প্রায়ই বাদ পড়ে যায়। আর-রিসালাহ
+          শুরুই করে এখান থেকে: দলিলের ওপর দাঁড়িয়ে, বাস্তবতার দিকে চোখ রেখে।
         </p>
         <p class="cta">
-          <a class="btn-primary" href="/articles">সাম্প্রতিক লেখা</a>
-          <a class="btn-secondary" href="/start-here">শুরু করুন এখান থেকে</a>
+          <a class="btn-primary" href="/start-here">শুরু করুন এখান থেকে</a>
+          <a class="btn-secondary" href="/articles">সব প্রবন্ধ</a>
         </p>
       </div>
-    </div>
-  </section>
 
-  <section class="band" aria-labelledby="feature-heading">
-    <div class="container">
-      <h2 class="section-heading" id="feature-heading">এ সপ্তাহের লেখা</h2>
-      <FeatureCard article={feature} />
+      <article class="lead">
+        <a class="lead-cover" href={`/articles/${lead.data.slug}`} tabindex="-1" aria-hidden="true">
+          {leadCover && (
+            <Cover
+              src={leadCover}
+              alt=""
+              priority={true}
+              widths={[480, 800, 1216]}
+              sizes="(min-width: 64rem) 620px, 100vw"
+            />
+          )}
+        </a>
+        <p class="lead-kicker">
+          <span class="rubric">এ সপ্তাহের লেখা</span>
+          <span class="sep" aria-hidden="true">·</span>
+          <span>{lead.data.category}</span>
+        </p>
+        <h2 class="lead-title">
+          <a href={`/articles/${lead.data.slug}`}>{lead.data.title}</a>
+        </h2>
+        <p class="lead-excerpt">{lead.data.excerpt}</p>
+        <p class="lead-meta">
+          {leadAuthor?.data.name} · {bnDate(lead.data.publishedAt)} ·
+          {' '}{bnReadingTime(lead.data.readingTime)} পড়া
+        </p>
+      </article>
     </div>
   </section>
 
@@ -88,75 +112,117 @@ const jsonLd = {
     <section class="band" aria-labelledby="akhlaq-heading">
       <div class="container">
         <div class="band-head">
-          <h2 class="section-heading" id="akhlaq-heading">আখলাক ও পরিবার</h2>
+          <h2 id="akhlaq-heading">আখলাক ও পরিবার</h2>
           <p class="band-lede">
-            সবচেয়ে কাছের ময়দান—নিজের ঘর। আমাদের সমাজে যত অব্যবস্থাপনা,
-            তার বড় অংশের গোড়া এখানেই।
+            সংশোধনের প্রথম ময়দান মসজিদ নয়, নিজের ঘর। যে আচরণ ঘরে তৈরি হয় না,
+            সেটি ওয়াজ শুনে তৈরি হয় না।
           </p>
+          <a class="band-more" href="/categories/akhlaq-poribar">এই বিভাগের সব লেখা →</a>
         </div>
         <div class="grid-3">
           {akhlaq.map((a) => <ArticleCard article={a} />)}
         </div>
-        <p class="more"><a href="/categories/akhlaq-poribar">সব লেখা →</a></p>
       </div>
     </section>
   )}
 
-  <section class="band" aria-labelledby="recent-heading">
-    <div class="container">
-      <h2 class="section-heading" id="recent-heading">সাম্প্রতিক লেখা</h2>
-      <div class="grid-2">
-        {recent.map((a) => <ArticleCard article={a} />)}
+  {/* The one dark surface on the page. It breaks a long run of paper and
+      carries the editorial position, which belongs early — not in a footer. */}
+  <section class="creed" aria-labelledby="creed-heading">
+    <div class="container creed-grid">
+      <div class="creed-text">
+        <h2 id="creed-heading">
+          আমরা দোষারোপ করতে বসিনি। বসেছি বুঝতে—জানা সত্ত্বেও একটি সমাজ কেন
+          উল্টো পথে হাঁটে।
+        </h2>
+        <p>
+          প্রতিটি লেখার পেছনে থাকে কুরআন ও সুন্নাহর দলিল, ফিকহি মতপার্থক্যের
+          সৎ স্বীকৃতি, আর মাঠের বাস্তবতা। যেখানে আমরা নিশ্চিত নই, সেখানে
+          নিশ্চিত হওয়ার ভান করি না।
+        </p>
       </div>
-      <p class="more"><a href="/articles">সব প্রবন্ধ →</a></p>
+      <ul class="creed-links">
+        <li>
+          <a href="/about">
+            <span class="cl-title">আমাদের পরিচয়</span>
+            <span class="cl-sub">কারা লিখছেন, কোন পদ্ধতিতে</span>
+          </a>
+        </li>
+        <li>
+          <a href="/for-khateebs">
+            <span class="cl-title">খতীব ও দাঈদের জন্য</span>
+            <span class="cl-sub">খুতবার কাঠামো, উৎস ও প্রস্তুত নোট</span>
+          </a>
+        </li>
+      </ul>
     </div>
   </section>
 
-  {topics.length > 0 && (
-    <section class="band" aria-labelledby="topics-heading">
-      <div class="container">
-        <h2 class="section-heading" id="topics-heading">বিষয় ধরে পড়ুন</h2>
-        <div class="grid-topics">
-          {topics.map(([t, n]) => <TopicCard topic={t} count={n} />)}
-        </div>
-      </div>
-    </section>
-  )}
-
-  {research.length > 0 && (
-    <section class="band" aria-labelledby="research-heading">
-      <div class="container">
+  {/* Index list plus a sidebar rail — a different rhythm from the card grid
+      above, so the page does not read as one band repeated. */}
+  <section class="band" aria-labelledby="recent-heading">
+    <div class="container main-grid">
+      <div>
         <div class="band-head">
-          <h2 class="section-heading" id="research-heading">গবেষণা</h2>
-          <p class="band-lede">
-            কিছু বিষয়ে আমরা প্রবন্ধের বাইরেও যাই—উৎস, ঐতিহাসিক প্রেক্ষাপট,
-            ফিকহি ইখতিলাফ ও তুলনামূলক বিশ্লেষণসহ।
-          </p>
+          <h2 id="recent-heading">সাম্প্রতিক লেখা</h2>
         </div>
-        <div class="grid-2">
-          {research.map((a) => <ArticleCard article={a} />)}
-        </div>
-        <p class="more"><a href="/research">গবেষণা দেখুন →</a></p>
+        <ol class="index-list">
+          {recent.map((a, i) => (
+            <li class="index-item matra">
+              <span class="index-num tabular" aria-hidden="true">{toBn(i + 1).padStart(2, '০')}</span>
+              <div class="index-body">
+                <p class="index-cat">{a.data.category}</p>
+                <h3 class="index-title"><a href={`/articles/${a.data.slug}`}>{a.data.title}</a></h3>
+                <p class="index-excerpt">{a.data.excerpt}</p>
+                <p class="index-meta">{bnReadingTime(a.data.readingTime)} পড়া</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p class="more"><a href="/articles">সব প্রবন্ধ →</a></p>
       </div>
-    </section>
-  )}
 
-  <section class="band khateeb" aria-labelledby="khateeb-heading">
-    <div class="container">
-      <div class="khateeb-inner matra">
-        <h2 class="section-heading" id="khateeb-heading">আপনি কি খতীব বা দাঈ?</h2>
-        <p class="band-lede">
-          প্রতিটি গুরুত্বপূর্ণ বিষয়ের সঙ্গে আমরা খুতবা ও আলোচনার উপযোগী রিসোর্স
-          তৈরি করি—উৎস, কাঠামো ও প্রস্তুত নোটসহ।
-        </p>
-        <p class="cta"><a class="btn-secondary" href="/for-khateebs">রিসোর্স দেখুন</a></p>
-      </div>
+      <aside class="rail" aria-label="বিষয় ও গবেষণা">
+        {topics.length > 0 && (
+          <div class="rail-block">
+            <h2 class="rail-heading">বিষয় ধরে পড়ুন</h2>
+            <div class="rail-topics">
+              {topics.map(([t, n]) => <TopicCard topic={t} count={n} />)}
+            </div>
+            <p class="more"><a href="/topics">সব বিষয় →</a></p>
+          </div>
+        )}
+
+        {research.length > 0 && (
+          <div class="rail-block">
+            <h2 class="rail-heading">গবেষণা</h2>
+            <p class="rail-lede">
+              কিছু বিষয়ে প্রবন্ধই যথেষ্ট নয়—উৎস, ঐতিহাসিক প্রেক্ষাপট ও
+              ইখতিলাফের বিবরণসহ আলাদা করে সাজানো।
+            </p>
+            <ul class="rail-list">
+              {research.map((a) => (
+                <li class="matra">
+                  <a href={`/articles/${a.data.slug}`}>{a.data.titleShort ?? a.data.title}</a>
+                </li>
+              ))}
+            </ul>
+            <p class="more"><a href="/research">গবেষণা দেখুন →</a></p>
+          </div>
+        )}
+      </aside>
     </div>
   </section>
 
   <section class="band" aria-labelledby="authors-heading">
     <div class="container">
-      <h2 class="section-heading" id="authors-heading">লেখকবৃন্দ</h2>
+      <div class="band-head">
+        <h2 id="authors-heading">লেখকবৃন্দ</h2>
+        <p class="band-lede">
+          নাম গোপন রেখে লেখা হয় না। কে লিখছেন, কোন পড়াশোনার ওপর দাঁড়িয়ে
+          লিখছেন—পাঠকের তা জানার অধিকার আছে।
+        </p>
+      </div>
       <div class="grid-authors">
         {authors.map((a) => <AuthorCard author={a} />)}
       </div>
@@ -169,37 +235,28 @@ const jsonLd = {
 </Base>
 
 <style>
-  /* Section 1 — matra rules above and below, and nothing else. */
-  .hero { padding-block: var(--sp-7); }
-  .hero-inner {
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-    padding-block: var(--sp-7);
-    max-width: var(--measure-wide);
+  /* ---- Front page ------------------------------------------------ */
+  .front { padding-block: var(--sp-7) var(--sp-8); }
+  .front-grid { display: grid; gap: var(--sp-7); }
+
+  .kicker {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+    margin-bottom: var(--sp-4);
   }
-  .wordmark {
-    font-family: var(--font-display);
-    font-size: var(--step-1);
-    color: var(--ink);
-    display: flex;
-    align-items: baseline;
-    gap: var(--sp-3);
-  }
-  .wordmark .ar {
-    font-family: var(--font-arabic);
-    font-size: var(--step-0);
-    color: var(--ink-soft);
-  }
-  .hero h1 {
-    margin-top: var(--sp-5);
+  .statement h1 {
     font-size: var(--step-5);
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    max-width: 16ch;
   }
-  .hero .lede {
-    margin-top: var(--sp-4);
+  .statement .lede {
+    margin-top: var(--sp-5);
     font-size: var(--step-1);
     line-height: var(--leading-snug);
     color: var(--ink-soft);
-    max-width: 34ch;
+    max-width: 40ch;
   }
 
   .cta { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-6); }
@@ -210,48 +267,199 @@ const jsonLd = {
     padding-inline: var(--sp-5);
     border-radius: var(--radius);
     font-family: var(--font-ui);
+    font-size: var(--step--1);
     text-decoration: none;
+    transition: background var(--dur-fast) var(--ease),
+                border-color var(--dur-fast) var(--ease);
   }
   .btn-primary { background: var(--deep); color: var(--paper); }
   .btn-primary:hover { background: var(--deep-2); }
   .btn-secondary { border: 1px solid var(--rule-strong); color: var(--ink); }
   .btn-secondary:hover { border-color: var(--ink); background: var(--paper-raise); }
 
+  .lead { position: relative; }
+  .lead-cover { display: block; margin-bottom: var(--sp-5); }
+  .lead-kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--sp-2);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .lead-kicker .rubric { color: var(--rubric); }
+  .lead-kicker .sep { color: var(--rule-strong); }
+  .lead-title {
+    margin-top: var(--sp-3);
+    font-size: var(--step-3);
+    line-height: var(--leading-snug);
+  }
+  .lead-title a { text-decoration: none; }
+  .lead-title a::after { content: ''; position: absolute; inset: 0; }
+  .lead-excerpt {
+    margin-top: var(--sp-4);
+    color: var(--ink-soft);
+    line-height: var(--leading-snug);
+  }
+  .lead-meta {
+    margin-top: var(--sp-4);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  /* ---- Shared band furniture ------------------------------------- */
   .band { padding-block: var(--sp-7); }
-  .band-head { max-width: var(--measure); }
-  .band-lede { margin-top: var(--sp-3); color: var(--ink-soft); }
-  .section-heading {
+  .band-head {
+    max-width: var(--measure);
+    margin-bottom: var(--sp-6);
+    padding-top: var(--sp-4);
+    border-top: 2px solid var(--ink);
+  }
+  .band-head h2 { font-size: var(--step-2); }
+  .band-lede {
+    margin-top: var(--sp-3);
+    color: var(--ink-soft);
+    line-height: var(--leading-snug);
+  }
+  .band-more {
+    display: inline-block;
+    margin-top: var(--sp-4);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink);
+    text-underline-offset: 0.25em;
+  }
+
+  .grid-3 { display: grid; gap: var(--sp-6); }
+  .grid-authors { display: grid; gap: var(--sp-4); }
+
+  .more { margin-top: var(--sp-5); font-family: var(--font-ui); font-size: var(--step--1); }
+  .more a { color: var(--ink); text-underline-offset: 0.25em; }
+
+  /* ---- Creed band ------------------------------------------------ */
+  .creed {
+    background: var(--deep);
+    color: var(--paper);
+    padding-block: var(--sp-8);
+    margin-block: var(--sp-6);
+  }
+  .creed-grid { display: grid; gap: var(--sp-7); }
+  .creed h2 {
+    color: var(--paper);
+    font-size: var(--step-2);
+    line-height: 1.42;
+    max-width: 24ch;
+    text-wrap: balance;
+  }
+  .creed-text p {
+    margin-top: var(--sp-5);
+    color: #C9D2CC;
+    line-height: var(--leading-snug);
+    max-width: 46ch;
+  }
+  .creed-links { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-4); }
+  .creed-links a {
+    display: grid;
+    gap: var(--sp-1);
+    padding-top: var(--sp-4);
+    border-top: 1px solid rgba(247, 245, 239, 0.28);
+    text-decoration: none;
+    min-height: var(--tap);
+    transition: border-color var(--dur-base) var(--ease);
+  }
+  .creed-links a:hover { border-top-color: var(--paper); }
+  .cl-title { font-family: var(--font-display); font-size: var(--step-1); color: var(--paper); }
+  .cl-sub { font-family: var(--font-ui); font-size: var(--step--1); color: var(--rubric-soft); }
+
+  /* ---- Index list + rail ----------------------------------------- */
+  .main-grid { display: grid; gap: var(--sp-8); }
+
+  .index-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-5); }
+  .index-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: var(--sp-3);
+    padding-top: var(--sp-4);
+  }
+  .index-item:hover { border-top-color: var(--ink); }
+  .index-num {
     font-family: var(--font-ui);
     font-size: var(--step--1);
     color: var(--rubric);
-    margin-bottom: var(--sp-5);
+    line-height: 1.7;
   }
-  .band-head .section-heading { margin-bottom: 0; }
-  .band-head + * { margin-top: var(--sp-6); }
-
-  .grid-2, .grid-3 { display: grid; gap: var(--sp-6); }
-  .grid-topics { display: grid; gap: var(--sp-3); }
-  .grid-authors { display: grid; gap: var(--sp-4); }
-
-  .more { margin-top: var(--sp-6); font-family: var(--font-ui); font-size: var(--step--1); }
-  .more a { color: var(--ink); text-underline-offset: 0.25em; }
-
-  .khateeb .khateeb-inner {
-    padding-top: var(--sp-5);
-    background: var(--paper-deep);
-    padding: var(--sp-6);
+  .index-cat { font-family: var(--font-ui); font-size: var(--step--1); color: var(--ink-soft); }
+  .index-title {
+    margin-top: var(--sp-1);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
   }
-  .khateeb .band-lede { max-width: 46ch; }
+  .index-title a { text-decoration: none; }
+  .index-title a::after { content: ''; position: absolute; inset: 0; }
+  .index-excerpt {
+    margin-top: var(--sp-2);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+  .index-meta {
+    margin-top: var(--sp-3);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
 
+  .rail { display: grid; gap: var(--sp-7); align-content: start; }
+  .rail-heading {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink);
+    padding-top: var(--sp-3);
+    border-top: 2px solid var(--ink);
+  }
+  .rail-lede {
+    margin-top: var(--sp-3);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: var(--ink-soft);
+  }
+  .rail-topics { margin-top: var(--sp-4); display: grid; gap: var(--sp-2); }
+  .rail-list { list-style: none; margin: var(--sp-4) 0 0; padding: 0; display: grid; gap: var(--sp-3); }
+  .rail-list li { padding-top: var(--sp-3); }
+  .rail-list li:hover { border-top-color: var(--ink); }
+  .rail-list a {
+    display: block;
+    font-family: var(--font-display);
+    color: var(--ink);
+    text-decoration: none;
+    line-height: var(--leading-snug);
+  }
+
+  /* ---- Breakpoints ------------------------------------------------ */
   @media (min-width: 48rem) {
-    .grid-2, .grid-3 { grid-template-columns: repeat(2, 1fr); }
-    .grid-topics { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); }
-    .grid-authors { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); }
+    .grid-3, .grid-authors { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); }
+    .creed-links { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); }
+    .index-item { grid-template-columns: 3rem 1fr; }
   }
+
   @media (min-width: 64rem) {
+    .front { padding-block: var(--sp-8) var(--sp-9); }
+    .front-grid { grid-template-columns: 5fr 7fr; gap: var(--sp-8); align-items: start; }
+    .statement { position: sticky; top: var(--sp-6); }
+
     .band { padding-block: var(--sp-9); }
     .grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .grid-topics { grid-template-columns: repeat(3, 1fr); }
     .grid-authors { grid-template-columns: repeat(3, 1fr); }
+
+    .creed { padding-block: var(--sp-9); margin-block: var(--sp-7); }
+    .creed-grid { grid-template-columns: 7fr 5fr; gap: var(--sp-8); align-items: start; }
+    .creed h2 { font-size: var(--step-3); }
+    .creed-links { grid-template-columns: 1fr; }
+
+    .main-grid { grid-template-columns: minmax(0, 1fr) 19rem; gap: var(--sp-9); }
   }
 </style>
