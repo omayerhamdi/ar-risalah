@@ -1,10 +1,10 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import ArticleCard from '../components/cards/ArticleCard.astro';
-import TopicCard from '../components/cards/TopicCard.astro';
 import AuthorCard from '../components/cards/AuthorCard.astro';
+import TopicCard from '../components/cards/TopicCard.astro';
 import Cover from '../components/article/Cover.astro';
+import Icon from '../components/Icon.astro';
 import { getCover } from '../lib/covers';
 import { bnDate, bnReadingTime } from '../lib/dates';
 import { toBn } from '../lib/toBn';
@@ -13,19 +13,12 @@ import { SITE } from '../lib/nav';
 const all = (await getCollection('articles', (a) => a.data.status === 'published'))
   .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 
-// The lead story sits beside the masthead statement. Prefer a featured pillar.
 const lead = all.find((a) => a.data.featured && a.data.pillar) ?? all[0];
 const leadCover = getCover(lead.data.slug);
 const leadAuthor = await getEntry(lead.data.authors[0]);
 
-// Akhlaq deliberately gets more room than the other pillars.
-const akhlaq = all.filter((a) => a.data.categorySlug === 'akhlaq-poribar').slice(0, 3);
+const recent = all.filter((a) => a.id !== lead.id).slice(0, 4);
 
-// The index list — everything recent that is not already above.
-const shown = new Set([lead.id, ...akhlaq.map((a) => a.id)]);
-const recent = all.filter((a) => !shown.has(a.id)).slice(0, 6);
-
-// Sidebar rail — topic hubs by how much has been written on each.
 const counts = new Map<string, number>();
 for (const a of all) for (const t of a.data.topics) counts.set(t, (counts.get(t) ?? 0) + 1);
 const topics = [...counts.entries()]
@@ -34,43 +27,135 @@ const topics = [...counts.entries()]
   .slice(0, 8);
 
 const research = all.filter((a) => a.data.hasResearch).slice(0, 3);
-
 const authors = (await getCollection('authors')).sort((a, b) => a.data.order - b.data.order);
-const namedAuthors = authors.filter((a) => !a.data.isCollective);
 
-// The three layers every subject passes through. This is the platform's whole
-// method, so it sits directly under the masthead rather than on an inner page.
+/* ---- Section data ------------------------------------------------------ */
+
+// "কেন আর-রিসালাহ?" — the four people the platform is written for.
+const READERS = [
+  { icon: 'question', text: 'একজন তরুণ যখন কোনো সংশয় নিয়ে প্রশ্ন করেন' },
+  { icon: 'parents', text: 'একজন বাবা যখন সন্তানের চরিত্র নিয়ে চিন্তা করেন' },
+  { icon: 'board', text: 'একজন শিক্ষক যখন শিক্ষার্থীর মূল্যবোধ নিয়ে ভাবেন' },
+  { icon: 'family', text: 'একটি পরিবার যখন সম্পর্কের টানাপোড়েনে পড়ে' },
+];
+
+const PILLARS = [
+  {
+    icon: 'home',
+    title: 'আখলাক ও পরিবার',
+    body:
+      'দাম্পত্য, সন্তান প্রতিপালন, পিতা-মাতার সঙ্গে সম্পর্ক, আত্মীয়তার বন্ধন, ' +
+      'প্রতিবেশীর অধিকার—এসব পরিচিত বিষয়। কিন্তু পরিচিত বিষয় মানেই সহজ বিষয় নয়। ' +
+      'আমরা এসব সম্পর্ককে আবেগের বদলে ইসলামের নৈতিক শিক্ষা, দায়িত্ববোধ ও বাস্তব ' +
+      'জীবনের আলোকে বুঝতে চাই।',
+    href: '/categories/akhlaq-poribar',
+    cta: 'এই বিষয়ের লেখা দেখুন',
+  },
+  {
+    icon: 'compass',
+    title: 'চিন্তা ও মতবাদ',
+    body:
+      'ব্যক্তিস্বাতন্ত্র্য, ভোগবাদ, বস্তুবাদ, আধুনিকতা, ধর্মনিরপেক্ষতা—এসব নিয়ে কথা ' +
+      'বলার আগে এগুলো কী, কীভাবে তৈরি হয়েছে এবং আমাদের চিন্তাকে কীভাবে প্রভাবিত করে, ' +
+      'সেটা বোঝা জরুরি। আমরা তর্কের জন্য তর্ক করতে চাই না।',
+    href: '/categories/chinta-motobad',
+    cta: 'চিন্তা ও মতবাদ নিয়ে পড়ুন',
+  },
+  {
+    icon: 'device',
+    title: 'যুবসমাজ ও সমকাল',
+    body:
+      'পরিচয়, ক্যারিয়ার, সম্পর্ক, সামাজিক যোগাযোগমাধ্যম, প্রযুক্তি, মানসিক চাপ, ' +
+      'স্বাধীনতার ধারণা কিংবা ভবিষ্যৎ নিয়ে অনিশ্চয়তা—এসব আজকের তরুণদের দৈনন্দিন ' +
+      'জীবনের অংশ। প্রশ্নকে বুঝতে হবে, তারপর উত্তর দিতে হবে।',
+    href: '/categories/jubosomaj-somokal',
+    cta: 'যুবসমাজ ও সমকাল',
+  },
+  {
+    icon: 'book',
+    title: 'ইলম ও জীবনদর্শন',
+    body:
+      'কী জানব, কেন জানব, জানা জিনিস আমাদের জীবনকে কীভাবে বদলাবে এবং সত্য ও ভুলের ' +
+      'মধ্যে পার্থক্য কীভাবে করব—এসবও ইলমের আলোচনার অংশ। সঙ্গে থাকে জ্ঞান ও আমলের ' +
+      'সম্পর্ক, দুনিয়া ও আখিরাতের ভারসাম্য এবং জীবনের উদ্দেশ্য।',
+    href: '/categories/ilm-jibondorshon',
+    cta: 'ইলম ও জীবনদর্শন',
+  },
+];
+
 const LAYERS = [
   {
-    n: 1,
-    title: 'প্রবন্ধ',
-    lede: 'যে কেউ পড়তে পারেন।',
-    body:
-      'এক বসায় শেষ হয়, তবু ফাঁকা কথা থাকে না। প্রতিটি দাবির পেছনে সূত্র ধরিয়ে ' +
-      'দেওয়া থাকে, যাতে পাঠক আমাদের কথায় নয়—দলিলে আস্থা রাখেন।',
-    href: '/articles',
-    cta: 'প্রবন্ধ পড়ুন',
+    icon: 'article',
+    title: 'সহজপাঠ্য প্রবন্ধ',
+    body: 'বিষয়ের মূল কথাটি সহজ ও পরিষ্কার ভাষায় বোঝানোর জন্য।',
+    who: 'যিনি প্রথমবার বিষয়টি সম্পর্কে জানতে চান',
   },
   {
-    n: 2,
-    title: 'গবেষণা স্তর',
-    lede: 'একই বিষয়ের পূর্ণাঙ্গ পাঠ।',
+    icon: 'magnifier',
+    title: 'গবেষণা ও রেফারেন্স',
     body:
-      'ঐতিহাসিক প্রেক্ষাপট, ফিকহি ইখতিলাফ, আর বিরোধী মতের সবচেয়ে শক্তিশালী রূপটি—' +
-      'দুর্বল প্রতিপক্ষ বানিয়ে জিতে যাওয়া ইলমি সততা নয়।',
-    href: '/research',
-    cta: 'গবেষণা দেখুন',
+      'আরও গভীরে যেতে চান যাঁরা, তাঁদের জন্য বিস্তৃত আলোচনা, প্রাসঙ্গিক সূত্র, ' +
+      'ঐতিহাসিক প্রেক্ষাপট ও মতভেদের পরিচয়।',
+    who: 'যিনি দলিল ও মতভেদ জানতে চান',
   },
   {
-    n: 3,
+    icon: 'archive',
     title: 'রিসোর্স আর্কাইভ',
-    lede: 'যা কিছু আমরা জড়ো করেছি।',
     body:
-      'মূল বইয়ের নথি, বক্তব্যের ক্লিপ, প্রচারপত্র, পুরোনো সংখ্যার স্ক্যান—এক জায়গায় ' +
-      'সাজানো। দশ বছর পর যিনি এই বিষয়ে বসবেন, তাঁকে যেন শূন্য থেকে শুরু করতে না হয়।',
-    href: '/resources',
-    cta: 'আর্কাইভ ঘুরে দেখুন',
+      'প্রয়োজনীয় বই, নথি, পুরোনো প্রকাশনা ও অন্যান্য উপকরণ ধীরে ধীরে এক জায়গায় ' +
+      'সংরক্ষণ করার একটি প্রচেষ্টা।',
+    who: 'যে শিক্ষক, গবেষক বা খতীব আরও গভীরে কাজ করতে চান',
   },
+];
+
+// The editorial method, as five steps. Rendered as a stepper the reader clicks
+// through — five stacked paragraphs would read as filler.
+const METHOD = [
+  {
+    label: 'বাস্তবতা',
+    title: 'প্রথমে বাস্তবতা।',
+    body: 'সমস্যাটি আসলে কী এবং মানুষের জীবনে এটি কীভাবে দেখা দিচ্ছে?',
+  },
+  {
+    label: 'বিশ্লেষণ',
+    title: 'তারপর বিশ্লেষণ।',
+    body: 'সমস্যার পেছনে কোন চিন্তা, অভ্যাস, সামাজিক বাস্তবতা বা ধারণা কাজ করছে?',
+  },
+  {
+    label: 'দলিল',
+    title: 'এরপর দলিল।',
+    body:
+      'কুরআন, সহিহ সুন্নাহ, নির্ভরযোগ্য তাফসির, ফিকহ ও আলেমদের ব্যাখ্যার আলোকে ' +
+      'বিষয়টি দেখা।',
+  },
+  {
+    label: 'তুলনা',
+    title: 'তারপর তুলনা।',
+    body:
+      'প্রচলিত ধারণা এবং ইসলামের দৃষ্টিভঙ্গির মধ্যে কোথায় মিল, কোথায় পার্থক্য—' +
+      'তা পরিষ্কার করা।',
+  },
+  {
+    label: 'করণীয়',
+    title: 'সবশেষে করণীয়।',
+    body:
+      'আলোচনা যেন শুধু পড়ে ভালো লাগার মধ্যে শেষ না হয়; সম্ভব হলে পাঠক যেন বুঝতে ' +
+      'পারেন, এখান থেকে তাঁর কী শেখার বা করার আছে।',
+  },
+];
+
+const EVIDENCE = [
+  'কুরআনের আয়াত সঠিক সূত্রে উপস্থাপন করতে',
+  'হাদিসের উৎস ও মান যাচাই করতে',
+  'আলেমদের বক্তব্য যথাযথ প্রেক্ষাপটে তুলে ধরতে',
+  'মতভেদ থাকলে সেটিকে মতভেদ হিসেবেই উপস্থাপন করতে',
+  'এবং যেখানে একাধিক মত রয়েছে, সেখানে পাঠকের কাছে বিষয়টি স্পষ্ট রাখতে',
+];
+
+const KHATEEB = [
+  { icon: 'mic', text: 'একজন খতীব জুমার খুতবায় একটি বিষয় নিয়ে কথা বলতে পারেন।' },
+  { icon: 'board', text: 'একজন শিক্ষক ছাত্রদের সঙ্গে আলোচনা করতে পারেন।' },
+  { icon: 'leaflet', text: 'একটি সংগঠন একটি সচেতনতামূলক লিফলেট তৈরি করতে পারে।' },
 ];
 
 const jsonLd = {
@@ -99,173 +184,281 @@ const jsonLd = {
 ---
 
 <Base
-  title={`${SITE.name} — ${SITE.tagline}`}
-  description="সুন্নাহ ও মাকাসিদে শরিয়াহর আলোকে প্রজন্ম গঠনের দাওয়াহ ও গবেষণা কেন্দ্র। প্রতিটি বিষয়ে প্রবন্ধ, গবেষণা স্তর ও উৎসের আর্কাইভ—সঙ্গে খুতবার খসড়া ও বিতরণযোগ্য লিফলেট।"
+  title={`${SITE.name} — ইসলামকে শুধু জানা নয়, বোঝা ও প্রয়োগ করা`}
+  description="দাওয়াহ, চিন্তা ও গবেষণা। কুরআন ও সুন্নাহর আলোচনার সঙ্গে ইতিহাস, সমাজ ও সমকালীন বাস্তবতার পরিচয়—প্রয়োজনীয় দলিলসহ, স্বাভাবিক ও পাঠযোগ্য ভাষায়।"
 >
-  {/* Front page: the statement on the left, the lead story on the right. */}
-  <section class="front" aria-labelledby="front-heading">
-    <div class="container front-grid">
-      <div class="statement">
-        <p class="kicker">দাওয়াহ ও গবেষণা কেন্দ্র</p>
-        <h1 id="front-heading">যে প্রজন্ম প্রশ্ন করে, তাকে উত্তরও দিতে হয়</h1>
-        <p class="lede">
-          আর-রিসালাহ কাজ করে সুন্নাহ ও মাকাসিদে শরিয়াহর আলোকে। আমরা এক বিষয়ে
-          তিনবার কাজ করি—পাঠকের জন্য প্রবন্ধ, গবেষকের জন্য পূর্ণাঙ্গ পাঠ, আর
-          ভবিষ্যতের জন্য উৎসের আর্কাইভ।
+  <!-- ১ | ভূমিকা -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="container hero-inner">
+      <p class="kicker">দাওয়াহ, চিন্তা ও গবেষণা</p>
+      <h1 id="hero-heading">
+        ইসলামকে শুধু জানা নয়—বোঝা, ভাবা এবং জীবনে প্রয়োগ করা
+      </h1>
+      <div class="hero-body">
+        <p>
+          আমরা এমন এক সময়ে বাস করছি, যখন তথ্যের অভাব নেই; কিন্তু সঠিকভাবে বোঝার
+          সুযোগ খুব কম। ইসলাম নিয়েও একই বাস্তবতা আছে। কোথাও আমরা পাই খুব সংক্ষিপ্ত
+          আবেগনির্ভর কথা, কোথাও পাই এত দীর্ঘ ও জটিল আলোচনা যে সাধারণ পাঠকের কাছে
+          তা দূরবর্তী হয়ে যায়।
         </p>
-        <p class="cta">
-          <a class="btn-primary" href="/start-here">শুরু করুন এখান থেকে</a>
-          <a class="btn-secondary" href="/about">আমাদের কাজের ধরন</a>
-        </p>
-        <p class="stats">
-          <span>{toBn(all.length)}টি প্রবন্ধ</span>
-          <span class="dot" aria-hidden="true">·</span>
-          <span>{toBn(namedAuthors.length)} জন লেখক</span>
-          <span class="dot" aria-hidden="true">·</span>
-          <span>প্রতি বৃহস্পতিবার নতুন লেখা</span>
+        <p class="hero-turn">আর-রিসালাহ সেই ব্যবধানটি কমাতে চায়।</p>
+        <p>
+          বাংলা ভাষায় আমরা এমন লেখা তৈরি করতে চাই, যেখানে কুরআন ও সুন্নাহর
+          আলোচনার সঙ্গে থাকবে ইতিহাস, সমাজ, চিন্তা ও সমকালীন বাস্তবতার পরিচয়;
+          থাকবে প্রয়োজনীয় দলিল, কিন্তু ভাষা হবে স্বাভাবিক ও পাঠযোগ্য।
         </p>
       </div>
+      <p class="cta">
+        <a class="btn-primary" href="/articles">প্রবন্ধ পড়ুন</a>
+        <a class="btn-secondary" href="/about">আমাদের সম্পর্কে জানুন</a>
+      </p>
+    </div>
+  </section>
 
-      <article class="lead">
-        <a class="lead-cover" href={`/articles/${lead.data.slug}`} tabindex="-1" aria-hidden="true">
+  <!-- ২ | কেন আর-রিসালাহ -->
+  <section class="band why" aria-labelledby="why-heading">
+    <div class="container why-grid">
+      <div class="why-text">
+        <h2 id="why-heading">কেন আর-রিসালাহ?</h2>
+        <p>
+          ইসলাম শুধু কিছু মতামত, কিছু বিধান কিংবা কিছু উপদেশের নাম নয়। ইসলাম
+          মানুষের বিশ্বাসকে যেমন গড়ে, তেমনি তার চিন্তা, চরিত্র, পরিবার, সমাজ ও
+          জীবনযাপনকেও প্রভাবিত করে।
+        </p>
+        <p>তাই আমাদের অনেক প্রশ্নের উত্তর কেবল একটি উদ্ধৃতি দিয়ে শেষ হয় না।</p>
+      </div>
+
+      <div class="why-list">
+        <ul class="readers">
+          {READERS.map((r) => (
+            <li>
+              <span class="ic" aria-hidden="true"><Icon name={r.icon} size={20} /></span>
+              <span>{r.text}</span>
+            </li>
+          ))}
+          </ul>
+        <p class="why-close">
+          —তখন আমাদের দরকার এমন আলোচনা, যা সমস্যাটিকে বুঝবে এবং ইসলামের আলোকে
+          তার দিকে তাকাবে। <strong>আর-রিসালাহ সেই কাজটিই করতে চায়।</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ৩ | আমরা কী নিয়ে কাজ করি -->
+  <section class="band" aria-labelledby="pillars-heading">
+    <div class="container">
+      <div class="band-head">
+        <h2 id="pillars-heading">আমরা কী নিয়ে কাজ করি</h2>
+        <p class="band-lede">
+          চারটি ময়দান। প্রতিটির শুরু বাস্তব প্রশ্ন থেকে, শেষ কুরআন ও সুন্নাহর
+          আলোয়।
+        </p>
+      </div>
+      <ul class="pillars">
+        {PILLARS.map((p) => (
+          <li class="pillar">
+            <span class="ic-tile" aria-hidden="true"><Icon name={p.icon} size={24} /></span>
+            <h3>{p.title}</h3>
+            <p class="pillar-body">{p.body}</p>
+            <a class="pillar-cta" href={p.href}>{p.cta} →</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ৪ | এই সপ্তাহের লেখা -->
+  <section class="band" aria-labelledby="feature-heading">
+    <div class="container">
+      <div class="band-head row">
+        <h2 id="feature-heading">এই সপ্তাহের লেখা</h2>
+        <a class="band-more" href="/articles">সব প্রবন্ধ দেখুন →</a>
+      </div>
+      <article class="feature">
+        <a class="feature-cover" href={`/articles/${lead.data.slug}`} tabindex="-1" aria-hidden="true">
           {leadCover && (
             <Cover
               src={leadCover}
               alt=""
               priority={true}
               widths={[480, 800, 1216]}
-              sizes="(min-width: 64rem) 620px, 100vw"
+              sizes="(min-width: 64rem) 600px, 100vw"
             />
           )}
         </a>
-        <p class="lead-kicker">
-          <span class="rubric">এ সপ্তাহের লেখা</span>
-          <span class="sep" aria-hidden="true">·</span>
-          <span>{lead.data.category}</span>
-        </p>
-        <h2 class="lead-title">
-          <a href={`/articles/${lead.data.slug}`}>{lead.data.title}</a>
-        </h2>
-        <p class="lead-excerpt">{lead.data.excerpt}</p>
-        <p class="lead-meta">
-          {leadAuthor?.data.name} · {bnDate(lead.data.publishedAt)} ·
-          {' '}{bnReadingTime(lead.data.readingTime)} পড়া
-        </p>
+        <div class="feature-text">
+          <p class="eyebrow">{lead.data.category}</p>
+          <h3><a href={`/articles/${lead.data.slug}`}>{lead.data.title}</a></h3>
+          <p class="feature-excerpt">{lead.data.excerpt}</p>
+          <p class="feature-meta">
+            {leadAuthor?.data.name} · {bnDate(lead.data.publishedAt)} ·
+            {' '}{bnReadingTime(lead.data.readingTime)} পড়া
+          </p>
+          <p class="feature-cta"><span class="btn-secondary">প্রবন্ধটি পড়ুন</span></p>
+        </div>
       </article>
     </div>
   </section>
 
-  {/* The method. This is what separates the platform from a blog, so it comes
-      before any further article listing. */}
+  <!-- ৫ | তিন স্তর -->
   <section class="band layers" aria-labelledby="layers-heading">
     <div class="container">
       <div class="band-head wide">
-        <h2 id="layers-heading">এক বিষয়, তিন স্তর</h2>
+        <h2 id="layers-heading">একটি বিষয়কে শুধু একবার পড়ে থেমে যেতে হয় না</h2>
         <p class="band-lede">
-          একটি বিষয় একবার পড়ে শেষ হয় না। যিনি সাধারণ পাঠক, যিনি গবেষক, আর যিনি
-          দশ বছর পর এই বিষয়েই কাজ করতে বসবেন—তিনজনের প্রয়োজন তিন রকম। আমরা
-          তিনটাই তৈরি করি।
+          একটি গুরুত্বপূর্ণ বিষয়ের প্রয়োজন সবার কাছে এক নয়। তাই যেখানে প্রয়োজন,
+          আমরা একই বিষয়কে বিভিন্ন স্তরে উপস্থাপন করি।
         </p>
       </div>
       <ol class="layer-grid">
-        {LAYERS.map((l) => (
+        {LAYERS.map((l, i) => (
           <li class="layer">
-            <p class="layer-num tabular" aria-hidden="true">{toBn(l.n).padStart(2, '০')}</p>
-            <h3 class="layer-title">{l.title}</h3>
-            <p class="layer-lede">{l.lede}</p>
+            <p class="layer-top">
+              <span class="ic-tile" aria-hidden="true"><Icon name={l.icon} size={22} /></span>
+              <span class="layer-num tabular" aria-hidden="true">{toBn(i + 1).padStart(2, '০')}</span>
+            </p>
+            <h3>{l.title}</h3>
             <p class="layer-body">{l.body}</p>
-            <p class="layer-cta"><a href={l.href}>{l.cta} →</a></p>
+            <p class="layer-who">{l.who}</p>
           </li>
         ))}
       </ol>
-    </div>
-  </section>
-
-  {akhlaq.length > 0 && (
-    <section class="band" aria-labelledby="akhlaq-heading">
-      <div class="container">
-        <div class="band-head row">
-          <div>
-            <h2 id="akhlaq-heading">আখলাক ও পরিবার</h2>
-            <p class="band-lede">
-              সংশোধনের প্রথম ময়দান মসজিদ নয়, নিজের ঘর। যে আচরণ ঘরে তৈরি হয় না,
-              সেটি ওয়াজ শুনে তৈরি হয় না।
-            </p>
-          </div>
-          <a class="band-more" href="/categories/akhlaq-poribar">এই বিভাগের সব লেখা →</a>
-        </div>
-        <div class="grid-3">
-          {akhlaq.map((a) => <ArticleCard article={a} />)}
-        </div>
-      </div>
-    </section>
-  )}
-
-  {/* The one dark surface above the footer. It carries what the platform hands
-      to khateebs and to organisations — the part that leaves the website. */}
-  <section class="minbar" aria-labelledby="minbar-heading">
-    <div class="container minbar-grid">
-      <div class="minbar-text">
-        <p class="kicker-light">খতীব, দাঈ ও সচেতন সংগঠনের জন্য</p>
-        <h2 id="minbar-heading">মিম্বার পর্যন্ত পৌঁছালে কাজটা আসলে শুরু হয়</h2>
-        <p>
-          একটি লেখা পড়ে দশজন নড়েচড়ে বসেন। সেই কথা যদি জুমার খুতবায় ওঠে, শোনেন
-          তিনশ জন। তাই প্রতিটি গুরুত্বপূর্ণ বিষয়ের সঙ্গে আমরা আগেই তৈরি করে রাখি—
-        </p>
-      </div>
-
-      <ul class="offers">
-        <li>
-          <p class="offer-title">খুতবার পূর্ণাঙ্গ খসড়া</p>
-          <p class="offer-body">
-            প্রাসঙ্গিক আয়াত, হাদিস ও তার তাখরিজসহ সাজানো—ভূমিকা থেকে দুআ পর্যন্ত।
-            ছাপিয়ে নিয়ে মিম্বারে দাঁড়ানো যায়।
-          </p>
-          <a class="btn-download" href="/for-khateebs">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-              <path d="M12 4v11m0 0 4-4m-4 4-4-4M4 19h16" />
-            </svg>
-            খুতবার খসড়া দেখুন
-          </a>
-        </li>
-        <li>
-          <p class="offer-title">বিতরণযোগ্য লিফলেট</p>
-          <p class="offer-body">
-            এক পাতার, সংক্ষিপ্ত। মসজিদ কমিটি, মাদরাসা বা সচেতন সংগঠন ছাপিয়ে
-            বিলি করতে পারেন—ছাপার উপযোগী ফাইলসহ।
-          </p>
-          <a class="btn-download" href="/for-khateebs">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-              <path d="M12 4v11m0 0 4-4m-4 4-4-4M4 19h16" />
-            </svg>
-            লিফলেট দেখুন
-          </a>
-        </li>
-      </ul>
-
-      {/* After the list, not before it — the sentence above ends in a dash and
-          hands straight over to the two offers. */}
-      <p class="minbar-note">
-        ব্যবহারে অনুমতি লাগে না, ফি নেই। শুধু উৎসটুকু উল্লেখ করবেন।
+      <p class="cta">
+        <a class="btn-secondary" href="/research">গবেষণা দেখুন</a>
+        <a class="btn-secondary" href="/resources">রিসোর্স আর্কাইভ</a>
       </p>
     </div>
   </section>
 
-  {/* Index list plus a rail — a different rhythm from the card grids above. */}
+  <!-- ৬ | আমরা কীভাবে লিখি — interactive stepper -->
+  <section class="band method" aria-labelledby="method-heading">
+    <div class="container">
+      <div class="band-head wide">
+        <h2 id="method-heading">আমরা কীভাবে লিখি</h2>
+        <p class="band-lede">
+          আমাদের লক্ষ্য শুধু “ইসলামের কথা বলা” নয়; বরং একটি বিষয়কে যথাসম্ভব
+          দায়িত্বশীলভাবে বোঝানো। তাই একটি বিষয় নিয়ে কাজ করার সময় আমরা সাধারণত
+          কয়েকটি ধাপ সামনে রাখি।
+        </p>
+      </div>
+
+      <div class="stepper" data-stepper>
+        {/* Tabs when scripting is on; with it off every panel simply stays open
+            and the strip reads as a numbered summary. */}
+        <div class="steps" role="tablist" aria-label="আমাদের কাজের ধাপ">
+          {METHOD.map((m, i) => (
+            <button
+              class="step"
+              type="button"
+              role="tab"
+              id={`step-tab-${i}`}
+              aria-controls={`step-panel-${i}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              data-step={i}
+            >
+              <span class="step-num tabular">{toBn(i + 1).padStart(2, '০')}</span>
+              <span class="step-label">{m.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <div class="panels">
+          {METHOD.map((m, i) => (
+            <div
+              class="panel"
+              role="tabpanel"
+              id={`step-panel-${i}`}
+              aria-labelledby={`step-tab-${i}`}
+              data-panel={i}
+            >
+              <p class="panel-title">{m.title}</p>
+              <p class="panel-body">{m.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ৭ | দলিল -->
+  <section class="evidence" aria-labelledby="evidence-heading">
+    <div class="container evidence-grid">
+      <div class="evidence-text">
+        <span class="ic-light" aria-hidden="true"><Icon name="scale" size={28} /></span>
+        <h2 id="evidence-heading">দলিলের ব্যাপারে আমরা আপস করতে চাই না</h2>
+        <p>
+          দাওয়াহর কাজে একটি ভুল তথ্য খুব দ্রুত ছড়িয়ে যেতে পারে। তাই কোনো হাদিস,
+          বর্ণনা বা ইসলামি বক্তব্য ব্যবহারের ক্ষেত্রে তার উৎস ও গ্রহণযোগ্যতার
+          বিষয়টি গুরুত্ব দিয়ে দেখা আমাদের নীতির অংশ।
+        </p>
+      </div>
+
+      <div>
+        <p class="evidence-label">আমরা চেষ্টা করি—</p>
+        <ul class="checks">
+          {EVIDENCE.map((e) => (
+            <li>
+              <span class="tick" aria-hidden="true"><Icon name="check" size={16} /></span>
+              <span>{e}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="evidence-close">
+          কারণ একটি ইসলামি প্ল্যাটফর্মের বিশ্বাসযোগ্যতা তার শব্দের চাকচিক্যে নয়,
+          তার আমানতদারিতে।
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ৮ | খতীব, দাঈ ও শিক্ষক -->
+  <section class="band" aria-labelledby="khateeb-heading">
+    <div class="container khateeb-grid">
+      <div class="band-head">
+        <h2 id="khateeb-heading">খতীব, দাঈ ও শিক্ষকদের জন্য</h2>
+        <p class="band-lede">
+          একটি ভালো লেখা শুধু একজন পাঠককে উপকৃত করতে পারে না; এটি আরও অনেক
+          মানুষের কাছে পৌঁছাতে পারে।
+        </p>
+      </div>
+
+      <div class="khateeb-body">
+        <ul class="uses">
+          {KHATEEB.map((k) => (
+            <li>
+              <span class="ic-tile" aria-hidden="true"><Icon name={k.icon} size={22} /></span>
+              <span>{k.text}</span>
+            </li>
+          ))}
+        </ul>
+        <p>
+          এই প্রয়োজনের কথা মাথায় রেখে গুরুত্বপূর্ণ কিছু বিষয়ের সঙ্গে আমরা ধীরে
+          ধীরে খুতবার খসড়া, সংক্ষিপ্ত পাঠ, লিফলেট এবং ব্যবহারযোগ্য রেফারেন্স তৈরি
+          করছি।
+        </p>
+        <p class="khateeb-close">
+          আমাদের উদ্দেশ্য সহজ—যে মানুষটি মানুষের সামনে একটি ভালো কথা বলতে চান,
+          তাঁকে যেন বারবার শূন্য থেকে উপকরণ সংগ্রহ করতে না হয়।
+        </p>
+        <p class="cta"><a class="btn-secondary" href="/for-khateebs">খতীবদের রিসোর্স দেখুন</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ৯ | সাম্প্রতিক লেখা + রেইল -->
   <section class="band" aria-labelledby="recent-heading">
     <div class="container main-grid">
       <div>
         <div class="band-head row">
           <h2 id="recent-heading">সাম্প্রতিক লেখা</h2>
-          <a class="band-more" href="/articles">সব প্রবন্ধ →</a>
+          <a class="band-more" href="/articles">সব প্রবন্ধ দেখুন →</a>
         </div>
         <ol class="index-list">
           {recent.map((a, i) => (
             <li class="index-item">
               <span class="index-num tabular" aria-hidden="true">{toBn(i + 1).padStart(2, '০')}</span>
-              <div class="index-body">
+              <div>
                 <p class="index-cat">{a.data.category}</p>
                 <h3 class="index-title"><a href={`/articles/${a.data.slug}`}>{a.data.title}</a></h3>
                 <p class="index-excerpt">{a.data.excerpt}</p>
@@ -280,25 +473,7 @@ const jsonLd = {
         </ol>
       </div>
 
-      <aside class="rail" aria-label="বিষয়, গবেষণা ও যুক্ত হওয়ার সুযোগ">
-        {/* Capture point one. The second is the footer's join block. */}
-        <div class="rail-block join">
-          <h2 class="rail-heading">সপ্তাহে একটি লেখা</h2>
-          <p class="rail-lede">
-            প্রতি বৃহস্পতিবার সকালে—জুমার আগের দিন, ইচ্ছা করেই। এর বেশি
-            আমরা আপনাকে বিরক্ত করি না।
-          </p>
-          <form class="join-form" method="post" action="#" aria-label="নিউজলেটারে যুক্ত হোন">
-            <label class="visually-hidden" for="home-email">ইমেইল ঠিকানা</label>
-            <input id="home-email" type="email" name="email" autocomplete="email"
-                   placeholder="ইমেইল ঠিকানা" />
-            <button type="submit">যুক্ত হোন</button>
-          </form>
-          <p class="join-alt">
-            <a href="/subscribe">হোয়াটসঅ্যাপে পেতে চান? →</a>
-          </p>
-        </div>
-
+      <aside class="rail" aria-label="বিষয় ও গবেষণা">
         {topics.length > 0 && (
           <div class="rail-block">
             <h2 class="rail-heading">বিষয় ধরে পড়ুন</h2>
@@ -314,9 +489,7 @@ const jsonLd = {
             <h2 class="rail-heading">গবেষণা স্তর</h2>
             <ul class="rail-list">
               {research.map((a) => (
-                <li>
-                  <a href={`/articles/${a.data.slug}`}>{a.data.titleShort ?? a.data.title}</a>
-                </li>
+                <li><a href={`/articles/${a.data.slug}`}>{a.data.titleShort ?? a.data.title}</a></li>
               ))}
             </ul>
             <p class="more"><a href="/research">সব গবেষণা →</a></p>
@@ -326,17 +499,39 @@ const jsonLd = {
     </div>
   </section>
 
+  <!-- ১০ | প্রশ্ন -->
+  <section class="band ask" aria-labelledby="ask-heading">
+    <div class="container">
+      <div class="ask-inner">
+        <h2 id="ask-heading">প্রশ্ন করতে ভয় পাওয়ার দরকার নেই</h2>
+        <ul class="ask-list">
+          <li>ইসলাম নিয়ে প্রশ্ন আছে?</li>
+          <li>কোনো বিষয় বুঝতে পারছেন না?</li>
+          <li>কোনো প্রচলিত কথা নিয়ে সন্দেহ হচ্ছে?</li>
+        </ul>
+        <p>
+          প্রশ্ন থাকা মানেই বিদ্রোহ নয়। অনেক সময় একটি সৎ প্রশ্নই মানুষকে সত্যের
+          আরও কাছে নিয়ে যায়। আমরা চাই, মানুষ প্রশ্ন করুক—এবং প্রশ্নের উত্তর খুঁজুক
+          কুরআন, সুন্নাহ, জ্ঞান ও চিন্তার আলোকে।
+        </p>
+        <p class="cta"><a class="btn-secondary" href="/topics">বিষয়গুলো ঘুরে দেখুন</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ১১ | যাঁরা লিখছেন -->
   <section class="band" aria-labelledby="authors-heading">
     <div class="container">
       <div class="band-head row">
         <div>
           <h2 id="authors-heading">যাঁরা লিখছেন</h2>
           <p class="band-lede">
-            নাম গোপন রেখে লেখা হয় না। কে লিখছেন, কোন পড়াশোনার ওপর দাঁড়িয়ে
-            লিখছেন—পাঠকের তা জানার অধিকার আছে।
+            একজন পাঠকের জানার অধিকার আছে—তিনি কার লেখা পড়ছেন, লেখকের শিক্ষাগত ও
+            গবেষণার পটভূমি কী, এবং তিনি কোন অবস্থান থেকে বিষয়টি আলোচনা করছেন।
+            তাই আমাদের লেখক ও গবেষকদের পরিচয় আমরা প্রকাশ্যে রাখার চেষ্টা করি।
           </p>
         </div>
-        <a class="band-more" href="/authors">সবার পরিচয় →</a>
+        <a class="band-more" href="/authors">লেখকবৃন্দ দেখুন →</a>
       </div>
       <div class="grid-authors">
         {authors.map((a) => <AuthorCard author={a} />)}
@@ -344,46 +539,131 @@ const jsonLd = {
     </div>
   </section>
 
+  <!-- ১২ | যুক্ত হোন + এক কথায় -->
+  <section class="closing" aria-labelledby="closing-heading">
+    <div class="container closing-grid">
+      <div>
+        <p class="kicker-light">আর-রিসালাহ সম্পর্কে এক কথায়</p>
+        <h2 id="closing-heading">
+          সহজ ভাষায় ইসলাম। গভীরভাবে চিন্তা। দায়িত্বশীলভাবে গবেষণা।
+        </h2>
+        <p>
+          আমাদের কাজের লক্ষ্য কাউকে হারানো নয়; সত্যকে যতটা সম্ভব পরিষ্কারভাবে
+          বোঝা এবং বোঝানো। কুরআন ও সুন্নাহর আলোকে, আমাদের সময়ের বাস্তব
+          প্রশ্নগুলোর মুখোমুখি হয়ে—আমরা একটি ধীর, স্থির ও দীর্ঘমেয়াদি জ্ঞানচর্চার
+          পথ তৈরি করতে চাই। আপনিও এই পথের পাঠক হতে পারেন।
+        </p>
+        <p class="cta">
+          <a class="btn-light" href="/start-here">শুরু করুন</a>
+          <a class="btn-ghost" href="/articles">সব প্রবন্ধ দেখুন</a>
+        </p>
+      </div>
+
+      <div class="signup">
+        <p class="signup-head">
+          <span class="ic-light" aria-hidden="true"><Icon name="mail" size={22} /></span>
+          সপ্তাহে একটি ভালো লেখা
+        </p>
+        <p class="signup-body">
+          প্রতিদিন শত শত কনটেন্ট আপনার সামনে আসে। তার মধ্যে আরেকটি কনটেন্ট হয়ে
+          আমরা আপনার সময় নিতে চাই না। তাই আমরা নিয়মিত, কিন্তু সীমিত পরিমাণে লেখা
+          প্রকাশ করি—যা পড়ার পর মনে হয়, সময়টা বৃথা যায়নি।
+        </p>
+        {/* No backend yet; the endpoint lands with the mailing list. */}
+        <form class="signup-form" method="post" action="#" aria-label="ইমেইলে যুক্ত হোন">
+          <label class="visually-hidden" for="home-email">ইমেইল ঠিকানা</label>
+          <input id="home-email" type="email" name="email" autocomplete="email"
+                 placeholder="আপনার ইমেইল ঠিকানা" />
+          <button type="submit">ইমেইলে যুক্ত হোন</button>
+        </form>
+        <p class="signup-note">
+          ইমেইল আপনার অনুমতি ছাড়া অন্য কোথাও ব্যবহার করা হবে না। যখন ইচ্ছা
+          সদস্যতা বাতিল করতে পারবেন। <a href="/subscribe">হোয়াটসঅ্যাপে পেতে চান? →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
   <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </Base>
 
+<script>
+  // The method stepper. Panels start visible; the script collapses them to one
+  // at a time, so a reader without JS still gets all five.
+  const root = document.querySelector<HTMLElement>('[data-stepper]');
+  if (root) {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-step]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-panel]')];
+
+    const select = (i: number) => {
+      tabs.forEach((t, n) => {
+        t.setAttribute('aria-selected', String(n === i));
+        t.tabIndex = n === i ? 0 : -1;
+      });
+      panels.forEach((p, n) => { p.hidden = n !== i; });
+    };
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(i));
+      tab.addEventListener('keydown', (e) => {
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!d) return;
+        e.preventDefault();
+        const next = (i + d + tabs.length) % tabs.length;
+        select(next);
+        tabs[next].focus();
+      });
+    });
+
+    root.classList.add('is-live');
+    select(0);
+  }
+</script>
+
 <style>
-  /* ---- Front page ------------------------------------------------ */
-  .front { padding-block: var(--sp-7) var(--sp-8); }
-  .front-grid { display: grid; gap: var(--sp-7); }
+  /* ==== Shared ===================================================== */
+  .band { padding-block: var(--sp-7); }
+  .band-head { max-width: var(--measure); margin-bottom: var(--sp-6); }
+  .band-head.wide { max-width: var(--measure-wide); }
+  .band-head h2 { font-size: var(--step-3); line-height: var(--leading-snug); }
+  .band-lede {
+    margin-top: var(--sp-3);
+    color: var(--ink-soft);
+    line-height: var(--leading-snug);
+  }
+  .band-head.row {
+    max-width: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-3) var(--sp-6);
+  }
+  .band-head.row .band-lede { max-width: var(--measure); }
+  .band-more {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--ink);
+    text-underline-offset: 0.25em;
+    white-space: nowrap;
+  }
+  .more { margin-top: var(--sp-4); font-family: var(--font-ui); font-size: var(--step--1); }
+  .more a { color: var(--ink); text-underline-offset: 0.25em; }
 
   .kicker {
     font-family: var(--font-ui);
     font-size: var(--step--1);
     color: var(--rubric);
-    margin-bottom: var(--sp-4);
   }
-  .statement h1 {
-    font-size: var(--step-5);
-    line-height: 1.18;
-    letter-spacing: -0.01em;
-    max-width: 17ch;
-  }
-  .statement .lede {
-    margin-top: var(--sp-5);
-    font-size: var(--step-1);
-    line-height: var(--leading-snug);
-    color: var(--ink-soft);
-    max-width: 42ch;
-  }
-  .stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-2);
-    margin-top: var(--sp-5);
+  .kicker-light {
     font-family: var(--font-ui);
     font-size: var(--step--1);
-    color: var(--ink-soft);
+    color: var(--rubric-soft);
+    margin-bottom: var(--sp-4);
   }
-  .stats .dot { color: var(--rule-strong); }
 
   .cta { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-6); }
-  .btn-primary, .btn-secondary {
+  .btn-primary, .btn-secondary, .btn-light, .btn-ghost {
     display: inline-flex;
     align-items: center;
     min-height: var(--tap);
@@ -399,175 +679,238 @@ const jsonLd = {
   .btn-primary:hover { background: var(--deep-2); }
   .btn-secondary { border: 1px solid var(--rule-strong); color: var(--ink); }
   .btn-secondary:hover { border-color: var(--ink); background: var(--paper-raise); }
+  .btn-light { background: var(--paper); color: var(--deep); }
+  .btn-light:hover { background: #fff; }
+  .btn-ghost {
+    border: 1px solid color-mix(in srgb, var(--paper) 40%, transparent);
+    color: var(--paper);
+  }
+  .btn-ghost:hover { border-color: var(--paper); background: color-mix(in srgb, var(--paper) 10%, transparent); }
 
-  .lead { position: relative; }
-  .lead-cover { display: block; margin-bottom: var(--sp-5); }
-  .lead-kicker {
+  /* Icon tile — the one repeated ornament on the page. */
+  .ic-tile {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    background: var(--paper-raise);
+    color: var(--ink);
+  }
+  .ic-light { display: inline-grid; color: var(--rubric-soft); }
+
+  /* ==== ১ Hero ===================================================== */
+  .hero { padding-block: var(--sp-8) var(--sp-7); }
+  .hero-inner { max-width: var(--measure-wide); }
+  .hero h1 {
+    margin-top: var(--sp-4);
+    font-size: var(--step-5);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .hero-body { margin-top: var(--sp-6); max-width: var(--measure); }
+  .hero-body p { color: var(--ink-body); }
+  .hero-turn {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    color: var(--ink);
+    padding-left: var(--sp-5);
+    border-left: 2px solid var(--rubric);
+  }
+
+  /* ==== ২ কেন আর-রিসালাহ =========================================== */
+  .why { background: var(--paper-deep); }
+  .why-grid { display: grid; gap: var(--sp-6); }
+  .why h2 { font-size: var(--step-3); }
+  .why-text p { margin-top: var(--sp-4); color: var(--ink-body); }
+
+  .readers { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); }
+  .readers li {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--sp-2);
-    font-family: var(--font-ui);
+    align-items: center;
+    gap: var(--sp-4);
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--paper);
+    border-left: 2px solid var(--rule-strong);
     font-size: var(--step--1);
-    color: var(--ink-soft);
-  }
-  .lead-kicker .rubric { color: var(--rubric); }
-  .lead-kicker .sep { color: var(--rule-strong); }
-  .lead-title {
-    margin-top: var(--sp-3);
-    font-size: var(--step-3);
     line-height: var(--leading-snug);
+    color: var(--ink);
   }
-  .lead-title a { text-decoration: none; }
-  .lead-title a::after { content: ''; position: absolute; inset: 0; }
-  .lead-excerpt {
-    margin-top: var(--sp-4);
-    color: var(--ink-soft);
+  .readers .ic { display: grid; place-items: center; color: var(--rubric); flex: 0 0 auto; }
+  .why-close {
+    margin-top: var(--sp-5);
+    color: var(--ink-body);
     line-height: var(--leading-snug);
-  }
-  .lead-meta {
-    margin-top: var(--sp-4);
-    font-family: var(--font-ui);
-    font-size: var(--step--1);
-    color: var(--ink-soft);
   }
 
-  /* ---- Shared band furniture ------------------------------------- */
-  .band { padding-block: var(--sp-7); }
-  .band-head {
-    max-width: var(--measure);
-    margin-bottom: var(--sp-6);
-    padding-top: var(--sp-4);
-    border-top: 2px solid var(--ink);
-  }
-  .band-head.wide { max-width: var(--measure-wide); }
-  .band-head h2 { font-size: var(--step-2); }
-  .band-lede {
+  /* ==== ৩ চার ময়দান =============================================== */
+  .pillars { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-6); }
+  .pillar { padding-top: var(--sp-5); border-top: 1px solid var(--rule-strong); }
+  .pillar h3 { margin-top: var(--sp-4); font-size: var(--step-2); }
+  .pillar-body {
     margin-top: var(--sp-3);
-    color: var(--ink-soft);
+    font-size: var(--step--1);
     line-height: var(--leading-snug);
+    color: var(--ink-soft);
   }
-  .band-more {
+  .pillar-cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    margin-top: var(--sp-2);
     font-family: var(--font-ui);
     font-size: var(--step--1);
     color: var(--ink);
     text-underline-offset: 0.25em;
-    white-space: nowrap;
   }
-  /* Heading left, "see all" right — one line instead of two stacked ones. */
-  .band-head.row {
-    max-width: none;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--sp-3) var(--sp-6);
-  }
-  .band-head.row .band-lede { max-width: var(--measure); }
 
-  .grid-3 { display: grid; gap: var(--sp-6); }
-  .grid-authors { display: grid; gap: var(--sp-4); }
-
-  .more { margin-top: var(--sp-4); font-family: var(--font-ui); font-size: var(--step--1); }
-  .more a { color: var(--ink); text-underline-offset: 0.25em; }
-
-  /* ---- Three layers ---------------------------------------------- */
-  .layer-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-6); }
-  .layer {
-    padding-top: var(--sp-4);
-    border-top: 1px solid var(--rule-strong);
-  }
-  .layer-num {
+  /* ==== ৪ ফিচার ==================================================== */
+  .feature { position: relative; display: grid; gap: var(--sp-5); }
+  .feature-cover { display: block; }
+  .feature h3 { margin-top: var(--sp-2); font-size: var(--step-3); line-height: var(--leading-snug); }
+  .feature h3 a { text-decoration: none; }
+  .feature h3 a::after { content: ''; position: absolute; inset: 0; }
+  .feature-excerpt { margin-top: var(--sp-4); color: var(--ink-soft); line-height: var(--leading-snug); }
+  .feature-meta {
+    margin-top: var(--sp-4);
     font-family: var(--font-ui);
     font-size: var(--step--1);
-    color: var(--rubric);
+    color: var(--ink-soft);
   }
-  .layer-title { margin-top: var(--sp-3); font-size: var(--step-2); }
-  .layer-lede {
-    margin-top: var(--sp-2);
-    font-family: var(--font-display);
-    color: var(--ink);
-    line-height: var(--leading-snug);
-  }
+  .feature-cta { margin-top: var(--sp-5); }
+
+  /* ==== ৫ তিন স্তর ================================================= */
+  .layer-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-6); }
+  .layer { padding-top: var(--sp-5); border-top: 1px solid var(--rule-strong); }
+  .layer-top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+  .layer-num { font-family: var(--font-ui); font-size: var(--step--1); color: var(--rubric); }
+  .layer h3 { margin-top: var(--sp-4); font-size: var(--step-2); }
   .layer-body {
     margin-top: var(--sp-3);
     font-size: var(--step--1);
     line-height: var(--leading-snug);
     color: var(--ink-soft);
   }
-  .layer-cta { margin-top: var(--sp-4); font-family: var(--font-ui); font-size: var(--step--1); }
-  .layer-cta a { color: var(--ink); text-underline-offset: 0.25em; }
+  .layer-who {
+    margin-top: var(--sp-4);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric);
+  }
 
-  /* ---- Minbar band ----------------------------------------------- */
-  .minbar {
+  /* ==== ৬ পদ্ধতি (stepper) ========================================= */
+  .steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    padding-bottom: var(--sp-5);
+    border-bottom: 1px solid var(--rule);
+  }
+  .step {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-3);
+    min-height: var(--tap);
+    padding-inline: var(--sp-4);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    cursor: pointer;
+    transition: border-color var(--dur-fast) var(--ease),
+                color var(--dur-fast) var(--ease),
+                background var(--dur-fast) var(--ease);
+  }
+  .step:hover { border-color: var(--rule-strong); color: var(--ink); }
+  .step[aria-selected='true'] {
+    background: var(--deep);
+    border-color: var(--deep);
+    color: var(--paper);
+  }
+  .step-num { color: var(--rubric); }
+  .step[aria-selected='true'] .step-num { color: var(--rubric-soft); }
+
+  .panels { margin-top: var(--sp-5); }
+  /* Before the script runs, all five panels are visible and stacked. */
+  .panel + .panel { margin-top: var(--sp-5); }
+  .panel[hidden] { display: none; }
+  .panel-title { font-family: var(--font-display); font-size: var(--step-2); color: var(--ink); }
+  .panel-body {
+    margin-top: var(--sp-3);
+    line-height: var(--leading-snug);
+    color: var(--ink-body);
+    max-width: var(--measure);
+  }
+  .stepper.is-live .panels { min-height: 8rem; }
+
+  /* ==== ৭ দলিল (dark) ============================================== */
+  .evidence {
     background: var(--deep);
     color: var(--paper);
     padding-block: var(--sp-8);
   }
-  .minbar-grid { display: grid; gap: var(--sp-7); }
-  .kicker-light {
-    font-family: var(--font-ui);
-    font-size: var(--step--1);
-    color: var(--rubric-soft);
-    margin-bottom: var(--sp-4);
-  }
-  .minbar h2 {
+  .evidence-grid { display: grid; gap: var(--sp-7); }
+  .evidence h2 {
+    margin-top: var(--sp-4);
     color: var(--paper);
     font-size: var(--step-3);
     line-height: var(--leading-snug);
     max-width: 20ch;
   }
-  .minbar-text p {
+  .evidence-text p {
     margin-top: var(--sp-5);
     color: color-mix(in srgb, var(--paper) 80%, transparent);
     line-height: var(--leading-snug);
-    max-width: 44ch;
+    max-width: 46ch;
   }
-  /* Sits below both columns of the grid, as a footnote to the pair. */
-  .minbar-note {
+  .evidence-label {
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    color: var(--rubric-soft);
+    margin-bottom: var(--sp-4);
+  }
+  .checks { list-style: none; margin: 0; padding: 0; display: grid; }
+  .checks li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-4);
+    padding-block: var(--sp-4);
+    border-top: 1px solid color-mix(in srgb, var(--paper) 18%, transparent);
+    line-height: var(--leading-snug);
+    color: color-mix(in srgb, var(--paper) 88%, transparent);
+  }
+  .checks li:first-child { border-top: 0; padding-top: 0; }
+  .tick { display: grid; place-items: center; color: var(--rubric-soft); flex: 0 0 auto; padding-top: 3px; }
+  .evidence-close {
     margin-top: var(--sp-6);
     padding-top: var(--sp-4);
     border-top: 1px solid color-mix(in srgb, var(--paper) 18%, transparent);
-    font-family: var(--font-ui);
-    font-size: var(--step--1);
-    color: color-mix(in srgb, var(--paper) 62%, transparent);
-  }
-
-  .offers { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-6); }
-  .offers li {
-    padding-top: var(--sp-4);
-    border-top: 1px solid color-mix(in srgb, var(--paper) 28%, transparent);
-  }
-  .offer-title { font-family: var(--font-display); font-size: var(--step-1); color: var(--paper); }
-  .offer-body {
-    margin-top: var(--sp-3);
-    font-size: var(--step--1);
-    line-height: var(--leading-snug);
-    color: color-mix(in srgb, var(--paper) 76%, transparent);
-  }
-  .btn-download {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sp-2);
-    min-height: var(--tap);
-    margin-top: var(--sp-4);
-    padding-inline: var(--sp-4);
-    border: 1px solid color-mix(in srgb, var(--paper) 40%, transparent);
-    border-radius: var(--radius);
-    font-family: var(--font-ui);
-    font-size: var(--step--1);
+    font-family: var(--font-display);
     color: var(--paper);
-    text-decoration: none;
-    transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
-  }
-  .btn-download:hover {
-    background: color-mix(in srgb, var(--paper) 12%, transparent);
-    border-color: var(--paper);
+    line-height: var(--leading-snug);
   }
 
-  /* ---- Index list + rail ----------------------------------------- */
+  /* ==== ৮ খতীব ==================================================== */
+  .khateeb-grid { display: grid; gap: var(--sp-6); }
+  .khateeb-body p { margin-top: var(--sp-5); color: var(--ink-body); line-height: var(--leading-snug); max-width: var(--measure); }
+  .uses { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-4); }
+  .uses li {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    line-height: var(--leading-snug);
+    color: var(--ink);
+  }
+  .khateeb-close { font-family: var(--font-display); color: var(--ink) !important; }
+
+  /* ==== ৯ সাম্প্রতিক =============================================== */
   .main-grid { display: grid; gap: var(--sp-8); }
-
   .index-list { list-style: none; margin: 0; padding: 0; display: grid; }
   .index-item {
     position: relative;
@@ -580,18 +923,9 @@ const jsonLd = {
   }
   .index-item:first-child { border-top: 0; padding-top: 0; }
   .index-item:hover { border-top-color: var(--ink); }
-  .index-num {
-    font-family: var(--font-ui);
-    font-size: var(--step--1);
-    color: var(--rubric);
-    line-height: 1.7;
-  }
+  .index-num { font-family: var(--font-ui); font-size: var(--step--1); color: var(--rubric); line-height: 1.7; }
   .index-cat { font-family: var(--font-ui); font-size: var(--step--1); color: var(--ink-soft); }
-  .index-title {
-    margin-top: var(--sp-1);
-    font-size: var(--step-1);
-    line-height: var(--leading-snug);
-  }
+  .index-title { margin-top: var(--sp-1); font-size: var(--step-1); line-height: var(--leading-snug); }
   .index-title a { text-decoration: none; }
   .index-title a::after { content: ''; position: absolute; inset: 0; }
   .index-excerpt {
@@ -620,17 +954,7 @@ const jsonLd = {
 
   .rail { display: grid; gap: var(--sp-6); align-content: start; }
   .rail-block { padding-top: var(--sp-3); border-top: 2px solid var(--ink); }
-  .rail-heading {
-    font-family: var(--font-ui);
-    font-size: var(--step--1);
-    color: var(--ink);
-  }
-  .rail-lede {
-    margin-top: var(--sp-3);
-    font-size: var(--step--1);
-    line-height: var(--leading-snug);
-    color: var(--ink-soft);
-  }
+  .rail-heading { font-family: var(--font-ui); font-size: var(--step--1); color: var(--ink); }
   .rail-topics { margin-top: var(--sp-4); display: grid; gap: var(--sp-2); }
   .rail-list { list-style: none; margin: var(--sp-4) 0 0; padding: 0; display: grid; }
   .rail-list li { padding-block: var(--sp-3); border-top: 1px solid var(--rule); }
@@ -644,65 +968,138 @@ const jsonLd = {
   }
   .rail-list a:hover { text-decoration: underline; }
 
-  /* The rail's capture card is the only tinted box on the page. */
-  .rail-block.join {
+  /* ==== ১০ প্রশ্ন ================================================== */
+  .ask-inner {
+    max-width: var(--measure-wide);
+    margin-inline: 0;
+    padding: var(--sp-6);
     background: var(--paper-deep);
-    border-top: 2px solid var(--rubric);
-    padding: var(--sp-5);
+    border-left: 2px solid var(--rubric);
   }
-  .join-form { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-4); }
-  .join-form input {
-    flex: 1 1 10rem;
-    min-height: var(--tap);
-    padding-inline: var(--sp-3);
-    border: 1px solid var(--rule-strong);
-    border-radius: var(--radius);
-    background: var(--paper-raise);
+  .ask h2 { font-size: var(--step-3); }
+  .ask-list {
+    list-style: none;
+    margin: var(--sp-5) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--sp-2);
+  }
+  .ask-list li {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
     color: var(--ink);
+    line-height: var(--leading-snug);
+  }
+  .ask-inner > p { margin-top: var(--sp-5); color: var(--ink-body); line-height: var(--leading-snug); max-width: var(--measure); }
+
+  .grid-authors { display: grid; gap: var(--sp-4); }
+
+  /* ==== ১২ সমাপ্তি (dark) ========================================== */
+  .closing {
+    background: var(--deep);
+    color: var(--paper);
+    padding-block: var(--sp-8);
+  }
+  .closing-grid { display: grid; gap: var(--sp-7); }
+  .closing h2 {
+    color: var(--paper);
+    font-size: var(--step-3);
+    line-height: var(--leading-snug);
+    max-width: 18ch;
+  }
+  .closing > .container > div > p {
+    margin-top: var(--sp-5);
+    color: color-mix(in srgb, var(--paper) 80%, transparent);
+    line-height: var(--leading-snug);
+    max-width: 46ch;
+  }
+
+  .signup {
+    padding: var(--sp-6);
+    background: color-mix(in srgb, var(--paper) 8%, transparent);
+    border-top: 2px solid var(--rubric-soft);
+  }
+  .signup-head {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    color: var(--paper);
+  }
+  .signup-body {
+    margin-top: var(--sp-4);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: color-mix(in srgb, var(--paper) 76%, transparent);
+  }
+  .signup-form { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-5); }
+  .signup-form input {
+    flex: 1 1 12rem;
+    min-height: var(--tap);
+    padding-inline: var(--sp-4);
+    border: 1px solid color-mix(in srgb, var(--paper) 32%, transparent);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--paper) 6%, transparent);
+    color: var(--paper);
     font-family: var(--font-ui);
     font-size: var(--step--1);
   }
-  .join-form button {
+  .signup-form input::placeholder { color: color-mix(in srgb, var(--paper) 55%, transparent); }
+  .signup-form button {
     min-height: var(--tap);
-    padding-inline: var(--sp-4);
+    padding-inline: var(--sp-5);
     border: 0;
     border-radius: var(--radius);
-    background: var(--deep);
-    color: var(--paper);
+    background: var(--paper);
+    color: var(--deep);
     font-family: var(--font-ui);
     font-size: var(--step--1);
     cursor: pointer;
   }
-  .join-form button:hover { background: var(--deep-2); }
-  .join-alt { margin-top: var(--sp-3); font-family: var(--font-ui); font-size: var(--step--1); }
-  .join-alt a { color: var(--rubric); text-underline-offset: 0.25em; }
+  .signup-form button:hover { background: #fff; }
+  .signup-note {
+    margin-top: var(--sp-4);
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+    line-height: var(--leading-snug);
+    color: color-mix(in srgb, var(--paper) 60%, transparent);
+  }
+  .signup-note a { color: var(--rubric-soft); text-underline-offset: 0.25em; }
 
-  /* ---- Breakpoints ------------------------------------------------ */
+  /* ==== Breakpoints ================================================ */
   @media (min-width: 48rem) {
-    .grid-3, .grid-authors { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); }
+    .pillars { grid-template-columns: repeat(2, 1fr); gap: var(--sp-6) var(--sp-7); }
     .layer-grid { grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); }
-    .offers { grid-template-columns: repeat(2, 1fr); gap: var(--sp-6); }
+    .grid-authors { grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-6); }
+    .readers { grid-template-columns: repeat(2, 1fr); }
     .index-item { grid-template-columns: 3rem 1fr; }
+    .uses { grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); }
+    .uses li { flex-direction: column; align-items: flex-start; gap: var(--sp-3); }
   }
 
   @media (min-width: 64rem) {
-    .front { padding-block: var(--sp-8); }
-    .front-grid { grid-template-columns: 5fr 7fr; gap: var(--sp-8); align-items: start; }
-    .statement { position: sticky; top: var(--sp-6); }
-
     .band { padding-block: var(--sp-8); }
-    .grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .grid-authors { grid-template-columns: repeat(3, 1fr); }
+    .hero { padding-block: var(--sp-9) var(--sp-8); }
+    .hero h1 { max-width: 20ch; }
 
-    .minbar { padding-block: var(--sp-9); }
-    .minbar-grid {
-      grid-template-columns: 5fr 7fr;
-      gap: var(--sp-8);
-      align-items: start;
-    }
-    .minbar-note { grid-column: 1 / -1; margin-top: var(--sp-2); }
-    .offers { gap: var(--sp-6); }
+    .why-grid { grid-template-columns: 1fr 1fr; gap: var(--sp-8); align-items: start; }
+    .readers { grid-template-columns: 1fr; }
+
+    .feature { grid-template-columns: 1fr 1fr; gap: var(--sp-7); align-items: center; }
+
+    .khateeb-grid { grid-template-columns: 5fr 7fr; gap: var(--sp-8); align-items: start; }
+    .khateeb-grid .band-head { margin-bottom: 0; }
+    .uses { grid-template-columns: 1fr; gap: var(--sp-4); }
+    .uses li { flex-direction: row; align-items: center; gap: var(--sp-4); }
+
+    .evidence { padding-block: var(--sp-9); }
+    .evidence-grid { grid-template-columns: 5fr 7fr; gap: var(--sp-8); align-items: start; }
 
     .main-grid { grid-template-columns: minmax(0, 1fr) 19rem; gap: var(--sp-9); }
+    .grid-authors { grid-template-columns: repeat(3, 1fr); }
+
+    .closing { padding-block: var(--sp-9); }
+    .closing-grid { grid-template-columns: 6fr 6fr; gap: var(--sp-8); align-items: start; }
   }
 </style>

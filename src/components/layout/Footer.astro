@@ -6,6 +6,13 @@ import { toBn } from '../../lib/toBn';
 const year = toBn(new Date().getFullYear());
 
 /**
+ * The homepage closes with its own signup block, so the footer drops its one
+ * there — two identical dark forms in a row read as a mistake. Every other
+ * page keeps it, since it is the only capture point they have.
+ */
+const showJoin = Astro.url.pathname !== '/';
+
+/**
  * Inline 20×20 glyphs on a 24-box. Keeping them here rather than in a sprite
  * means the footer has no extra request and no icon dependency; there are five
  * of them and they never change.
@@ -25,7 +32,8 @@ const ICONS: Record<string, string> = {
 <footer class="footer">
   <div class="container">
     {/* Capture sits at the very top of the footer, not buried under the link
-        columns — this is the last thing a reader passes on every page. */}
+        columns — this is the last thing a reader passes on the page. */}
+    {showJoin && (
     <div class="join">
       <div class="join-text">
         <h2>সপ্তাহে একটি লেখা। এর বেশি নয়।</h2>
@@ -57,6 +65,7 @@ const ICONS: Record<string, string> = {
         </p>
       </div>
     </div>
+    )}
 
     <div class="top">
       <div class="brand">
